@@ -1,0 +1,25 @@
+name: Build LeerKompas
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Haal de code op
+        uses: actions/checkout@v4
+      - name: Stel Node.js in
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Installeer dependencies
+        run: npm install --no-audit --no-fund
+      - name: Controleer de productiebuild
+        run: npm run build
