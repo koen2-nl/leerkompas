@@ -41,15 +41,20 @@ const lesson = {
 }
 
 function ActivityIcon(props) { return <Zap {...props}/> }
-const STORAGE_KEY = 'leerkompas:lesson-progress:' + lesson.id
+const STORAGE_KEY = 'leerkompas:lessonProgress'
 const readProgress = () => {
-  try { const value = localStorage.getItem(STORAGE_KEY); return value ? JSON.parse(value) : null } catch { return null }
+  try { const all = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); return all[lesson.id] || null } catch { return null }
 }
 const saveProgress = value => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(value))
+    const all = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')
+    all[lesson.id] = value
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all))
     window.dispatchEvent(new CustomEvent('leerkompas:data-changed'))
   } catch { /* De les blijft in het huidige scherm beschikbaar. */ }
+}
+const clearProgress = () => {
+  try { const all = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); delete all[lesson.id]; localStorage.setItem(STORAGE_KEY, JSON.stringify(all)); window.dispatchEvent(new CustomEvent('leerkompas:data-changed')) } catch { /* Geen opgeslagen voortgang om te wissen. */ }
 }
 
 export default function GeographyLessons({ completedLessons, onComplete }) {
@@ -118,11 +123,12 @@ export default function GeographyLessons({ completedLessons, onComplete }) {
       return
     }
     setFinished(true)
-    setActive(false)
-    localStorage.removeItem(STORAGE_KEY)
+    clearProgress()
     setProgress(null)
     onComplete(lesson.id)
   }
+
+  if (finished) return <section className="panel lesson-player"><div className="lesson-complete"><span className="complete-icon"><Check size={38}/></span><h2>Je hebt de les afgerond</h2><p>Je hebt alle onderdelen gelezen en de oefenvragen doorlopen.</p><div className="complete-xp"><Zap size={20}/><strong>20 XP verdiend</strong></div><button className="primary-btn" onClick={() => { setActive(false); setFinished(false) }}>Terug naar mijn lessen</button></div></section>
 
   if (!active) return (
     <div>
@@ -167,7 +173,6 @@ export default function GeographyLessons({ completedLessons, onComplete }) {
         <div className="lesson-question-foot"><span>Onderdeel {sectionIndex + 1} · Vraag {questionIndex + 1}</span>{!checked ? <button className="primary-btn" disabled={answer === null} onClick={() => setChecked(true)}>Controleer</button> : <button className="primary-btn" onClick={nextQuestion}>{questionIndex + 1 === section.questions.length ? sectionIndex + 1 === lesson.sections.length ? 'Les afronden' : 'Volgend onderdeel' : 'Volgende vraag'} <ArrowRight size={15}/></button>}</div>
       </>}
       {showStopConfirm && <div className="modal-backdrop" role="presentation"><section className="modal lesson-choice-modal" role="dialog" aria-modal="true" aria-labelledby="stop-lesson-title"><button className="modal-close" onClick={() => setShowStopConfirm(false)} aria-label="Sluiten"><X size={18}/></button><span className="panel-kicker">LES PAUZEREN</span><h2 id="stop-lesson-title">Wil je deze les stoppen?</h2><p>Je voortgang tot hier wordt opgeslagen. De volgende keer kun je verdergaan waar je gebleven was of opnieuw beginnen.</p><button className="primary-btn" onClick={stopLesson}><Save size={16}/> Stoppen en voortgang bewaren</button><button className="google-submit" onClick={() => setShowStopConfirm(false)}>Verder met de les</button></section></div>}
-      {finished && <div className="lesson-complete"><span className="complete-icon"><Check size={38}/></span><h2>Je hebt de les afgerond</h2><p>Je hebt alle onderdelen gelezen en de oefenvragen doorlopen.</p><div className="complete-xp"><Zap size={20}/><strong>20 XP verdiend</strong></div><button className="primary-btn" onClick={() => setActive(false)}>Terug naar mijn lessen</button></div>}
     </section>
   )
 }
