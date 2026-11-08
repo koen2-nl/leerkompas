@@ -20,7 +20,8 @@ export default function AdminPanel() {
     setBusy(true);setError('');const {error:e}=await supabase.rpc('admin_reset_user_data',{p_user_id:user.user_id,p_sections:[section]});setBusy(false)
     if(e)setError(e.message);else{setNotice(label+' gereset. Vraag de gebruiker LeerKompas opnieuw te laden om de wijziging direct te zien.');load()}
   }
-  const grant=async e=>{e.preventDefault();setBusy(true);setError('');const {error:x}=await supabase.rpc('admin_grant_admin',{p_email:email.trim()});setBusy(false);if(x)setError(x.message);else{setNotice('Beheerrechten toegekend aan '+email);setEmail('');load()}}\n  const changeRole=async(user,role)=>{setBusy(true);setError('');setNotice('');const {error:e}=await supabase.rpc('admin_set_user_role',{p_user_id:user.user_id,p_role:role});setBusy(false);if(e){setError(e.message);load()}else{setNotice('Role bijgewerkt voor '+(user.email||'de gebruiker')+'.');load()}}
+  const grant=async e=>{e.preventDefault();setBusy(true);setError('');const {error:x}=await supabase.rpc('admin_grant_admin',{p_email:email.trim()});setBusy(false);if(x)setError(x.message);else{setNotice('Beheerrechten toegekend aan '+email);setEmail('');load()}}
+  const changeRole=async(user,role)=>{setBusy(true);setError('');setNotice('');const {error:e}=await supabase.rpc('admin_set_user_role',{p_user_id:user.user_id,p_role:role});setBusy(false);if(e){setError(e.message);load()}else{setNotice('Role bijgewerkt voor '+(user.email||'de gebruiker')+'.');load()}}
   const save=async e=>{
     e.preventDefault();setBusy(true);setError('');let content
     try{content=JSON.parse(form.content||'{}')}catch{setBusy(false);setError('Lesinhoud moet geldige JSON zijn.');return}
