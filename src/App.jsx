@@ -20,7 +20,7 @@ function readSaved(key, fallback) {
 }
 function parseCsvData(text) {
   const sample = text.split(/\r?\n/).find(line => line.trim()) || ''
-  const separators = [',', ';', '\\t']
+  const separators = [',', ';', '\t']
   const separator = separators.sort((a, b) => sample.split(b).length - sample.split(a).length)[0]
   const rows = []
   let row = [], cell = '', quoted = false
@@ -29,15 +29,15 @@ function parseCsvData(text) {
     if (char === '"' && quoted && text[i + 1] === '"') { cell += '"'; i++ }
     else if (char === '"') quoted = !quoted
     else if (char === separator && !quoted) { row.push(cell.trim()); cell = '' }
-    else if ((char === '\\n' || char === '\\r') && !quoted) {
-      if (char === '\\r' && text[i + 1] === '\\n') i++
+    else if ((char === '\n' || char === '\r') && !quoted) {
+      if (char === '\\r' && text[i + 1] === '\n') i++
       row.push(cell.trim()); if (row.some(value => value)) rows.push(row)
       row = []; cell = ''
     } else cell += char
   }
   row.push(cell.trim()); if (row.some(value => value)) rows.push(row)
   if (rows.length < 2) return { cards: [], errors: ['Voeg een kopregel en minimaal één begrippenrij toe.'] }
-  const headers = rows.shift().map(value => value.toLowerCase().replace(/\\s+/g, '').replace(/[._-]/g, ''))
+  const headers = rows.shift().map(value => value.toLowerCase().replace(/\s+/g, '').replace(/[._-]/g, ''))
   const subjectIndex = headers.findIndex(value => ['vak', 'subject', 'onderwerp'].includes(value))
   const questionIndex = headers.findIndex(value => ['vraag', 'begrip', 'question', 'term', 'front'].includes(value))
   const answerIndex = headers.findIndex(value => ['antwoord', 'answer', 'uitleg', 'back', 'definition'].includes(value))
