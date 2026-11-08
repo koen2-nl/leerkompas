@@ -1,4 +1,4 @@
-# LeerKompas
+# SlimLeren
 
 **Leren op jouw manier.** Een moderne, speelse en responsive leeromgeving voor vakken, flashcards, quizzen en studieplanning.
 
