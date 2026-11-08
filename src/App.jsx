@@ -30,7 +30,7 @@ function parseCsvData(text) {
     else if (char === '"') quoted = !quoted
     else if (char === separator && !quoted) { row.push(cell.trim()); cell = '' }
     else if ((char === '\n' || char === '\r') && !quoted) {
-      if (char === '\\r' && text[i + 1] === '\n') i++
+      if (char === '\r' && text[i + 1] === '\n') i++
       row.push(cell.trim()); if (row.some(value => value)) rows.push(row)
       row = []; cell = ''
     } else cell += char
