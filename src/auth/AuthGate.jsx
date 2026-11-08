@@ -29,7 +29,7 @@ export default function AuthGate() {
       setLoading(false)
     })
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (alive) { setSession(nextSession); setSyncReady(false) }
+      if (alive) setSession(nextSession)
     })
     return () => { alive = false; listener.subscription.unsubscribe() }
   }, [])
@@ -42,6 +42,7 @@ export default function AuthGate() {
       if (cancelled) return
       if (error) { setSyncStatus('error'); console.error('Clouddata laden mislukt:', error.message); return }
       if (data?.data) {
+        DATA_KEYS.forEach(key => localStorage.removeItem('leerkompas:' + key))
         writeLocalData(data.data)
       } else {
         const initialData = localData()
