@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from './auth/AuthContext.jsx'
 import GeographyLessons from './GeographyLessons.jsx'
 import AdminPanel from './AdminPanel.jsx'
+import Planning from './Planning.jsx'
 import { Activity, ArrowDownRight, ArrowRight, Award, BookOpen, Blocks, Brain, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Flame, Gamepad2, GraduationCap, LayoutDashboard, Leaf, Menu, MessageCircle, Moon, MoreHorizontal, Plus, Search, Settings2, Sparkles, Sun, Target, Trophy, Upload, X, Zap, Globe, BookOpenCheck, ShieldCheck } from 'lucide-react'
 
 const initialSubjects = [
@@ -67,6 +68,7 @@ function App() {
   const [known, setKnown] = useState(() => readSaved('known', []))
   const [studyStats, setStudyStats] = useState(() => readSaved('studyStats', { xp: 0, cardsLearned: 0, sessions: [] }))
   const [completedLessons, setCompletedLessons] = useState(() => readSaved('completedLessons', []))
+  const [planning, setPlanning] = useState(() => readSaved('planning', []))
   const [widgets, setWidgets] = useState(() => readSaved('widgets', ['focus', 'subjects', 'week']))
   const [showWidgetMenu, setShowWidgetMenu] = useState(false)
   const [showAddSubject, setShowAddSubject] = useState(false)
@@ -92,6 +94,7 @@ function App() {
   useEffect(() => { try { saveLocal('known', known) } catch {} }, [known])
   useEffect(() => { try { saveLocal('studyStats', studyStats) } catch {} }, [studyStats])
   useEffect(() => { try { saveLocal('completedLessons', completedLessons) } catch {} }, [completedLessons])
+  useEffect(() => { try { saveLocal('planning', planning) } catch {} }, [planning])
   const current = cards[cardIndex]
   const weekStart = Date.now() - 7 * 24 * 60 * 60 * 1000
   const sessionsThisWeek = studyStats.sessions.filter(session => new Date(session.at).getTime() >= weekStart)
@@ -151,7 +154,7 @@ function App() {
         {page==='games'&&<><div className="games-intro"><div><h2>Leren mag leuk zijn.</h2><p>Even iets anders? Daag jezelf uit met een korte leergame.</p></div><div className="game-xp"><Trophy size={18}/> <strong>{gameScore*10} XP</strong><span>demo-score</span></div></div><div className="games-grid"><GameCard icon={Brain} title="Memory Match" desc="Vind de paren en train je geheugen." tag="GEHEUGEN" onClick={()=>notify('Memory Match komt in een volgende versie!')}/><GameCard icon={Zap} title="Quiz Rush" desc="Beantwoord vragen en blijf in je flow." tag="SNELHEID" onClick={()=>go('quiz')}/><GameCard icon={Blocks} title="Knowledge Blocks" desc="Bouw je kennis blokje voor blokje op." tag="KENNIS" onClick={()=>notify('Knowledge Blocks komt in een volgende versie!')}/><GameCard icon={Search} title="Waar of niet waar" desc="Test hoe goed je feiten kunt herkennen." tag="INZICHT" onClick={()=>notify('Deze game komt in een volgende versie!')}/><GameCard icon={MessageCircle} title="Woordensprint" desc="Oefen begrippen in een vlot tempo." tag="TAAL" onClick={()=>go('subjects')}/><GameCard icon={Trophy} title="Boss Battle" desc="Een grotere uitdaging voor je kennis." tag="UITDAGING" onClick={()=>notify('Boss Battle komt in een volgende versie!')}/></div></>}
         {page==='quiz'&&<section className="panel quiz-panel"><button className="text-btn" onClick={()=>go('games')}><ChevronLeft size={15}/> Terug naar games</button><span className="panel-kicker">QUIZ RUSH · AARDRIJKSKUNDE</span><h2>Hoe heet gesmolten gesteente onder de grond?</h2><div className="quiz-options">{['Lava','Magma','As','Graniet'].map(a=><button key={a} className={quizAnswer===a?'selected':''} onClick={()=>{setQuizAnswer(a);setQuizDone(false)}}>{a}{quizDone&&a==='Magma'&&<Check size={16}/>}</button>)}</div>{quizDone&&<div className="quiz-feedback">{quizAnswer==='Magma'?'Helemaal goed! Onder de grond heet gesmolten gesteente magma.':'Nog niet helemaal. Het juiste antwoord is magma.'}</div>}<button className="primary-btn" disabled={!quizAnswer} onClick={()=>{setQuizDone(true);if(quizAnswer==='De celkern')setGameScore(gameScore+1)}}>Controleer antwoord <ArrowRight size={16}/></button></section>}
         {page==='progress'&&<><section className="stats-grid"><Stat icon={Zap} label="Totaal XP" value={studyStats.xp} note="20 XP per afgeronde les" tone="purple"/><Stat icon={BookOpen} label="Afgeronde lessen" value={completedLessons.length} note="Alle sessies" tone="green"/><Stat icon={Flame} label="Actieve dagen" value={activeDays} note="Sinds je start" tone="orange"/><Stat icon={Award} label="Leermomenten" value={studyStats.sessions.length} note="Totaal" tone="blue"/></section><section className="panel progress-panel"><h3>Voortgang per vak</h3>{subjects.map(s=><SubjectRow key={s.name} subject={s}/>)}</section></>}
-        {page==='planning'&&<section className="panel planning-panel"><div className="panel-head"><div><span className="panel-kicker">DEZE WEEK</span><h3>Een haalbaar ritme</h3></div><CalendarDays/></div>{[['09:00','Biologie · begrippen herhalen','12 min','mint'],['13:30','Wiskunde · lineaire verbanden','20 min','lavender'],['16:00','Geschiedenis · samenvatting lezen','15 min','peach']].map((x,i)=><div className="plan-row" key={x[0]}><span>{x[0]}</span><div className={'plan-dot '+x[3]}/><div><strong>{x[1]}</strong><small>{x[2]}</small></div><span className="plan-status">{i===0?'Aanbevolen':'Gepland'}</span></div>)}</section>}
+        {page==='planning'&&<Planning planning={planning} setPlanning={setPlanning} subjects={subjects}/>}
         <footer className="footer"><span>SlimLeren <b>·</b> Leren op jouw manier.</span><span>Je leerstof wordt veilig met je account gesynchroniseerd</span></footer>
       </div>
     </main>
