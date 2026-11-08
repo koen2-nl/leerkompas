@@ -137,3 +137,92 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .admin-role-field select{width:100%;min-height:35px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:10px;letter-spacing:normal;outline-color:var(--accent)}
 .admin-role-field select:disabled{opacity:.65;cursor:not-allowed}
 @media(max-width:700px){.admin-role-field{width:100%;min-width:0}}
+
+
+/* SlimLeren: rustige, redactionele onderwijsstijl */
+:root{
+  --accent:#356b61;
+  --accent-soft:#eaf1ed;
+  --ink:#26332f;
+  --muted:#737f79;
+  --line:#e4e9e5;
+  --panel:#ffffff;
+  --surface:#f5f7f4;
+  font-family:Inter, "Segoe UI", system-ui, sans-serif;
+}
+.app{background:#f5f7f4;color:var(--ink);--accent:#356b61;--accent-soft:#eaf1ed}
+.app[data-accent=blue]{--accent:#456d83;--accent-soft:#eaf0f3}
+.app[data-accent=green]{--accent:#356b61;--accent-soft:#eaf1ed}
+.app[data-accent=coral]{--accent:#a56852;--accent-soft:#f5eee9}
+.sidebar,.topbar{background:#fff;border-color:#e4e9e5}
+.brand{font-weight:750;letter-spacing:-.45px}
+.brand-mark{background:#eaf1ed;color:#356b61;border-radius:9px}
+.nav-item{border-radius:7px;color:#68766f}
+.nav-item.active{background:#eaf1ed;color:#28594f}
+.profile{border-radius:9px;border-color:#e4e9e5}
+.content{padding-top:32px}
+.page-heading h1{font-size:26px;letter-spacing:-.55px;font-weight:700}
+.page-heading p,.section-heading p{font-size:13px}
+.primary-btn,.banner-btn{border-radius:7px;box-shadow:none;font-size:12px;font-weight:650}
+.primary-btn{background:#356b61}
+.primary-btn:hover:not(:disabled){background:#2d5c53}
+.welcome-banner{background:#e9efeb;color:#263b34;border:1px solid #dce6df;border-radius:10px;min-height:190px;padding:25px 30px;box-shadow:none}
+.welcome-banner h2{font-size:28px;letter-spacing:-.65px;font-weight:700}
+.welcome-banner h2 em{color:#356b61}
+.welcome-banner p{font-size:12px;color:#62736b}
+.banner-tag{color:#527268}
+.banner-btn{background:#fff;color:#315f55;border:1px solid #d8e3dc}
+.orbit,.sparkle,.floating-note{display:none}
+.book-illustration{width:104px;height:104px;border-radius:18px;background:#dbe7df;color:#356b61;box-shadow:none;transform:none}
+.panel,.stat-card,.subject-card,.game-card{border-radius:10px;box-shadow:none;border-color:#e4e9e5}
+.panel{padding:18px}
+.panel h3,.section-heading h3{font-weight:650;letter-spacing:0}
+.stat-card{padding:14px}
+.stat-icon,.icon-tile{border-radius:9px}
+.stat-card strong{font-size:20px;font-weight:700}
+.progress-track>div{background:#6c9586}
+.flashcard{background:#f1f5f1;border:1px solid #dfe8e1;border-radius:10px;box-shadow:none;color:#2d443b}
+.flashcard.flipped{background:#eaf2ed;border-color:#d8e5dc;color:#294d40}
+.game-art{background:#edf2ee!important;border-radius:8px}
+.game-card:nth-child(2) .game-art,.game-card:nth-child(3) .game-art,.game-card:nth-child(4) .game-art,.game-card:nth-child(5) .game-art,.game-card:nth-child(6) .game-art{background:#edf2ee!important}
+.game-card:hover{transform:none;border-color:#b9cec2}
+.lesson-intro{background:#edf2ee;border:1px solid #e0e8e2;border-radius:10px}
+.lesson-emoji,.lesson-hero>span{background:#eaf1ed;color:#356b61;border-radius:10px}
+.lesson-tile,.lesson-player{border-radius:10px}
+.lesson-example{border-left-color:#6b9283;background:#f5f7f4}
+.lesson-options button,.quiz-options button{border-radius:7px}
+.lesson-options button:hover:not(:disabled),.game-card:hover{transform:none}
+.auth-screen{background:#f5f7f4}
+.auth-card{border:1px solid #e4e9e5;border-radius:12px;box-shadow:0 8px 28px #253a3010}
+.auth-brand{font-weight:750;letter-spacing:-.45px}
+.auth-brand-mark{background:#eaf1ed;color:#356b61;border-radius:9px}
+.auth-card h1{font-size:24px;letter-spacing:-.4px;font-weight:700}
+.auth-tabs{background:#f1f4f1;border-radius:8px}
+.auth-tabs button{border-radius:6px}
+.auth-tabs button.active{color:#315f55;box-shadow:none;border:1px solid #e2e8e3}
+.auth-submit{background:#356b61;border-radius:7px}
+.google-submit{border-radius:7px}
+.soft-btn{border-radius:7px}
+.modal{border-radius:12px;box-shadow:0 12px 36px #253a3020}
+.streak-card{background:#f4f0e7;border-radius:9px}
+.streak-icon{background:#eee5d3;color:#9b7947;border-radius:7px}
+.panel-kicker,.eyebrow{letter-spacing:.9px}
+.footer{font-size:10px}
+.dark .welcome-banner{background:#283b35;color:#edf4ef;border-color:#3a5148}
+.dark .welcome-banner p{color:#c0d0c6}
+.dark .banner-tag{color:#b8d0c3}
+.dark .book-illustration{background:#344d43;color:#d5e5db}
+.dark .flashcard,.dark .flashcard.flipped{background:#2b3c35;color:#edf4ef;border-color:#42584d}
+.dark .game-art,.dark .game-card:nth-child(n) .game-art{background:#303f38!important}
+.dark .auth-screen{background:#171f1b}
+.dark .auth-card{background:#222d27;border-color:#39483f}
+.dark .auth-card h1{color:#edf4ef}
+.dark .auth-field{color:#d1ddd5}
+.dark .auth-field input,.dark .google-submit{background:#1d2822;color:#edf4ef;border-color:#425148}
+.dark .auth-tabs{background:#1d2822}
+.dark .auth-tabs button.active{background:#2c3a32;color:#dcebe1;border-color:#425148}
+@media(prefers-reduced-motion:no-preference){
+ .page-heading,.welcome-banner,.stats-grid>*,.dashboard-grid>.panel,.admin-panel,.lesson-tile{animation:none}
+ .panel,.primary-btn,.soft-btn,.danger-btn,.banner-btn,.nav-item,.icon-btn{transition:background-color .14s ease,border-color .14s ease}
+ .primary-btn:hover:not(:disabled),.soft-btn:hover:not(:disabled),.danger-btn:hover:not(:disabled),.banner-btn:hover{transform:none}
+}
