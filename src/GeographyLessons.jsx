@@ -64,7 +64,9 @@ const clearProgress = () => {
 export default function GeographyLessons({ completedLessons, onComplete, onActiveChange }) {
   const [progress, setProgress] = useState(() => readProgress())
   const [searchTerm, setSearchTerm] = useState('')
+  const [subjectFilter, setSubjectFilter] = useState('alles')
   const [topicFilter, setTopicFilter] = useState('alles')
+  const [levelFilter, setLevelFilter] = useState('alles')
   const [statusFilter, setStatusFilter] = useState('alles')
   const [difficultyFilter, setDifficultyFilter] = useState('alles')
   const [active, setActive] = useState(false)
@@ -146,10 +148,12 @@ export default function GeographyLessons({ completedLessons, onComplete, onActiv
   if (finished) return <section className="panel lesson-player lesson-fullscreen"><div className="lesson-complete"><span className="complete-icon"><Check size={38}/></span><h2>Je hebt de les afgerond</h2><p>Je hebt alle onderdelen gelezen en de oefenvragen doorlopen.</p><div className="complete-xp"><Zap size={20}/><strong>{completedLessons.includes(lesson.id) ? 'Les opnieuw afgerond' : '20 XP verdiend'}</strong></div><button className="primary-btn" onClick={() => { setActive(false); onActiveChange?.(false); setFinished(false) }}>Terug naar mijn lessen</button></div></section>
 
   const lessonMatches = lesson.title.toLowerCase().includes(searchTerm.toLowerCase()) || lesson.subtitle.toLowerCase().includes(searchTerm.toLowerCase())
+  const subjectMatches = subjectFilter === 'alles' || subjectFilter === lesson.subject
   const topicMatches = topicFilter === 'alles' || topicFilter === lesson.topic
+  const levelMatches = levelFilter === 'alles' || levelFilter === lesson.level
   const statusMatches = statusFilter === 'alles' || (statusFilter === 'afgerond' ? completedLessons.includes(lesson.id) : !completedLessons.includes(lesson.id))
   const difficultyMatches = difficultyFilter === 'alles' || difficultyFilter === lesson.difficulty
-  const showLesson = lessonMatches && topicMatches && statusMatches && difficultyMatches
+  const showLesson = lessonMatches && subjectMatches && topicMatches && levelMatches && statusMatches && difficultyMatches
 
   if (!active) return (
     <div>
@@ -161,8 +165,10 @@ export default function GeographyLessons({ completedLessons, onComplete, onActiv
         <div className="lesson-filter-heading"><div><span className="panel-kicker">LESSEN VINDEN</span><strong>Filter je lessen</strong></div><span>{showLesson ? '1 les gevonden' : 'Geen lessen gevonden'}</span></div>
         <input className="lesson-filter-search" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Zoek op lestitel of onderwerp..." aria-label="Zoek lessen" />
         <div className="lesson-filter-controls">
+          <label>Vak<select value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)}><option value="alles">Alle vakken</option><option value={lesson.subject}>{lesson.subject}</option></select></label>
           <label>Onderwerp<select value={topicFilter} onChange={e => setTopicFilter(e.target.value)}><option value="alles">Alle onderwerpen</option><option value={lesson.topic}>{lesson.topic}</option></select></label>
-          <label>Niveau<select value={difficultyFilter} onChange={e => setDifficultyFilter(e.target.value)}><option value="alles">Alle niveaus</option><option value={lesson.difficulty}>{lesson.difficulty}</option></select></label>
+          <label>Niveau<select value={levelFilter} onChange={e => setLevelFilter(e.target.value)}><option value="alles">Alle niveaus</option><option value={lesson.level}>{lesson.level}</option></select></label>
+          <label>Moeilijkheid<select value={difficultyFilter} onChange={e => setDifficultyFilter(e.target.value)}><option value="alles">Alle moeilijkheden</option><option value={lesson.difficulty}>{lesson.difficulty}</option></select></label>
           <label>Voortgang<select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="alles">Alle lessen</option><option value="niet-afgerond">Nog te doen</option><option value="afgerond">Afgerond</option></select></label>
         </div>
       </section>
