@@ -248,3 +248,31 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .planner-item.is-done .planner-item-main strong{text-decoration:line-through;color:var(--muted)}.planner-item.is-done .planner-check{background:var(--accent-soft);border-color:var(--accent)}
 .planner-empty{display:grid;justify-items:center;gap:7px;padding:28px 10px;color:var(--muted);text-align:center}.planner-empty svg{color:var(--accent)}.planner-empty strong{font-size:12px;color:var(--ink)}.planner-empty span{font-size:10px}
 @media(max-width:650px){.planner-intro{align-items:flex-start}.planner-form-grid{grid-template-columns:1fr}.planner-toolbar{align-items:flex-start}.planner-toolbar .primary-btn{white-space:nowrap}.planner-item{gap:8px}}
+
+
+/* Agendaweergave en toegankelijkere planning */
+.planner-calendar{padding:18px}
+.planner-calendar-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+.planner-calendar-top h3{font-size:18px;margin:4px 0 0;text-transform:capitalize}
+.planner-calendar-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.planner-arrow{width:34px;height:34px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.planner-view-toggle{display:flex;padding:3px;border-radius:8px;background:var(--surface);gap:2px}
+.planner-view-toggle button{border:0;background:transparent;color:var(--muted);padding:7px 10px;border-radius:6px;font:inherit;font-size:10px;cursor:pointer}
+.planner-view-toggle button.active{background:var(--panel);color:var(--accent);box-shadow:0 1px 3px #00000012;font-weight:700}
+.planner-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.planner-weekday{padding:9px 5px;text-align:center;color:var(--muted);font-size:10px;font-weight:700;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.planner-day{min-width:0;min-height:91px;padding:7px 6px;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--panel);color:var(--ink);text-align:left;display:flex;flex-direction:column;align-items:stretch;gap:4px;cursor:pointer}
+.planner-day:hover{background:var(--surface)}
+.planner-day.outside{background:var(--surface);color:#a6ada8}
+.planner-day.selected{outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-soft)}
+.planner-day-number{font-size:11px;font-weight:700;align-self:flex-start;width:23px;height:23px;display:grid;place-items:center;border-radius:50%}
+.planner-day.today .planner-day-number{background:var(--accent);color:white}
+.planner-day-event{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:3px 4px;border-radius:4px;font-size:9px;line-height:1.3}
+.planner-day-event.kind-toets{background:#fff0e9;color:#a85d39}.planner-day-event.kind-opdracht{background:#eaf3ff;color:#416f9e}.planner-day-event.kind-leermoment{background:#e8f6f0;color:#34795d}
+.planner-more{font-size:8px;color:var(--muted);padding-left:3px}
+.planner-legend{display:flex;gap:15px;flex-wrap:wrap;padding-top:13px;color:var(--muted);font-size:9px}
+.planner-legend span{display:flex;align-items:center;gap:6px}.planner-legend i{width:8px;height:8px;border-radius:3px;display:inline-block}
+.planner-legend .kind-toets{background:#d98c68}.planner-legend .kind-opdracht{background:#78a6d1}.planner-legend .kind-leermoment{background:#75b69a}
+.planner-item-meta{font-size:10px}
+@media(max-width:650px){.planner-calendar{padding:11px}.planner-calendar-top{align-items:flex-start;flex-direction:column}.planner-calendar-actions{width:100%}.planner-calendar-actions .soft-btn{margin-right:auto}.planner-day{min-height:70px;padding:4px 3px;gap:3px}.planner-day-number{width:20px;height:20px;font-size:10px}.planner-day-event{font-size:8px;padding:2px}.planner-weekday{font-size:9px;padding:7px 2px}.planner-legend{gap:9px}.planner-toolbar{align-items:center}.planner-toolbar p{max-width:230px}}
+@media(prefers-reduced-motion:no-preference){.planner-day,.planner-arrow,.planner-view-toggle button{transition:background-color .12s ease,border-color .12s ease}}
