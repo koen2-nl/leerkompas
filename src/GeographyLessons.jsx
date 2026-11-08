@@ -84,6 +84,11 @@ export default function GeographyLessons({ completedLessons, onComplete, onActiv
   const percent = finished ? 100 : Math.round(((completedQuestions + (stage === 'explanation' ? 0 : 0)) / totalQuestions) * 100)
 
   useEffect(() => {
+    document.body.classList.toggle('lesson-open', active)
+    return () => document.body.classList.remove('lesson-open')
+  }, [active])
+
+  useEffect(() => {
     if (active && !finished) saveProgress({ sectionIndex, questionIndex, stage, updatedAt: new Date().toISOString() })
   }, [active, finished, sectionIndex, questionIndex, stage])
 
@@ -183,7 +188,7 @@ export default function GeographyLessons({ completedLessons, onComplete, onActiv
 
   const Icon = section.icon
   return (
-    <section className="panel lesson-player">
+    <section className="panel lesson-player lesson-fullscreen">
       <div className="lesson-player-top"><button className="text-btn" onClick={() => setShowStopConfirm(true)}><ChevronLeft size={15}/> Les stoppen</button><span className="panel-kicker">AARDRIJKSKUNDE · ONDERDEEL {sectionIndex + 1} VAN {lesson.sections.length}</span></div>
       <div className="lesson-progress"><span style={{width: percent + '%'}}/></div>
       <div className="lesson-player-meta"><span>{section.title}</span><span>{completedQuestions} van {totalQuestions} vragen doorlopen</span></div>
