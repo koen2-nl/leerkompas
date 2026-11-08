@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useAuth } from './auth/AuthGate.jsx'
+import { useAuth } from './auth/AuthContext.jsx'
 import { Activity, ArrowDownRight, ArrowRight, Award, BookOpen, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Flame, Gamepad2, GraduationCap, LayoutDashboard, Leaf, Menu, Moon, MoreHorizontal, Plus, Search, Settings2, Sparkles, Sun, Target, Trophy, Upload, X, Zap } from 'lucide-react'
 
 const initialSubjects = [
