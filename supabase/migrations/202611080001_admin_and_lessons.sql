@@ -10,7 +10,7 @@ create policy "Users can read their own role" on public.user_roles
   for select to authenticated using ((select auth.uid()) = user_id);
 
 create or replace function public.is_leerkompas_admin()
-returns boolean language sql stable security definer set search_path = public, auth
+returns boolean language sql stable security definer set search_path = ''
 as $$
   select exists(select 1 from public.user_roles where user_id = (select auth.uid()) and role = 'admin');
 $$;
@@ -40,7 +40,7 @@ create policy "Admins can delete lessons" on public.lesson_catalog for delete to
 
 create or replace function public.admin_list_users()
 returns table(user_id uuid, email text, created_at timestamptz, data jsonb)
-language plpgsql security definer set search_path = public, auth
+language plpgsql security definer set search_path = ''
 as $$
 begin
   if not public.is_leerkompas_admin() then raise exception 'Geen beheerrechten'; end if;
@@ -52,7 +52,7 @@ end;
 $$;
 
 create or replace function public.admin_reset_user_data(p_user_id uuid, p_sections text[])
-returns void language plpgsql security definer set search_path = public, auth
+returns void language plpgsql security definer set search_path = ''
 as $$
 declare current_data jsonb;
 begin
@@ -80,7 +80,7 @@ end;
 $$;
 
 create or replace function public.admin_grant_admin(p_email text)
-returns void language plpgsql security definer set search_path = public, auth
+returns void language plpgsql security definer set search_path = ''
 as $$
 declare target_id uuid;
 begin
@@ -92,6 +92,21 @@ begin
 end;
 $$;
 
+grant execute on function public.is_leerkompas_admin() to authenticated;
+grant execute on function public.admin_list_users() to authenticated;
+grant execute on function public.admin_reset_user_data(uuid, text[]) to authenticated;
+grant execute on function public.admin_grant_admin(text) to authenticated;
+
+
+-- SECURITY DEFINER-functies mogen niet via de publieke API door
+-- anonieme bezoekers of alle databasegebruikers worden aangeroepen.
+revoke execute on function public.is_leerkompas_admin() from public, anon;
+revoke execute on function public.admin_list_users() from public, anon;
+revoke execute on function public.admin_reset_user_data(uuid, text[]) from public, anon;
+revoke execute on function public.admin_grant_admin(text) from public, anon;
+
+-- Alleen ingelogde gebruikers kunnen de functies bereiken; de functies
+-- controleren zelf of de aanroeper daadwerkelijk beheerder is.
 grant execute on function public.is_leerkompas_admin() to authenticated;
 grant execute on function public.admin_list_users() to authenticated;
 grant execute on function public.admin_reset_user_data(uuid, text[]) to authenticated;
