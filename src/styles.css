@@ -5,3 +5,14 @@
 @media(max-width:420px){.subject-grid,.games-grid{grid-template-columns:1fr}.welcome-banner{padding:19px}.welcome-banner h2{font-size:24px}.welcome-banner p{max-width:205px;font-size:10px}.banner-art{right:-55px;opacity:.42}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stat-card{gap:6px}.stat-arrow{display:none}.page-heading h1{font-size:22px}.footer{font-size:8px}.subject-bar{display:none}}
 
 .toolbar-actions{display:flex;gap:9px;align-items:center}.material-panel{margin-top:20px}.material-list{display:grid;gap:0}.material-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}.material-row:last-child{border-bottom:0}.material-row>div{display:grid;gap:5px;min-width:0}.material-row strong{font-size:11px}.material-row small{font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:650px}.field-label{display:grid;gap:7px;margin:13px 0;font-size:10px;font-weight:700;color:var(--ink)}.field-label input,.field-label select,.field-label textarea{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:11px;font:inherit;font-size:11px;outline-color:var(--accent)}.field-label textarea{resize:vertical;line-height:1.5}.modal .field-label+.primary-btn{width:100%;margin-top:8px}.empty-study{max-width:560px}.empty-study p{font-size:11px;color:var(--muted);margin:8px 0 18px}@media(max-width:600px){.toolbar{align-items:stretch;flex-direction:column}.toolbar-actions{justify-content:stretch}.toolbar-actions>*{flex:1;justify-content:center;font-size:10px}.material-row small{max-width:220px}}
+
+
+/* CSV import */
+.import-modal{width:min(560px,100%);max-height:min(88vh,780px);overflow:auto}
+.import-modal .field-label input[type=file]{padding:9px;font-size:10px}
+.import-filename{margin:0 0 8px!important;color:var(--accent)!important}
+.import-preview{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:12px;margin:12px 0 16px;display:grid;gap:6px}
+.import-preview strong{font-size:10px}
+.import-preview span{font-size:11px;color:var(--accent);font-weight:700}
+.import-preview ul{margin:3px 0 0;padding-left:17px;color:#b65c52;font-size:10px;line-height:1.6}
+@media(max-width:600px){.import-modal{max-height:90vh;padding:20px}.toolbar-actions{flex-wrap:wrap}.toolbar-actions>*{min-width:calc(50% - 6px)}}
