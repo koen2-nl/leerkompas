@@ -17,7 +17,8 @@ export default function AuthGate() {
   const [loading, setLoading] = useState(true)
   const [syncStatus, setSyncStatus] = useState('saved')
   const [syncReady, setSyncReady] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [syncError, setSyncError] = useState('')
+  const [retrySync, setRetrySync] = useState(0)
   useEffect(() => {
     if (!supabase) { setLoading(false); return }
     let alive = true
@@ -33,29 +34,26 @@ export default function AuthGate() {
     return () => { alive = false; listener.subscription.unsubscribe() }
   }, [])
   useEffect(() => {
-    if (!session?.user) { setSyncReady(false); return }
+    if (!session?.user) { setSyncReady(false); setSyncError(''); return }
     let cancelled = false
     const hydrate = async () => {
       setSyncStatus('saving')
       const { data, error } = await supabase.from('user_data').select('data').eq('user_id', session.user.id).maybeSingle()
       if (cancelled) return
-      if (error) { setSyncStatus('error'); console.error('Clouddata laden mislukt:', error.message); return }
+      if (error) { setSyncStatus('error'); setSyncError('Je leergegevens konden niet worden geladen: ' + error.message); console.error('Clouddata laden mislukt:', error.message); return }
       if (data?.data) {
         DATA_KEYS.forEach(key => localStorage.removeItem('leerkompas:' + key))
         writeLocalData(data.data)
       } else {
         const initialData = localData()
         const { error: saveError } = await supabase.from('user_data').upsert({ user_id: session.user.id, data: initialData })
-        if (saveError) { setSyncStatus('error'); console.error('Lokale leerdata migreren mislukt:', saveError.message); return }
+        if (saveError) { setSyncStatus('error'); setSyncError('Je leergegevens konden niet worden opgeslagen: ' + saveError.message); console.error('Lokale leerdata migreren mislukt:', saveError.message); return }
       }
-      const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', session.user.id).maybeSingle()
-      if (cancelled) return
-      setIsAdmin(roleData?.role === 'admin')
       if (!cancelled) { setSyncStatus('saved'); setSyncReady(true) }
     }
     hydrate()
     return () => { cancelled = true }
-  }, [session?.user?.id])
+  }, [session?.user?.id, retrySync])
   useEffect(() => {
     if (!syncReady || !session?.user) return
     let timer
@@ -71,14 +69,14 @@ export default function AuthGate() {
     window.addEventListener('leerkompas:data-changed', save)
     return () => { window.clearTimeout(timer); window.removeEventListener('leerkompas:data-changed', save) }
   }, [syncReady, session?.user?.id])
-  const value = useMemo(() => ({ user: session?.user ?? null, syncStatus, isAdmin, signOut: async () => {
+  const value = useMemo(() => ({ user: session?.user ?? null, syncStatus, signOut: async () => {
     DATA_KEYS.forEach(key => localStorage.removeItem('leerkompas:' + key))
     await supabase.auth.signOut()
-  } }), [session, syncStatus, isAdmin])
+  } }), [session, syncStatus])
   if (loading) return <div className="auth-screen"><div className="auth-card">LeerKompas laden…</div></div>
   if (!isSupabaseConfigured) return <div className="auth-screen"><div className="auth-card auth-setup"><div className="auth-brand"><span className="auth-brand-mark"><GraduationCap/></span>leer<span style={{color:'#7664db'}}>kompas</span></div><h1>Bijna klaar voor jouw leerplek</h1><p>De accountfunctie is voorbereid. Vul eerst de Supabase-omgevingsvariabelen in om registratie en inloggen te activeren.</p><p><strong>Benodigd:</strong> <code>VITE_SUPABASE_URL</code> en <code>VITE_SUPABASE_ANON_KEY</code>. Volg de installatiehandleiding in <code>docs/PROJECT.md</code>.</p></div></div>
   if (!session) return <AuthScreen />
-  if (!syncReady) return <div className="auth-screen"><div className="auth-card">Je persoonlijke leerplek veilig laden…</div></div>
+  if (!syncReady) return <div className="auth-screen"><div className="auth-card">{syncError ? <><h2>Je leerplek kon niet worden geladen</h2><p>{syncError}</p><button className="auth-submit" onClick={() => setRetrySync(value => value + 1)}>Opnieuw proberen</button><button className="google-submit" onClick={async () => { await supabase.auth.signOut({ scope: 'local' }); setSession(null); setSyncError('') }}>Uitloggen en opnieuw beginnen</button></> : 'Je persoonlijke leerplek veilig laden…'}</div></div>
   return <AuthContext.Provider value={value}><App /></AuthContext.Provider>
 }
 
