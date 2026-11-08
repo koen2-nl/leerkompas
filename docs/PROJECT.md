@@ -21,7 +21,7 @@ npm run preview
 ## Wat werkt in deze demo
 - Dashboard met statistiekkaarten en aan/uit te zetten widgets.
 - Vakkenoverzicht, zoeken en een vak toevoegen.
-- Eigen flashcards toevoegen, bekijken, oefenen en verwijderen.
+- Eigen flashcards toevoegen, bekijken, oefenen en verwijderen.\n- Flashcards in bulk importeren vanuit CSV met kolommen voor vak, vraag en antwoord; onbekende vakken worden automatisch aangemaakt.
 - Vakken, flashcards, thema-instellingen, dashboardwidgets en oefensessie-voortgang lokaal bewaren in de browser.
 - Flashcards met antwoord omdraaien en sessie-feedback.
 - Quiz Rush-vraag met antwoordcontrole.
