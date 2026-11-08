@@ -20,7 +20,9 @@ npm run preview
 
 ## Wat werkt in deze demo
 - Dashboard met statistiekkaarten en aan/uit te zetten widgets.
-- Vakkenoverzicht, zoeken en een vak toevoegen (alleen in de huidige sessie).
+- Vakkenoverzicht, zoeken en een vak toevoegen.
+- Eigen flashcards toevoegen, bekijken, oefenen en verwijderen.
+- Vakken, flashcards, thema-instellingen, dashboardwidgets en oefensessie-voortgang lokaal bewaren in de browser.
 - Flashcards met antwoord omdraaien en sessie-feedback.
 - Quiz Rush-vraag met antwoordcontrole.
 - Game-overzicht met enkele demo-acties.
@@ -29,11 +31,11 @@ npm run preview
 - Desktop-zijbalk en mobiele uitschuifnavigatie.
 
 ## Bewuste grenzen
-Alle gegevens zijn tijdelijk React-state en worden niet opgeslagen. Vernieuwen zet de demo terug. Er zijn geen echte accounts, synchronisatie, gedeelde sets, import/export, adaptief herhaalalgoritme of volledige minigames. Voeg geen geheime sleutels of privégegevens toe aan deze statische repository. Voor accounts, synchronisatie en veilige opslag is later een aparte backend nodig.
+LeerKompas bewaart vakken, flashcards, thema-instellingen, dashboardwidgets en oefensessie-voortgang lokaal in de browser via localStorage. Deze gegevens zijn alleen beschikbaar op hetzelfde apparaat en in dezelfde browser; er is nog geen account, cloudopslag of synchronisatie. Browsergegevens wissen kan de lokale leerdata verwijderen. Er zijn nog geen gedeelde sets, import/export, adaptief herhaalalgoritme of volledige minigames. Voeg geen geheime sleutels of privégegevens toe aan deze statische repository. Voor accounts, synchronisatie en veilige opslag is later een aparte backend nodig.
 
 ## Volgende technische stappen
-1. Componenten en pagina's opdelen in kleinere modules.
-2. Datamodel en import/export voor leerstof ontwerpen.
+1. Import/export voor leerstof ontwerpen.
+2. Componenten en pagina's opdelen in kleinere modules.
 3. Herhaalplanning met spaced repetition implementeren en testen.
 4. Toetsen, statistieken en volledige games uitbreiden.
 5. Toegankelijkheid, unit tests en end-to-end tests toevoegen.
