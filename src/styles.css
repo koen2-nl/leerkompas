@@ -55,3 +55,55 @@
 @media(max-width:700px){.lesson-stage-foot{align-items:stretch;flex-direction:column}.lesson-stage-foot .primary-btn{width:100%;justify-content:center}.lesson-player-meta{font-size:9px}.lesson-preview-foot{gap:10px}}
 
 .nav-item:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+
+
+/* Lesfilters, schermvullende lesweergave en subtiele beweging */
+.lesson-filters{padding:18px;margin-bottom:16px;animation:lessonRise .35s ease both}
+.lesson-filter-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.lesson-filter-heading>div{display:grid;gap:4px}.lesson-filter-heading strong{font-size:14px}.lesson-filter-heading>span{font-size:10px;color:var(--muted)}
+.lesson-filter-search,.lesson-filter-controls select{width:100%;min-height:40px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:11px;outline-color:var(--accent)}
+.lesson-filter-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.lesson-filter-controls label,.admin-lesson-form label{display:grid;gap:6px;font-size:10px;font-weight:700;color:var(--muted)}
+.lesson-empty-filter{padding:22px;text-align:center;color:var(--muted);font-size:12px}
+.lesson-fullscreen{position:fixed!important;inset:0!important;z-index:30!important;width:100%!important;max-width:none!important;min-height:100dvh!important;height:100dvh;overflow-y:auto;border-radius:0!important;margin:0!important;padding:clamp(22px,5vh,52px) max(18px,calc((100vw - 850px)/2))!important;background:var(--panel)!important;box-shadow:none!important;animation:lessonEnter .28s cubic-bezier(.2,.8,.2,1) both}
+.lesson-fullscreen>.lesson-player-top,.lesson-fullscreen>.lesson-progress,.lesson-fullscreen>.lesson-player-meta,.lesson-fullscreen>.lesson-hero,.lesson-fullscreen>.lesson-explanation,.lesson-fullscreen>.lesson-stage-foot,.lesson-fullscreen>.lesson-question,.lesson-fullscreen>.lesson-question-foot{width:100%}
+body.lesson-open{overflow:hidden}
+.lesson-fullscreen .lesson-hero{margin-top:clamp(18px,5vh,48px)}
+.lesson-fullscreen .lesson-explanation{font-size:clamp(14px,1.5vw,17px)}
+.lesson-fullscreen .lesson-example{animation:lessonRise .4s .08s both}
+.lesson-fullscreen .lesson-options button{transition:transform .16s,border-color .16s,background .16s}
+.lesson-fullscreen .lesson-options button:hover:not(:disabled){transform:translateY(-2px);border-color:var(--accent)}
+.lesson-fullscreen .lesson-question{margin-top:clamp(16px,4vh,36px)}
+.lesson-fullscreen .lesson-complete{margin:auto}
+.modal-backdrop{z-index:45}
+@keyframes lessonEnter{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes lessonRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:650px){.lesson-filter-controls{grid-template-columns:1fr}.lesson-fullscreen{padding:18px 16px!important}.lesson-fullscreen .lesson-hero{margin-top:20px}.lesson-fullscreen .lesson-question h2{font-size:20px}}
+@media(prefers-reduced-motion:reduce){.lesson-fullscreen,.lesson-filters,.lesson-example{animation:none!important}.lesson-fullscreen .lesson-options button{transition:none!important}}
+
+/* Adminpaneel */
+.admin-page{display:grid;gap:16px;max-width:1050px}
+.admin-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.admin-heading h2{font-size:21px;margin:5px 0}.admin-heading p,.admin-panel>.muted{font-size:11px;color:var(--muted);line-height:1.6}
+.admin-panel{padding:20px}.admin-panel .panel-head h3{display:flex;align-items:center;gap:8px;font-size:15px}
+.admin-count{font-size:10px;color:var(--muted)}
+.admin-user{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+.admin-user>div:first-child,.admin-lesson-row>div{display:grid;gap:5px;min-width:0}
+.admin-user strong,.admin-lesson-row strong{font-size:11px;overflow-wrap:anywhere}
+.admin-user small,.admin-lesson-row small{font-size:9px;color:var(--muted)}
+.admin-reset-actions,.admin-form-actions{display:flex;flex-wrap:wrap;gap:7px}
+.admin-reset-actions .soft-btn,.admin-reset-actions .danger-btn,.admin-lesson-row .soft-btn,.admin-lesson-row .danger-btn{font-size:9px;padding:8px 9px}
+.danger-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid #f0d2ce;background:#fff4f2;color:#a84e43;border-radius:8px;padding:9px 11px;font:inherit;font-size:10px;font-weight:700;cursor:pointer}
+.danger-btn:disabled{opacity:.5;cursor:wait}
+.admin-inline-form{display:flex;gap:9px;margin-top:12px}
+.admin-inline-form input,.admin-lesson-form input,.admin-lesson-form select,.admin-lesson-form textarea{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--surface);color:var(--ink);font:inherit;font-size:11px;outline-color:var(--accent)}
+.admin-lesson-form{display:grid;gap:12px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:11px}
+.admin-lesson-form h4{margin:0;font-size:13px}
+.admin-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.admin-lesson-form textarea{resize:vertical;line-height:1.5}
+.admin-lesson-form .admin-json{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px}
+.admin-lesson-row{display:flex;align-items:center;gap:9px;padding:13px 0;border-bottom:1px solid var(--line)}
+.admin-lesson-row>div{flex:1}
+.admin-message,.admin-error{display:flex;align-items:center;gap:8px;padding:11px 13px;border-radius:9px;font-size:11px}
+.admin-message{background:#eaf7f0;color:#28734f}.admin-error{background:#fff0ee;color:#a44940}
+@media(max-width:700px){.admin-user{align-items:stretch;flex-direction:column}.admin-reset-actions>*{flex:1}.admin-inline-form{flex-direction:column}.admin-form-grid{grid-template-columns:1fr}.admin-heading{align-items:flex-start}.admin-lesson-row{flex-wrap:wrap}.admin-lesson-row>div{flex-basis:100%}}

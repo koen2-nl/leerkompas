@@ -5,6 +5,10 @@ const lesson = {
   id: 'volcano',
   title: 'Vulkanen en aardbevingen',
   subtitle: 'Wat gebeurt er onder het aardoppervlak?',
+  subject: 'Aardrijkskunde',
+  topic: 'Natuurverschijnselen',
+  level: 'Onderbouw',
+  difficulty: 'Basis',
   duration: '10–12 min',
   intro: 'Je ontdekt hoe aardplaten bewegen, waarom aardbevingen ontstaan en hoe vulkanen werken. Elk onderdeel begint met uitleg en een voorbeeld. Daarna oefen je meteen met vragen over precies dat onderdeel.',
   sections: [
@@ -59,6 +63,12 @@ const clearProgress = () => {
 
 export default function GeographyLessons({ completedLessons, onComplete, onActiveChange }) {
   const [progress, setProgress] = useState(() => readProgress())
+  const [searchTerm, setSearchTerm] = useState('')
+  const [subjectFilter, setSubjectFilter] = useState('alles')
+  const [topicFilter, setTopicFilter] = useState('alles')
+  const [levelFilter, setLevelFilter] = useState('alles')
+  const [statusFilter, setStatusFilter] = useState('alles')
+  const [difficultyFilter, setDifficultyFilter] = useState('alles')
   const [active, setActive] = useState(false)
   const [stage, setStage] = useState('explanation')
   const [sectionIndex, setSectionIndex] = useState(0)
@@ -74,6 +84,11 @@ export default function GeographyLessons({ completedLessons, onComplete, onActiv
   const totalQuestions = useMemo(() => lesson.sections.reduce((sum, item) => sum + item.questions.length, 0), [])
   const completedQuestions = useMemo(() => lesson.sections.slice(0, sectionIndex).reduce((sum, item) => sum + item.questions.length, 0) + (stage === 'questions' ? questionIndex : 0), [sectionIndex, stage, questionIndex])
   const percent = finished ? 100 : Math.round(((completedQuestions + (stage === 'explanation' ? 0 : 0)) / totalQuestions) * 100)
+
+  useEffect(() => {
+    document.body.classList.toggle('lesson-open', active)
+    return () => document.body.classList.remove('lesson-open')
+  }, [active])
 
   useEffect(() => {
     if (active && !finished) saveProgress({ sectionIndex, questionIndex, stage, updatedAt: new Date().toISOString() })
@@ -130,7 +145,15 @@ export default function GeographyLessons({ completedLessons, onComplete, onActiv
     onComplete(lesson.id)
   }
 
-  if (finished) return <section className="panel lesson-player"><div className="lesson-complete"><span className="complete-icon"><Check size={38}/></span><h2>Je hebt de les afgerond</h2><p>Je hebt alle onderdelen gelezen en de oefenvragen doorlopen.</p><div className="complete-xp"><Zap size={20}/><strong>{completedLessons.includes(lesson.id) ? 'Les opnieuw afgerond' : '20 XP verdiend'}</strong></div><button className="primary-btn" onClick={() => { setActive(false); onActiveChange?.(false); setFinished(false) }}>Terug naar mijn lessen</button></div></section>
+  if (finished) return <section className="panel lesson-player lesson-fullscreen"><div className="lesson-complete"><span className="complete-icon"><Check size={38}/></span><h2>Je hebt de les afgerond</h2><p>Je hebt alle onderdelen gelezen en de oefenvragen doorlopen.</p><div className="complete-xp"><Zap size={20}/><strong>{completedLessons.includes(lesson.id) ? 'Les opnieuw afgerond' : '20 XP verdiend'}</strong></div><button className="primary-btn" onClick={() => { setActive(false); onActiveChange?.(false); setFinished(false) }}>Terug naar mijn lessen</button></div></section>
+
+  const lessonMatches = lesson.title.toLowerCase().includes(searchTerm.toLowerCase()) || lesson.subtitle.toLowerCase().includes(searchTerm.toLowerCase())
+  const subjectMatches = subjectFilter === 'alles' || subjectFilter === lesson.subject
+  const topicMatches = topicFilter === 'alles' || topicFilter === lesson.topic
+  const levelMatches = levelFilter === 'alles' || levelFilter === lesson.level
+  const statusMatches = statusFilter === 'alles' || (statusFilter === 'afgerond' ? completedLessons.includes(lesson.id) : !completedLessons.includes(lesson.id))
+  const difficultyMatches = difficultyFilter === 'alles' || difficultyFilter === lesson.difficulty
+  const showLesson = lessonMatches && subjectMatches && topicMatches && levelMatches && statusMatches && difficultyMatches
 
   if (!active) return (
     <div>
@@ -138,8 +161,19 @@ export default function GeographyLessons({ completedLessons, onComplete, onActiv
         <div><span className="panel-kicker">AARDRIJKSKUNDE · LESOVERZICHT</span><h2>Leer stap voor stap</h2><p>Bekijk eerst wat je gaat leren. Daarna krijg je per onderdeel uitleg en oefenvragen.</p></div>
         <strong><Clock3 size={16}/> {lesson.duration}</strong>
       </section>
-      <article className="lesson-tile panel">
-        <div className="lesson-tile-top"><span className="lesson-emoji"><Compass size={27}/></span><span className="lesson-number">LESPREVIEW · {lesson.duration.toUpperCase()}</span></div>
+      <section className="lesson-filters panel">
+        <div className="lesson-filter-heading"><div><span className="panel-kicker">LESSEN VINDEN</span><strong>Filter je lessen</strong></div><span>{showLesson ? '1 les gevonden' : 'Geen lessen gevonden'}</span></div>
+        <input className="lesson-filter-search" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Zoek op lestitel of onderwerp..." aria-label="Zoek lessen" />
+        <div className="lesson-filter-controls">
+          <label>Vak<select value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)}><option value="alles">Alle vakken</option><option value={lesson.subject}>{lesson.subject}</option></select></label>
+          <label>Onderwerp<select value={topicFilter} onChange={e => setTopicFilter(e.target.value)}><option value="alles">Alle onderwerpen</option><option value={lesson.topic}>{lesson.topic}</option></select></label>
+          <label>Niveau<select value={levelFilter} onChange={e => setLevelFilter(e.target.value)}><option value="alles">Alle niveaus</option><option value={lesson.level}>{lesson.level}</option></select></label>
+          <label>Moeilijkheid<select value={difficultyFilter} onChange={e => setDifficultyFilter(e.target.value)}><option value="alles">Alle moeilijkheden</option><option value={lesson.difficulty}>{lesson.difficulty}</option></select></label>
+          <label>Voortgang<select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="alles">Alle lessen</option><option value="niet-afgerond">Nog te doen</option><option value="afgerond">Afgerond</option></select></label>
+        </div>
+      </section>
+      {showLesson && <article className="lesson-tile panel">
+        <div className="lesson-tile-top"><span className="lesson-emoji"><Compass size={27}/></span><span className="lesson-number">{lesson.subject.toUpperCase()} · {lesson.level.toUpperCase()} · {lesson.difficulty.toUpperCase()}</span></div>
         <h3>{lesson.title}</h3>
         <p>{lesson.subtitle}</p>
         <p className="lesson-preview-copy">{lesson.intro}</p>
@@ -152,14 +186,15 @@ export default function GeographyLessons({ completedLessons, onComplete, onActiv
         <div className="lesson-preview-foot"><span><BookOpen size={15}/> {totalQuestions} vragen in totaal</span><span><Zap size={15}/> 20 XP na afronding</span></div>
         {completedLessons.includes(lesson.id) && <p className="lesson-done-note"><Check size={15}/> Deze les is al afgerond. Je kunt hem opnieuw oefenen.</p>}
         <button className="primary-btn" onClick={requestStart}>{progress ? 'Les openen' : completedLessons.includes(lesson.id) ? 'Opnieuw oefenen' : 'Bekijk de les'} <ArrowRight size={16}/></button>
-      </article>
+      </article>}
+      {!showLesson && <div className="panel lesson-empty-filter">Geen lessen gevonden met deze filters. Pas je zoekterm of filters aan.</div>}
       {showStartChoice && <div className="modal-backdrop" role="presentation"><section className="modal lesson-choice-modal" role="dialog" aria-modal="true" aria-labelledby="lesson-choice-title"><button className="modal-close" onClick={() => setShowStartChoice(false)} aria-label="Sluiten"><X size={18}/></button><span className="panel-kicker">OPGESLAGEN VOORTGANG</span><h2 id="lesson-choice-title">Je was al bezig met deze les</h2><p>Je voortgang is bewaard. Wat wil je doen?</p><button className="primary-btn" onClick={() => begin(false)}><Play size={16}/> Verdergaan</button><button className="google-submit" onClick={() => begin(true)}><RotateCcw size={16}/> Start opnieuw</button></section></div>}
     </div>
   )
 
   const Icon = section.icon
   return (
-    <section className="panel lesson-player">
+    <section className="panel lesson-player lesson-fullscreen">
       <div className="lesson-player-top"><button className="text-btn" onClick={() => setShowStopConfirm(true)}><ChevronLeft size={15}/> Les stoppen</button><span className="panel-kicker">AARDRIJKSKUNDE · ONDERDEEL {sectionIndex + 1} VAN {lesson.sections.length}</span></div>
       <div className="lesson-progress"><span style={{width: percent + '%'}}/></div>
       <div className="lesson-player-meta"><span>{section.title}</span><span>{completedQuestions} van {totalQuestions} vragen doorlopen</span></div>
