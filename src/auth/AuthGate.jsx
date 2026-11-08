@@ -4,7 +4,7 @@ import { GraduationCap } from 'lucide-react'
 import App from '../App.jsx'
 import { isSupabaseConfigured, supabase } from './supabase.js'
 
-const DATA_KEYS = ['subjects', 'cards', 'known', 'studyStats', 'dark', 'accent', 'widgets']
+const DATA_KEYS = ['subjects', 'cards', 'known', 'studyStats', 'completedLessons', 'dark', 'accent', 'widgets']
 const localData = () => Object.fromEntries(DATA_KEYS.map(key => {
   try { const value = localStorage.getItem('leerkompas:' + key); return [key, value ? JSON.parse(value) : null] } catch { return [key, null] }
 }))
