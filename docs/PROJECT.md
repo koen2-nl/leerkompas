@@ -1,7 +1,7 @@
-# LeerKompas — projectnotities
+# SlimLeren — projectnotities
 
 ## Eerste versie
-Deze repository bevat de eerste front-end demo van LeerKompas: een responsive React-app gebouwd met Vite. De interface gebruikt Nederlandstalige voorbeeldgegevens en werkt zonder account, API of database.
+Deze repository bevat de eerste front-end demo van SlimLeren: een responsive React-app gebouwd met Vite. De interface gebruikt Nederlandstalige voorbeeldgegevens en werkt zonder account, API of database.
 
 ## Lokaal starten
 
@@ -16,7 +16,7 @@ npm run preview
 - `src/auth/supabase.js`: Supabase-client op basis van Vite-omgevingsvariabelen.
 - `src/auth/AuthGate.jsx`: registratie, e-mail/wachtwoord, Google OAuth, sessiebeheer en cloudsynchronisatie.
 - `supabase/schema.sql`: persoonlijke JSON-data-opslag met Row Level Security; elke gebruiker kan uitsluitend de eigen rij lezen en wijzigen.
-- Bij de eerste login worden bestaande lokale LeerKompas-gegevens naar het account gemigreerd als er nog geen cloudrecord bestaat.
+- Bij de eerste login worden bestaande lokale SlimLeren-gegevens naar het account gemigreerd als er nog geen cloudrecord bestaat.
 - Na aanmelden wordt de persoonlijke clouddata geladen voordat de leeromgeving wordt getoond. Wijzigingen worden automatisch gesynchroniseerd.
 
 ### Supabase instellen
@@ -49,7 +49,7 @@ Google OAuth vereist dat de beheerder zelf de Google-clientgegevens in het Supab
 - Desktop-zijbalk en mobiele uitschuifnavigatie.
 
 ## Bewuste grenzen
-LeerKompas bewaart vakken, flashcards, thema-instellingen, dashboardwidgets en oefensessie-voortgang lokaal in de browser via localStorage. Deze gegevens zijn alleen beschikbaar op hetzelfde apparaat en in dezelfde browser; er is nog geen account, cloudopslag of synchronisatie. Browsergegevens wissen kan de lokale leerdata verwijderen. Er zijn nog geen gedeelde sets, import/export, adaptief herhaalalgoritme of volledige minigames. Voeg geen geheime sleutels of privégegevens toe aan deze statische repository. Voor accounts, synchronisatie en veilige opslag is later een aparte backend nodig.
+SlimLeren bewaart vakken, flashcards, thema-instellingen, dashboardwidgets en oefensessie-voortgang lokaal in de browser via localStorage. Deze gegevens zijn alleen beschikbaar op hetzelfde apparaat en in dezelfde browser; er is nog geen account, cloudopslag of synchronisatie. Browsergegevens wissen kan de lokale leerdata verwijderen. Er zijn nog geen gedeelde sets, import/export, adaptief herhaalalgoritme of volledige minigames. Voeg geen geheime sleutels of privégegevens toe aan deze statische repository. Voor accounts, synchronisatie en veilige opslag is later een aparte backend nodig.
 
 ## Volgende technische stappen
 1. Import/export voor leerstof ontwerpen.
