@@ -12,6 +12,24 @@ npm run build
 npm run preview
 ```
 
+## Accounts en synchronisatie
+- `src/auth/supabase.js`: Supabase-client op basis van Vite-omgevingsvariabelen.
+- `src/auth/AuthGate.jsx`: registratie, e-mail/wachtwoord, Google OAuth, sessiebeheer en cloudsynchronisatie.
+- `supabase/schema.sql`: persoonlijke JSON-data-opslag met Row Level Security; elke gebruiker kan uitsluitend de eigen rij lezen en wijzigen.
+- Bij de eerste login worden bestaande lokale LeerKompas-gegevens naar het account gemigreerd als er nog geen cloudrecord bestaat.
+- Na aanmelden wordt de persoonlijke clouddata geladen voordat de leeromgeving wordt getoond. Wijzigingen worden automatisch gesynchroniseerd.
+
+### Supabase instellen
+1. Maak een project op https://supabase.com/.
+2. Open SQL Editor en voer `supabase/schema.sql` uit.
+3. Kopieer Project URL en de publieke anon/publishable key naar `VITE_SUPABASE_URL` en `VITE_SUPABASE_ANON_KEY`.
+4. Zet dezelfde variabelen als secrets/environment variables bij je hostingprovider. Gebruik nooit de `service_role`-sleutel in de frontend.
+5. Schakel in Supabase Authentication de Google-provider in. Maak daarvoor een OAuth-client aan bij Google Cloud en vul de door Supabase getoonde callback-URL daar in.
+6. Stel in Supabase Authentication → URL Configuration de lokale URL en je uiteindelijke productie-URL in bij Site URL en Redirect URLs.
+7. Configureer e-mailbevestiging en test registratie, aanmelden, uitloggen en opnieuw aanmelden.
+
+Google OAuth vereist dat de beheerder zelf de Google-clientgegevens in het Supabase-dashboard invoert. De code kan dit niet namens je doen.
+
 ## Architectuur
 - `src/main.jsx`: React-entrypoint en globale stylesheet.
 - `src/App.jsx`: pagina-navigatie, demo-data en interacties.
