@@ -27,6 +27,12 @@ Maak een productiebuild met `npm run build`.
 
 Dit is een front-end demonstratie zonder accounts of cloudopslag. Vakken, flashcards en instellingen worden lokaal in de browser bewaard; er is nog geen synchronisatie tussen apparaten. Zie [docs/PROJECT.md](docs/PROJECT.md) voor de architectuur, beperkingen en vervolgstappen.
 
+## Accounts en cloudopslag
+
+De Supabase-authenticatie en cloudsynchronisatie zijn voorbereid. Maak een Supabase-project, voer `supabase/schema.sql` uit en configureer `VITE_SUPABASE_URL` en `VITE_SUPABASE_ANON_KEY` (de publieke anon/publishable key) als omgevingsvariabelen. Kopieer `.env.example` naar `.env.local` voor lokaal gebruik. Stel in Supabase de site-URL en redirect-URL's in voor e-mailbevestiging en Google OAuth. Gebruik nooit de `service_role`-sleutel in de browser of in GitHub.
+
+Zie [docs/PROJECT.md](docs/PROJECT.md) voor de installatie en beveiligingsregels.
+
 ## Technologie
 
-React, Vite en Lucide React. Geen API-sleutels of servergeheimen nodig.
+React, Vite, Lucide React en Supabase.
