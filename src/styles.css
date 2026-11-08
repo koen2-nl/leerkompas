@@ -53,3 +53,5 @@
 .lesson-choice-modal .google-submit{padding:13px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;font-size:12px;cursor:pointer}
 .complete-icon{display:grid;place-items:center;width:66px;height:66px;margin:0 auto 15px;border-radius:20px;background:var(--accent-soft);color:var(--accent)}
 @media(max-width:700px){.lesson-stage-foot{align-items:stretch;flex-direction:column}.lesson-stage-foot .primary-btn{width:100%;justify-content:center}.lesson-player-meta{font-size:9px}.lesson-preview-foot{gap:10px}}
+
+.nav-item:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
