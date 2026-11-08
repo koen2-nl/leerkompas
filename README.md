@@ -15,7 +15,7 @@ Maak een productiebuild met `npm run build`.
 
 - Dashboard met widgets en studie-overzicht
 - Vakken beheren en doorzoeken
-- Eigen flashcards toevoegen, bekijken, oefenen en verwijderen
+- Eigen flashcards toevoegen, bekijken, oefenen en verwijderen\n- Flashcards in bulk importeren vanuit CSV (vak, vraag, antwoord; komma, puntkomma of tab als scheidingsteken)
 - Vakken, flashcards en instellingen lokaal bewaren in de browser
 - Flashcards om begrippen te oefenen
 - Quiz Rush-vraag met feedback
