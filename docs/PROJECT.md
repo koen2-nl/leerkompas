@@ -30,7 +30,16 @@ npm run preview
 
 Google OAuth vereist dat de beheerder zelf de Google-clientgegevens in het Supabase-dashboard invoert. De code kan dit niet namens je doen.
 
-### Beheer en adminaccounts\n- Voer na `supabase/schema.sql` ook `supabase/migrations/202611080001_admin_and_lessons.sql` uit in de Supabase SQL Editor.\n- Maak het eerste beheeraccount aan via Supabase Authentication → Users en voer daarna in de SQL Editor uit: `insert into public.user_roles (user_id, role) select id, 'admin' from auth.users where lower(email) = lower('jouw-e-mailadres') on conflict (user_id) do update set role = 'admin';` Vervang het e-mailadres door het account dat beheerder moet worden.\n- Daarna kan een beheerder extra bestaande accounts beheerrechten geven vanuit LeerKompas → Beheer. Maak nieuwe accounts eerst aan via Supabase Authentication.\n- Het beheerderspaneel kan XP, streak/sessies, lesvoortgang of alle leerdata per account resetten. Er is ook een centrale lesbibliotheek voor het opslaan en beheren van lesmetadata en JSON-lesinhoud.\n- Beheerfuncties gebruiken gecontroleerde SQL-functies en Row Level Security. Plaats nooit de Supabase `service_role`-sleutel in de browser.\n\nLet op: lessen die in de centrale lesbibliotheek worden aangemaakt, worden in deze eerste beheeruitbreiding opgeslagen en beheerd in Supabase. De koppeling waarmee die zelfgemaakte lessen automatisch in het leerling-lesoverzicht verschijnen, is een aparte vervolgstap.\n\n## Architectuur
+### Beheer en adminaccounts
+- Voer na `supabase/schema.sql` ook `supabase/migrations/202611080001_admin_and_lessons.sql` uit in de Supabase SQL Editor.
+- Maak het eerste beheeraccount aan via Supabase Authentication → Users en voer daarna in de SQL Editor uit: `insert into public.user_roles (user_id, role) select id, 'admin' from auth.users where lower(email) = lower('jouw-e-mailadres') on conflict (user_id) do update set role = 'admin';` Vervang het e-mailadres door het account dat beheerder moet worden.
+- Daarna kan een beheerder extra bestaande accounts beheerrechten geven vanuit LeerKompas → Beheer. Maak nieuwe accounts eerst aan via Supabase Authentication.
+- Het beheerderspaneel kan XP, streak/sessies, lesvoortgang of alle leerdata per account resetten. Er is ook een centrale lesbibliotheek voor het opslaan en beheren van lesmetadata en JSON-lesinhoud.
+- Beheerfuncties gebruiken gecontroleerde SQL-functies en Row Level Security. Plaats nooit de Supabase `service_role`-sleutel in de browser.
+
+Let op: lessen die in de centrale lesbibliotheek worden aangemaakt, worden in deze eerste beheeruitbreiding opgeslagen en beheerd in Supabase. De koppeling waarmee die zelfgemaakte lessen automatisch in het leerling-lesoverzicht verschijnen, is een aparte vervolgstap.
+
+## Architectuur
 - `src/main.jsx`: React-entrypoint en globale stylesheet.
 - `src/App.jsx`: pagina-navigatie, demo-data en interacties.
 - `src/styles.css`: componentstijlen, kleurthema's, donker thema en responsive breakpoints.
@@ -39,7 +48,8 @@ Google OAuth vereist dat de beheerder zelf de Google-clientgegevens in het Supab
 ## Wat werkt in deze demo
 - Dashboard met statistiekkaarten en aan/uit te zetten widgets.
 - Vakkenoverzicht, zoeken en een vak toevoegen.
-- Eigen flashcards toevoegen, bekijken, oefenen en verwijderen.\n- Flashcards in bulk importeren vanuit CSV met kolommen voor vak, vraag en antwoord; onbekende vakken worden automatisch aangemaakt.
+- Eigen flashcards toevoegen, bekijken, oefenen en verwijderen.
+- Flashcards in bulk importeren vanuit CSV met kolommen voor vak, vraag en antwoord; onbekende vakken worden automatisch aangemaakt.
 - Vakken, flashcards, thema-instellingen, dashboardwidgets en oefensessie-voortgang lokaal bewaren in de browser.
 - Flashcards met antwoord omdraaien en sessie-feedback.
 - Quiz Rush-vraag met antwoordcontrole.
