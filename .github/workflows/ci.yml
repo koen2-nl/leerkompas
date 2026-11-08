@@ -1,4 +1,4 @@
-name: Build LeerKompas
+name: Build SlimLeren
 
 on:
   pull_request:
