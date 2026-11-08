@@ -1,9 +1,9 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { AuthContext } from './AuthContext.jsx'
 import { GraduationCap } from 'lucide-react'
 import App from '../App.jsx'
 import { isSupabaseConfigured, supabase } from './supabase.js'
 
-const AuthContext = createContext(null)
 const DATA_KEYS = ['subjects', 'cards', 'known', 'dark', 'accent', 'widgets']
 const localData = () => Object.fromEntries(DATA_KEYS.map(key => {
   try { const value = localStorage.getItem('leerkompas:' + key); return [key, value ? JSON.parse(value) : null] } catch { return [key, null] }
@@ -11,8 +11,6 @@ const localData = () => Object.fromEntries(DATA_KEYS.map(key => {
 const writeLocalData = data => DATA_KEYS.forEach(key => {
   if (data?.[key] !== null && data?.[key] !== undefined) localStorage.setItem('leerkompas:' + key, JSON.stringify(data[key]))
 })
-
-export function useAuth() { return useContext(AuthContext) }
 
 export default function AuthGate() {
   const [session, setSession] = useState(null)
