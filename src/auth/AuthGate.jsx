@@ -17,6 +17,7 @@ export default function AuthGate() {
   const [loading, setLoading] = useState(true)
   const [syncStatus, setSyncStatus] = useState('saved')
   const [syncReady, setSyncReady] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   useEffect(() => {
     if (!supabase) { setLoading(false); return }
     let alive = true
@@ -47,6 +48,9 @@ export default function AuthGate() {
         const { error: saveError } = await supabase.from('user_data').upsert({ user_id: session.user.id, data: initialData })
         if (saveError) { setSyncStatus('error'); console.error('Lokale leerdata migreren mislukt:', saveError.message); return }
       }
+      const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', session.user.id).maybeSingle()
+      if (cancelled) return
+      setIsAdmin(roleData?.role === 'admin')
       if (!cancelled) { setSyncStatus('saved'); setSyncReady(true) }
     }
     hydrate()
@@ -67,10 +71,10 @@ export default function AuthGate() {
     window.addEventListener('leerkompas:data-changed', save)
     return () => { window.clearTimeout(timer); window.removeEventListener('leerkompas:data-changed', save) }
   }, [syncReady, session?.user?.id])
-  const value = useMemo(() => ({ user: session?.user ?? null, syncStatus, signOut: async () => {
+  const value = useMemo(() => ({ user: session?.user ?? null, syncStatus, isAdmin, signOut: async () => {
     DATA_KEYS.forEach(key => localStorage.removeItem('leerkompas:' + key))
     await supabase.auth.signOut()
-  } }), [session, syncStatus])
+  } }), [session, syncStatus, isAdmin])
   if (loading) return <div className="auth-screen"><div className="auth-card">LeerKompas laden…</div></div>
   if (!isSupabaseConfigured) return <div className="auth-screen"><div className="auth-card auth-setup"><div className="auth-brand"><span className="auth-brand-mark"><GraduationCap/></span>leer<span style={{color:'#7664db'}}>kompas</span></div><h1>Bijna klaar voor jouw leerplek</h1><p>De accountfunctie is voorbereid. Vul eerst de Supabase-omgevingsvariabelen in om registratie en inloggen te activeren.</p><p><strong>Benodigd:</strong> <code>VITE_SUPABASE_URL</code> en <code>VITE_SUPABASE_ANON_KEY</code>. Volg de installatiehandleiding in <code>docs/PROJECT.md</code>.</p></div></div>
   if (!session) return <AuthScreen />
