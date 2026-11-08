@@ -137,3 +137,25 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .admin-role-field select{width:100%;min-height:35px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:10px;letter-spacing:normal;outline-color:var(--accent)}
 .admin-role-field select:disabled{opacity:.65;cursor:not-allowed}
 @media(max-width:700px){.admin-role-field{width:100%;min-width:0}}
+
+/* Persoonlijke schoolplanning */
+.planner-page{display:grid;gap:15px;max-width:1000px}
+.planner-intro{display:flex;align-items:center;justify-content:space-between;gap:20px;background:linear-gradient(110deg,var(--panel),var(--accent-soft))}
+.planner-intro h2{font-size:19px;margin:5px 0}.planner-intro p,.planner-toolbar p{font-size:11px;color:var(--muted);line-height:1.6;margin:5px 0 0;max-width:580px}
+.planner-summary{min-width:105px;display:grid;justify-items:center;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+.planner-summary strong{font-size:25px;color:var(--accent)}.planner-summary span,.planner-summary small{font-size:9px;color:var(--muted)}
+.planner-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px}.planner-toolbar h3{font-size:15px;margin:0}
+.planner-form{display:grid;gap:10px}.planner-form h3{font-size:14px;margin:0}.planner-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 13px}
+.planner-form .field-label{margin:4px 0}.planner-form-actions{display:flex;gap:9px;flex-wrap:wrap}
+.planner-list{display:grid;gap:0}.planner-list .panel-head{margin-bottom:7px}.planner-list .panel-head h3{display:flex;align-items:center;gap:8px}
+.planner-count{font-size:10px;color:var(--muted)}
+.planner-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line)}
+.planner-check{width:25px;height:25px;flex:0 0 25px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--accent);display:grid;place-items:center;cursor:pointer}
+.planner-item-main{display:grid;gap:4px;min-width:0;flex:1}.planner-item-main strong{font-size:12px}.planner-item-main small{font-size:10px;color:var(--muted)}
+.planner-item-meta{display:flex;align-items:center;gap:8px;font-size:9px;color:var(--muted)}
+.planner-kind{padding:3px 7px;border-radius:5px;background:var(--accent-soft);color:var(--accent);font-weight:750}
+.kind-toets{background:#fff0e9;color:#b66b45}.kind-opdracht{background:#eaf3ff;color:#4d7fb2}.kind-leermoment{background:#e8f6f0;color:#3c8b6d}
+.planner-delete{border:0;background:transparent;color:var(--muted);padding:7px;cursor:pointer;border-radius:7px}.planner-delete:hover{background:var(--surface);color:#b45c52}
+.planner-item.is-done .planner-item-main strong{text-decoration:line-through;color:var(--muted)}.planner-item.is-done .planner-check{background:var(--accent-soft);border-color:var(--accent)}
+.planner-empty{display:grid;justify-items:center;gap:7px;padding:28px 10px;color:var(--muted);text-align:center}.planner-empty svg{color:var(--accent)}.planner-empty strong{font-size:12px;color:var(--ink)}.planner-empty span{font-size:10px}
+@media(max-width:650px){.planner-intro{align-items:flex-start}.planner-form-grid{grid-template-columns:1fr}.planner-toolbar{align-items:flex-start}.planner-toolbar .primary-btn{white-space:nowrap}.planner-item{gap:8px}}
