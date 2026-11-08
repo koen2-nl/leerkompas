@@ -65,7 +65,7 @@
 .lesson-filter-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
 .lesson-filter-controls label,.admin-lesson-form label{display:grid;gap:6px;font-size:10px;font-weight:700;color:var(--muted)}
 .lesson-empty-filter{padding:22px;text-align:center;color:var(--muted);font-size:12px}
-.lesson-fullscreen{position:fixed!important;inset:0!important;z-index:30!important;width:100%!important;max-width:none!important;min-height:100dvh!important;height:100dvh;overflow-y:auto;border-radius:0!important;margin:0!important;padding:clamp(22px,5vh,52px) max(18px,calc((100vw - 850px)/2))!important;background:var(--bg)!important;box-shadow:none!important;animation:lessonEnter .28s cubic-bezier(.2,.8,.2,1) both}
+.lesson-fullscreen{position:fixed!important;inset:0!important;z-index:30!important;width:100%!important;max-width:none!important;min-height:100dvh!important;height:100dvh;overflow-y:auto;border-radius:0!important;margin:0!important;padding:clamp(22px,5vh,52px) max(18px,calc((100vw - 850px)/2))!important;background:var(--panel)!important;box-shadow:none!important;animation:lessonEnter .28s cubic-bezier(.2,.8,.2,1) both}
 .lesson-fullscreen>.lesson-player-top,.lesson-fullscreen>.lesson-progress,.lesson-fullscreen>.lesson-player-meta,.lesson-fullscreen>.lesson-hero,.lesson-fullscreen>.lesson-explanation,.lesson-fullscreen>.lesson-stage-foot,.lesson-fullscreen>.lesson-question,.lesson-fullscreen>.lesson-question-foot{width:100%}
 body.lesson-open{overflow:hidden}
 .lesson-fullscreen .lesson-hero{margin-top:clamp(18px,5vh,48px)}
