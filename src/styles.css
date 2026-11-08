@@ -131,3 +131,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media(max-width:650px){.content{padding:22px 14px 18px}.topbar{padding:0 14px}.date-pill{display:none}.top-actions{gap:7px}.sync-indicator{font-size:9px}.admin-panel{padding:15px}.admin-heading{align-items:flex-start;flex-direction:column}.admin-user{display:grid;gap:10px}.admin-reset-actions>*{flex:1 1 calc(50% - 6px)}.admin-lesson-row{gap:8px}.admin-lesson-row>div{flex-basis:100%}.lesson-fullscreen{overscroll-behavior:contain}.lesson-player-top{gap:8px;flex-wrap:wrap}}
 @media(max-height:520px) and (orientation:landscape){.lesson-fullscreen{padding-top:12px!important;padding-bottom:12px!important}.lesson-fullscreen .lesson-hero{margin-top:12px}.lesson-fullscreen .lesson-question{margin-top:12px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+.admin-user-info{display:grid;gap:5px;min-width:0;flex:1}
+.admin-role-field{display:grid;gap:5px;min-width:140px;font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.04em}
+.admin-role-field select{width:100%;min-height:35px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:10px;letter-spacing:normal;outline-color:var(--accent)}
+.admin-role-field select:disabled{opacity:.65;cursor:not-allowed}
+@media(max-width:700px){.admin-role-field{width:100%;min-width:0}}
