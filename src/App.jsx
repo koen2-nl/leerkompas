@@ -86,6 +86,14 @@ function App() {
   const [quizDone, setQuizDone] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [toast, setToast] = useState('')
+  const [headerNow, setHeaderNow] = useState(() => new Date())
+  useEffect(() => {
+    const updateHeaderClock = () => setHeaderNow(new Date())
+    const interval = window.setInterval(updateHeaderClock, 1000)
+    return () => window.clearInterval(interval)
+  }, [])
+  const headerDate = headerNow.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const headerTime = headerNow.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
   useEffect(() => { try { saveLocal('subjects', subjects) } catch { notify('Opslaan lukte niet. Controleer je browserinstellingen.') } }, [subjects])
   useEffect(() => { try { saveLocal('cards', cards) } catch { notify('Opslaan lukte niet. Controleer je browserinstellingen.') } }, [cards])
   useEffect(() => { try { saveLocal('dark', dark) } catch {} }, [dark])
@@ -137,7 +145,7 @@ function App() {
     </aside>
     {mobileOpen&&<div className="scrim" onClick={()=>setMobileOpen(false)}/>}
     <main className="main">
-      <header className="topbar"><button className="icon-btn menu-toggle" onClick={()=>setMobileOpen(true)} aria-label="Menu openen"><Menu/></button><div className="breadcrumbs">Mijn leerplek <ChevronRight size={14}/> <strong>{title}</strong></div><div className="top-actions"><div className="date-pill"><CalendarDays size={15}/> Zondag 8 november</div><button className="icon-btn" onClick={()=>setDark(!dark)} aria-label="Wissel thema">{dark?<Sun size={18}/>:<Moon size={18}/>}</button><span className="sync-indicator" title={syncStatus === "saved" ? "Alles gesynchroniseerd" : "Synchroniseren"}>{syncStatus === "saving" ? "Opslaan…" : syncStatus === "saved" ? "✓ Opgeslagen" : "Verbonden"}</span><button className="avatar small" title="Uitloggen" onClick={signOut}><X size={15}/></button></div></header>
+      <header className="topbar"><button className="icon-btn menu-toggle" onClick={()=>setMobileOpen(true)} aria-label="Menu openen"><Menu/></button><div className="breadcrumbs">Mijn leerplek <ChevronRight size={14}/> <strong>{title}</strong></div><div className="top-actions"><div className="date-pill"><span className="header-date"><CalendarDays size={15}/>{headerDate}</span><span className="header-clock"><Clock3 size={15}/><time>{headerTime}</time></span></div><button className="icon-btn" onClick={()=>setDark(!dark)} aria-label="Wissel thema">{dark?<Sun size={18}/>:<Moon size={18}/>}</button><span className="sync-indicator" title={syncStatus === "saved" ? "Alles gesynchroniseerd" : "Synchroniseren"}>{syncStatus === "saving" ? "Opslaan…" : syncStatus === "saved" ? "✓ Opgeslagen" : "Verbonden"}</span><button className="avatar small" title="Uitloggen" onClick={signOut}><X size={15}/></button></div></header>
       <div className="content">
         <div className="page-heading"><div><div className="eyebrow"><Sparkles size={14}/> JOUW PERSOONLIJKE LEERPLEK</div><h1>{title}</h1><p>{page==='home'?'Klaar om vandaag iets nieuws te ontdekken?':page==='study'?'Korte herhaalmomenten helpen je kennis beter onthouden.':'Alles op één plek. Jij bepaalt je eigen tempo.'}</p></div>{page==='home'&&<button className="primary-btn" onClick={()=>go('subjects')}><Zap size={16}/> Start leersessie</button>}</div>
         {page==='home'&&<><section className="welcome-banner"><div className="welcome-copy"><span className="banner-tag"><Leaf size={13}/> KLEINE STAPPEN, GROOT RESULTAAT</span><h2>Elke dag een beetje<br/> <em>wijzer.</em></h2><p>Je hebt vandaag 24 minuten gepland. Een mooi moment om verder te groeien.</p><button className="banner-btn" onClick={()=>go('subjects')}>Verder leren <ArrowRight size={16}/></button></div><div className="banner-art"><div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="book-illustration"><BookOpen size={76} strokeWidth={1.2}/><Sparkles className="sparkle s1"/><Sparkles className="sparkle s2"/></div><div className="floating-note note-a"><Sparkles size={13}/> Goed bezig!</div><div className="floating-note note-b">+ 20 XP</div></div></section>
