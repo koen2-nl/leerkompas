@@ -19,11 +19,17 @@ export default function SetupWizard({ onComplete }) {
   const Icon = current.icon
   const update = (key, value) => setProfile(previous => ({ ...previous, [key]: value }))
   const canContinue = step === 1 || (step === 0 ? profile.username.trim().length >= 2 : step === 2 ? !!profile.className.trim() : step === 3 ? !!profile.level : !!profile.goal.trim() && Number(profile.dailyMinutes) >= 10)
-  const next = () => {
+  const next = async () => {
     if (!canContinue) { setError(step === 0 ? 'Vul een gebruikersnaam van minimaal 2 tekens in.' : step === 2 ? 'Vul je klas of leerjaar in.' : step === 3 ? 'Kies je niveau.' : 'Vul je leerdoel in en kies minimaal 10 minuten.'); return }
     setError('')
     if (step < steps.length - 1) setStep(value => value + 1)
-    else onComplete({ ...profile, username: profile.username.trim(), school: profile.school.trim(), className: profile.className.trim(), goal: profile.goal.trim(), dailyMinutes: Math.max(10, Number(profile.dailyMinutes)), completedAt: new Date().toISOString() })
+    else {
+      try {
+        await onComplete({ ...profile, username: profile.username.trim(), school: profile.school.trim(), className: profile.className.trim(), goal: profile.goal.trim(), dailyMinutes: Math.max(10, Math.min(240, Number(profile.dailyMinutes))), completedAt: new Date().toISOString() })
+      } catch (saveError) {
+        setError(saveError?.message || 'Je profiel opslaan is niet gelukt. Probeer het opnieuw.')
+      }
+    }
   }
   return <main className="setup-screen">
     <section className="setup-card">

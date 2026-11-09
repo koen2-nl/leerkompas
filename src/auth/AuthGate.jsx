@@ -51,6 +51,37 @@ export default function AuthGate() {
         const { error: saveError } = await supabase.from('user_data').upsert({ user_id: session.user.id, data: initialData })
         if (saveError) { setSyncStatus('error'); console.error('Lokale leerdata migreren mislukt:', saveError.message); return }
       }
+      const { data: profileRow, error: profileError } = await supabase.from('student_profiles').select('*').eq('user_id', session.user.id).maybeSingle()
+      if (cancelled) return
+      if (profileError) {
+        console.error('Profiel laden uit Supabase mislukt:', profileError.message)
+      } else if (profileRow) {
+        localStorage.setItem('leerkompas:profile', JSON.stringify({
+          username: profileRow.username,
+          school: profileRow.school || '',
+          className: profileRow.class_name,
+          level: profileRow.level,
+          goal: profileRow.goal,
+          dailyMinutes: profileRow.daily_minutes,
+          completedAt: profileRow.completed_at
+        }))
+      } else {
+        let legacyProfile = null
+        try { legacyProfile = JSON.parse(localStorage.getItem('leerkompas:profile') || 'null') } catch {}
+        if (legacyProfile?.username && legacyProfile?.className && legacyProfile?.level && legacyProfile?.goal) {
+          const { error: profileSaveError } = await supabase.from('student_profiles').upsert({
+            user_id: session.user.id,
+            username: legacyProfile.username,
+            school: legacyProfile.school || '',
+            class_name: legacyProfile.className,
+            level: legacyProfile.level,
+            goal: legacyProfile.goal,
+            daily_minutes: Math.max(10, Number(legacyProfile.dailyMinutes) || 10),
+            completed_at: legacyProfile.completedAt || new Date().toISOString()
+          })
+          if (profileSaveError) console.error('Bestaand profiel migreren mislukt:', profileSaveError.message)
+        }
+      }
       const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', session.user.id).maybeSingle()
       if (cancelled) return
       setIsAdmin(roleData?.role === 'admin')
@@ -87,7 +118,22 @@ export default function AuthGate() {
   if (!session) return <AuthScreen />
   if (!syncReady) return <div className="auth-screen"><div className="auth-card">Je persoonlijke leerplek veilig laden…</div></div>
   if (!profileLoaded) return <div className="auth-screen"><div className="auth-card">Je profiel laden…</div></div>
-  if (!profileReady) return <SetupWizard user={session.user} onComplete={profile => { localStorage.setItem('leerkompas:profile', JSON.stringify(profile)); window.dispatchEvent(new CustomEvent('leerkompas:data-changed')); setProfileReady(true) }} />
+  if (!profileReady) return <SetupWizard onComplete={async profile => {
+    const { error } = await supabase.from('student_profiles').upsert({
+      user_id: session.user.id,
+      username: profile.username,
+      school: profile.school || '',
+      class_name: profile.className,
+      level: profile.level,
+      goal: profile.goal,
+      daily_minutes: profile.dailyMinutes,
+      completed_at: profile.completedAt
+    })
+    if (error) throw new Error('Je profiel kon niet worden opgeslagen: ' + error.message)
+    localStorage.setItem('leerkompas:profile', JSON.stringify(profile))
+    window.dispatchEvent(new CustomEvent('leerkompas:data-changed'))
+    setProfileReady(true)
+  }} />
   return <AuthContext.Provider value={value}><App /></AuthContext.Provider>
 }
 
