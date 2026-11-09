@@ -3,7 +3,7 @@ import { Check, RefreshCw, ShieldCheck, Users, BookOpen, RotateCcw, Trash2, Plus
 import { supabase } from './auth/supabase.js'
 
 const blankQuestion = () => ({ type: 'multiple_choice', question: '', answer: '', explanation: '', options: '' })
-const empty = { title: '', subject: 'Aardrijkskunde', topic: '', level: 'Onderbouw', difficulty: 'Basis', description: '', mode: 'normal', questions: [blankQuestion()] }
+const empty = { title: '', subject: 'Aardrijkskunde', topic: '', level: 'Alle niveaus', targetClass: '', targetSchool: '', difficulty: 'Basis', description: '', mode: 'normal', questions: [blankQuestion()] }
 
 function questionsFromContent(content) {
   const questions = (content?.sections || []).flatMap(section => section.questions || [])
@@ -54,13 +54,13 @@ export default function AdminPanel() {
       setError('Vul bij iedere vraag de vraag en het antwoord in. Voeg bij meerkeuze ook antwoordopties toe.');return
     }
     setBusy(true);setError('')
-    const payload={title:form.title.trim(),subject:form.subject.trim(),topic:form.topic.trim(),level:form.level,difficulty:form.difficulty,description:form.description.trim(),content:buildContent(form)}
+    const payload={title:form.title.trim(),subject:form.subject.trim(),topic:form.topic.trim(),level:form.level,target_class:form.targetClass.trim(),target_school:form.targetSchool.trim(),difficulty:form.difficulty,description:form.description.trim(),content:buildContent(form)}
     const result=editId?await supabase.from('lesson_catalog').update(payload).eq('id',editId):await supabase.from('lesson_catalog').insert(payload)
     setBusy(false);if(result.error)setError(result.error.message);else{setNotice(editId?'Les bijgewerkt.':'Les aangemaakt.');setForm(empty);setEditId(null);setCreatorStep('choice');load()}
   }
   const edit=l=>{
     setEditId(l.id)
-    setForm({title:l.title||'',subject:l.subject||'',topic:l.topic||'',level:l.level||'Onderbouw',difficulty:l.difficulty||'Basis',description:l.description||'',mode:l.content?.mode||'normal',questions:questionsFromContent(l.content||{})});setCreatorStep('builder')
+    setForm({title:l.title||'',subject:l.subject||'',topic:l.topic||'',level:l.level||'Alle niveaus',targetClass:l.target_class||'',targetSchool:l.target_school||'',difficulty:l.difficulty||'Basis',description:l.description||'',mode:l.content?.mode||'normal',questions:questionsFromContent(l.content||{})});setCreatorStep('builder')
   }
   const remove=async l=>{if(!window.confirm('Les '+l.title+' verwijderen?'))return;const {error:e}=await supabase.from('lesson_catalog').delete().eq('id',l.id);if(e)setError(e.message);else{setNotice('Les verwijderd.');load()}}
   const updateQuestion=(index,patch)=>setForm(current=>({...current,questions:current.questions.map((q,i)=>i===index?{...q,...patch}:q)}))
@@ -93,7 +93,9 @@ export default function AdminPanel() {
           <label>Titel<input required value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="Bijv. Het zonnestelsel"/></label>
           <label>Vak<input required value={form.subject} onChange={e=>setForm({...form,subject:e.target.value})} placeholder="Bijv. Aardrijkskunde"/></label>
           <label>Onderwerp<input required value={form.topic} onChange={e=>setForm({...form,topic:e.target.value})} placeholder="Bijv. Planeten"/></label>
-          <label>Niveau<select value={form.level} onChange={e=>setForm({...form,level:e.target.value})}><option>Onderbouw</option><option>Bovenbouw</option><option>Alle niveaus</option></select></label>
+          <label>Niveau<select value={form.level} onChange={e=>setForm({...form,level:e.target.value})}><option>Alle niveaus</option><option>vmbo-basis</option><option>vmbo-kader</option><option>vmbo-gl/tl</option><option>havo</option><option>vwo</option><option>mbo</option><option>hbo</option><option>wo</option><option>Anders</option><option>Onderbouw</option><option>Bovenbouw</option></select></label>
+          <label>Specifieke klas <span className="admin-optional">(optioneel)</span><input value={form.targetClass} onChange={e=>setForm({...form,targetClass:e.target.value})} placeholder="Bijv. 2 havo"/></label>
+          <label>Specifieke school <span className="admin-optional">(optioneel)</span><input value={form.targetSchool} onChange={e=>setForm({...form,targetSchool:e.target.value})} placeholder="Alleen tonen aan leerlingen van deze school"/></label>
           <label>Moeilijkheid<select value={form.difficulty} onChange={e=>setForm({...form,difficulty:e.target.value})}><option>Basis</option><option>Gemiddeld</option><option>Uitdagend</option></select></label>
         </div>
         <label>Beschrijving van de les <span className="admin-optional">(optioneel)</span><textarea rows="2" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Waar gaat deze les over?"/></label>
