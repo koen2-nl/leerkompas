@@ -2,25 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, BookOpen, Check, ChevronLeft, Clock3, Compass, Play, RotateCcw, Save, X, Zap } from 'lucide-react'
 import { supabase } from './auth/supabase.js'
 
-const demoLesson = {
-  id: 'volcano',
-  title: 'Vulkanen en aardbevingen',
-  subtitle: 'Wat gebeurt er onder het aardoppervlak?',
-  subject: 'Aardrijkskunde',
-  topic: 'Natuurverschijnselen',
-  level: 'Onderbouw',
-  difficulty: 'Basis',
-  target_class: '',
-  target_school: '',
-  duration: '10–12 min',
-  intro: 'Je ontdekt hoe aardplaten bewegen, waarom aardbevingen ontstaan en hoe vulkanen werken. Elk onderdeel begint met uitleg en een voorbeeld. Daarna oefen je meteen met vragen over precies dat onderdeel.',
-  sections: [
-    { title: 'Aardplaten', icon: Compass, explanation: 'De buitenste laag van de aarde is verdeeld in grote en kleine stukken. Die stukken noemen we aardplaten. Ze sluiten op elkaar aan als een soort puzzel en bewegen heel langzaam, meestal maar enkele centimeters per jaar.', example: 'Vergelijk de aardplaten met stukken van een gebarsten eierschaal: ze liggen tegen elkaar, maar kunnen heel langzaam verschuiven.', questions: [{ type: 'multiple_choice', q: 'Hoe noemen we de grote stukken waaruit de aardkorst bestaat?', options: ['Wolkenlagen', 'Aardplaten', 'Luchtstromen'], answer: 1, feedback: 'De aardkorst bestaat uit aardplaten die heel langzaam bewegen.' }, { type: 'multiple_choice', q: 'Hoe snel bewegen aardplaten meestal?', options: ['Enkele centimeters per jaar', 'Enkele kilometers per dag', 'Helemaal niet'], answer: 0, feedback: 'Aardplaten bewegen langzaam: meestal enkele centimeters per jaar.' }] },
-    { title: 'Aardbevingen', icon: Compass, explanation: 'Aardplaten kunnen naar elkaar toe bewegen, uit elkaar gaan of langs elkaar schuiven. Soms blijven de randen tijdelijk vastzitten. De spanning bouwt dan op. Wanneer die spanning plotseling vrijkomt, gaat de grond trillen: dat is een aardbeving.', example: 'Een aardbeving ontstaat dus door beweging en spanning in de aardkorst, niet door het weer.', questions: [{ type: 'multiple_choice', q: 'Waardoor ontstaat een aardbeving meestal?', options: ['Door langdurige regen', 'Door de aantrekkingskracht van de maan', 'Door spanning die tussen aardplaten vrijkomt'], answer: 2, feedback: 'Als opgebouwde spanning bij aardplaten plotseling vrijkomt, trilt de grond.' }] },
-    { title: 'Vulkanen', icon: BookOpen, explanation: 'Diep in de aarde kan gesteente zo heet worden dat het smelt. Dit gesmolten gesteente heet magma. Als magma via een opening naar buiten komt, noemen we het lava. Bij een uitbarsting kunnen ook as en gassen vrijkomen.', example: 'Onthoud het verschil: onder de grond heet het magma, aan het aardoppervlak heet het lava.', questions: [{ type: 'multiple_choice', q: 'Hoe heet gesmolten gesteente onder de grond?', options: ['Lava', 'Magma', 'As'], answer: 1, feedback: 'Onder de grond heet gesmolten gesteente magma. Aan het oppervlak noemen we het lava.' }, { type: 'multiple_choice', q: 'Wat kan bij een vulkaanuitbarsting naar buiten komen?', options: ['Lava, as en gassen', 'Alleen water', 'Sneeuw en zand'], answer: 0, feedback: 'Bij een uitbarsting kunnen lava, as en gassen vrijkomen.' }] }
-  ]
-}
-
 function normalizeLesson(row) {
   const sections = (row.content?.sections || []).map(section => ({
     title: section.title || row.topic || 'Onderdeel',
@@ -120,7 +101,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
     return () => { cancelled = true }
   }, [])
 
-  const lessons = catalogLessons.length ? catalogLessons : [demoLesson]
+  const lessons = catalogLessons
   const section = selectedLesson?.sections?.[sectionIndex]
   const question = section?.questions?.[questionIndex]
   const totalQuestions = useMemo(() => selectedLesson?.sections?.reduce((sum, item) => sum + item.questions.length, 0) || 0, [selectedLesson])
