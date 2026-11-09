@@ -521,3 +521,29 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .header-date svg,.header-clock svg{color:var(--accent);flex:0 0 auto}
 .header-clock{font-variant-numeric:tabular-nums;font-weight:750;color:var(--ink);padding-left:12px;border-left:1px solid var(--line)}
 @media(max-width:760px){.date-pill{display:flex;gap:8px;padding:0;border:0;font-size:9px}.header-date{display:none}.header-clock{padding:0;border:0}.top-actions{gap:8px}}
+
+
+/* Overzichtelijke les- en vraagmaker */
+.admin-lesson-form{display:grid;gap:16px}
+.admin-lesson-form-heading,.admin-question-builder-heading{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.admin-lesson-form-heading h4{font-size:16px;margin:0 0 4px}
+.admin-lesson-form-heading p{font-size:11px;color:var(--muted);margin:0}
+.admin-question-count{font-size:10px;font-weight:750;color:var(--accent);background:var(--accent-soft);padding:7px 10px;border-radius:20px;white-space:nowrap}
+.admin-question-builder-heading{padding-top:7px;border-top:1px solid var(--line)}
+.admin-question-builder-heading>div{display:grid;gap:4px}
+.admin-question-builder-heading .panel-kicker{margin:0}
+.admin-question-builder-heading strong{font-size:13px}
+.admin-question-builder-heading small{font-size:10px;color:var(--muted)}
+.admin-question-list{display:grid;gap:12px}
+.admin-question-card{display:grid;gap:11px;padding:15px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.admin-question-card-top{display:flex;align-items:center;justify-content:space-between}
+.admin-question-card-top>strong{font-size:12px;color:var(--accent)}
+.admin-question-card label,.admin-lesson-form>label{display:grid;gap:6px;font-size:10px;font-weight:700;color:var(--ink)}
+.admin-question-card input,.admin-question-card textarea,.admin-question-card select,.admin-lesson-form>label textarea{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);padding:10px 11px;font:inherit;font-size:11px;outline-color:var(--accent);resize:vertical}
+.admin-question-card select{height:38px;padding:0 10px}
+.admin-required{font-size:9px;font-weight:650;color:#b65e50}
+.admin-optional{font-size:9px;font-weight:500;color:var(--muted)}
+.admin-remove-question{width:28px;height:28px;border:0;border-radius:7px;background:var(--panel);color:var(--muted);display:grid;place-items:center;cursor:pointer}
+.admin-remove-question:hover{color:#b65e50;background:#fff0ed}
+.admin-question-card label textarea:focus,.admin-question-card label select:focus,.admin-lesson-form>label textarea:focus{border-color:var(--accent)}
+@media(max-width:600px){.admin-lesson-form-heading,.admin-question-builder-heading{align-items:flex-start;flex-direction:column}.admin-question-builder-heading>.soft-btn{width:100%;justify-content:center}.admin-question-card{padding:12px}}
