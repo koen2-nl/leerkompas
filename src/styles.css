@@ -276,3 +276,185 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .planner-item-meta{font-size:10px}
 @media(max-width:650px){.planner-calendar{padding:11px}.planner-calendar-top{align-items:flex-start;flex-direction:column}.planner-calendar-actions{width:100%}.planner-calendar-actions .soft-btn{margin-right:auto}.planner-day{min-height:70px;padding:4px 3px;gap:3px}.planner-day-number{width:20px;height:20px;font-size:10px}.planner-day-event{font-size:8px;padding:2px}.planner-weekday{font-size:9px;padding:7px 2px}.planner-legend{gap:9px}.planner-toolbar{align-items:center}.planner-toolbar p{max-width:230px}}
 @media(prefers-reduced-motion:no-preference){.planner-day,.planner-arrow,.planner-view-toggle button{transition:background-color .12s ease,border-color .12s ease}}
+
+
+/* SlimLeren motion system: vloeiende, rustige micro-interacties */
+@keyframes sl-enter {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes sl-pop {
+  0% { opacity: 0; transform: scale(.94) translateY(7px); }
+  65% { opacity: 1; transform: scale(1.015) translateY(-1px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes sl-float {
+  0%, 100% { transform: translateY(0) rotate(-7deg); }
+  50% { transform: translateY(-8px) rotate(-4deg); }
+}
+@keyframes sl-orbit {
+  from { transform: rotate(-24deg); }
+  to { transform: rotate(336deg); }
+}
+@keyframes sl-orbit-reverse {
+  from { transform: rotate(30deg); }
+  to { transform: rotate(-330deg); }
+}
+@keyframes sl-sparkle {
+  0%, 100% { opacity: .55; scale: .85; }
+  50% { opacity: 1; scale: 1.18; }
+}
+@keyframes sl-note {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-5px) rotate(1deg); }
+}
+@keyframes sl-progress {
+  from { transform: scaleX(.2); transform-origin: left; }
+  to { transform: scaleX(1); transform-origin: left; }
+}
+@keyframes sl-toast {
+  from { opacity: 0; transform: translate(-50%, 12px) scale(.97); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+@keyframes sl-shimmer {
+  0% { background-position: 180% 0; }
+  100% { background-position: -180% 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .content > .page-heading,
+  .content > .welcome-banner,
+  .content > .stats-grid,
+  .content > .section-heading,
+  .content > .dashboard-grid,
+  .content > .toolbar,
+  .content > .subject-grid,
+  .content > .study-layout,
+  .content > .games-intro,
+  .content > .games-grid,
+  .content > .quiz-panel,
+  .content > .progress-panel,
+  .content > .planner-page {
+    animation: sl-enter .52s cubic-bezier(.2,.75,.25,1) both;
+  }
+  .content > .welcome-banner { animation-delay: 45ms; }
+  .content > .stats-grid { animation-delay: 90ms; }
+  .content > .section-heading { animation-delay: 125ms; }
+  .content > .dashboard-grid,
+  .content > .subject-grid,
+  .content > .games-grid { animation-delay: 155ms; }
+
+  .stats-grid > .stat-card,
+  .dashboard-grid > .panel,
+  .subject-grid > .subject-card,
+  .games-grid > .game-card {
+    animation: sl-pop .48s cubic-bezier(.2,.75,.25,1) both;
+  }
+  .stats-grid > :nth-child(2),
+  .dashboard-grid > :nth-child(2),
+  .subject-grid > :nth-child(2),
+  .games-grid > :nth-child(2) { animation-delay: 55ms; }
+  .stats-grid > :nth-child(3),
+  .dashboard-grid > :nth-child(3),
+  .subject-grid > :nth-child(3),
+  .games-grid > :nth-child(3) { animation-delay: 100ms; }
+  .stats-grid > :nth-child(4),
+  .subject-grid > :nth-child(4),
+  .games-grid > :nth-child(4) { animation-delay: 145ms; }
+  .games-grid > :nth-child(5) { animation-delay: 190ms; }
+  .games-grid > :nth-child(6) { animation-delay: 235ms; }
+
+  .nav-item,
+  .icon-btn,
+  .planner-arrow,
+  .planner-check,
+  .planner-delete,
+  .planner-day,
+  .planner-view-toggle button,
+  .quiz-options button,
+  .lesson-options button,
+  .game-card,
+  .subject-card,
+  .panel,
+  .stat-card,
+  .primary-btn,
+  .soft-btn,
+  .banner-btn {
+    transition:
+      transform .22s cubic-bezier(.2,.75,.25,1),
+      box-shadow .22s ease,
+      background-color .2s ease,
+      border-color .2s ease,
+      color .2s ease;
+  }
+  .game-card:hover,
+  .subject-card:hover,
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px #263b3010;
+  }
+  .panel:hover { border-color: color-mix(in srgb, var(--accent) 18%, var(--line)); }
+  .primary-btn:hover:not(:disabled),
+  .banner-btn:hover,
+  .soft-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px #263b3018;
+  }
+  .primary-btn:active:not(:disabled),
+  .banner-btn:active,
+  .soft-btn:active:not(:disabled),
+  .game-card:active,
+  .nav-item:active { transform: translateY(0) scale(.985); }
+  .icon-btn:hover,
+  .planner-arrow:hover,
+  .planner-delete:hover { transform: scale(1.07); }
+  .planner-check:hover { transform: scale(1.08); }
+  .quiz-options button:hover:not(:disabled),
+  .lesson-options button:hover:not(:disabled) {
+    transform: translateX(4px);
+    border-color: var(--accent);
+  }
+  .planner-day:hover { transform: scale(1.025); z-index: 1; box-shadow: 0 5px 16px #263b3012; }
+  .planner-day.selected { animation: sl-pop .25s ease both; }
+  .progress-track > div { animation: sl-progress .7s cubic-bezier(.2,.75,.25,1) both; }
+  .toast { animation: sl-toast .28s cubic-bezier(.2,.75,.25,1) both; }
+  .modal-backdrop { animation: sl-enter .2s ease both; }
+  .modal { animation: sl-pop .32s cubic-bezier(.2,.75,.25,1) both; }
+  .flashcard { transition: transform .35s cubic-bezier(.2,.75,.25,1), background .25s ease, border-color .25s ease; }
+  .flashcard:hover { transform: translateY(-3px); }
+  .welcome-banner .orbit { display: block; animation: sl-orbit 32s linear infinite; }
+  .welcome-banner .orbit-two { animation: sl-orbit-reverse 38s linear infinite; }
+  .welcome-banner .book-illustration { animation: sl-float 5s ease-in-out infinite; }
+  .welcome-banner .sparkle { display: block; animation: sl-sparkle 2.4s ease-in-out infinite; }
+  .welcome-banner .s2 { animation-delay: 1.1s; }
+  .welcome-banner .floating-note { display: block; animation: sl-note 4s ease-in-out infinite; }
+  .welcome-banner .note-b { animation-delay: 1.3s; }
+  .brand-mark { transition: transform .25s cubic-bezier(.2,.75,.25,1), background .2s ease; }
+  .brand:hover .brand-mark { transform: rotate(-8deg) scale(1.08); }
+  .planner-item { animation: sl-enter .32s ease both; }
+  .planner-item:nth-child(2) { animation-delay: 35ms; }
+  .planner-item:nth-child(3) { animation-delay: 70ms; }
+  .planner-item:nth-child(4) { animation-delay: 105ms; }
+}
+
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 65%, white);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+  .welcome-banner .orbit,
+  .welcome-banner .sparkle,
+  .welcome-banner .floating-note { display: none; }
+}
+@media (hover: none) {
+  .game-card:hover,
+  .subject-card:hover,
+  .stat-card:hover,
+  .planner-day:hover { transform: none; box-shadow: none; }
+}
