@@ -65,7 +65,7 @@ const goalMatch = (item, profile) => {
   return terms.some(term => lessonText.includes(term))
 }
 
-export default function GeographyLessons({ completedLessons = [], onComplete, onActiveChange, profile }) {
+export default function GeographyLessons({ completedLessons = [], onComplete, onActiveChange, onCatalogLoaded, profile }) {
   const [catalogLessons, setCatalogLessons] = useState([])
   const [catalogLoading, setCatalogLoading] = useState(true)
   const [catalogError, setCatalogError] = useState('')
@@ -94,7 +94,19 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
       const { data, error } = await supabase.from('lesson_catalog').select('*').order('created_at', { ascending: false })
       if (cancelled) return
       if (error) setCatalogError('De lessen konden niet worden geladen: ' + error.message)
-      else setCatalogLessons((data || []).map(normalizeLesson).filter(Boolean))
+      else {
+        const normalizedLessons = (data || []).map(normalizeLesson).filter(Boolean)
+        const lessonIds = normalizedLessons.map(lesson => String(lesson.id))
+        setCatalogLessons(normalizedLessons)
+        try {
+          const prefix = 'leerkompas:lessonProgress:'
+          Object.keys(localStorage).filter(key => key.startsWith(prefix)).forEach(key => {
+            if (!lessonIds.includes(key.slice(prefix.length))) localStorage.removeItem(key)
+          })
+          window.dispatchEvent(new CustomEvent('leerkompas:data-changed'))
+        } catch { /* Voortgang opruimen mag het laden van lessen niet blokkeren. */ }
+        onCatalogLoaded?.(lessonIds)
+      }
       setCatalogLoading(false)
     }
     load()
