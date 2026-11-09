@@ -4,6 +4,8 @@ import { useAuth } from './auth/AuthContext.jsx'
 import GeographyLessons from './GeographyLessons.jsx'
 import AdminPanel from './AdminPanel.jsx'
 import Planning from './Planning.jsx'
+const appVersion = packageInfo.version.match(/^\d+\.\d+/)?.[0] || packageInfo.version
+
 import { Activity, ArrowDownRight, ArrowRight, Award, BookOpen, Blocks, Brain, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Flame, Gamepad2, GraduationCap, LayoutDashboard, Leaf, Menu, MessageCircle, Moon, MoreHorizontal, Plus, Search, Settings2, Sparkles, Sun, Target, Trophy, Upload, X, Zap, Globe, BookOpenCheck, ShieldCheck } from 'lucide-react'
 
 const initialSubjects = [
@@ -143,7 +145,7 @@ function App() {
       <div className="brand"><div className="brand-mark"><GraduationCap size={22}/></div><span>Slim<span>Leren</span></span><button className="icon-btn mobile-close" onClick={()=>setMobileOpen(false)} aria-label="Menu sluiten"><X size={18}/></button></div>
       <div className="profile"><div className="avatar">K</div><div><strong>{user?.email?.split('@')[0] || 'Mijn leerplek'}</strong><small>Persoonlijke ruimte</small></div><ChevronDown size={15}/></div>
       {visibleNav.map(group=><div className="nav-group" key={group.group}><p>{group.group}</p>{group.items.map(item=><button key={item.id} disabled={lessonActive} className={`nav-item ${page===item.id?'active':''}`} onClick={()=>go(item.id)}><item.icon size={18}/>{item.label}{item.id==='study'&&<span className="nav-dot"/>}</button>)}</div>)}
-      <div className="sidebar-bottom"><div className="streak-card"><div className="streak-icon"><Flame size={18}/></div><div><strong>{activeDays} actieve dagen</strong><small>Elke oefensessie telt mee</small></div></div><button className="nav-item" onClick={()=>setShowSettings(true)}><Settings2 size={18}/>Instellingen</button><div className="sidebar-foot"><span className="online-dot"/> Demo-omgeving <span>v0.1</span></div></div>
+      <div className="sidebar-bottom"><div className="streak-card"><div className="streak-icon"><Flame size={18}/></div><div><strong>{activeDays} actieve dagen</strong><small>Elke oefensessie telt mee</small></div></div><button className="nav-item" onClick={()=>setShowSettings(true)}><Settings2 size={18}/>Instellingen</button><div className="sidebar-foot"><span className="online-dot"/> Demo-omgeving <span>v{appVersion} beta</span></div></div>
     </aside>
     {mobileOpen&&<div className="scrim" onClick={()=>setMobileOpen(false)}/>}
     <main className="main">
@@ -165,7 +167,7 @@ function App() {
         {page==='quiz'&&<section className="panel quiz-panel"><button className="text-btn" onClick={()=>go('games')}><ChevronLeft size={15}/> Terug naar games</button><span className="panel-kicker">QUIZ RUSH · AARDRIJKSKUNDE</span><h2>Hoe heet gesmolten gesteente onder de grond?</h2><div className="quiz-options">{['Lava','Magma','As','Graniet'].map(a=><button key={a} className={quizAnswer===a?'selected':''} onClick={()=>{setQuizAnswer(a);setQuizDone(false)}}>{a}{quizDone&&a==='Magma'&&<Check size={16}/>}</button>)}</div>{quizDone&&<div className="quiz-feedback">{quizAnswer==='Magma'?'Helemaal goed! Onder de grond heet gesmolten gesteente magma.':'Nog niet helemaal. Het juiste antwoord is magma.'}</div>}<button className="primary-btn" disabled={!quizAnswer} onClick={()=>{setQuizDone(true);if(quizAnswer==='De celkern')setGameScore(gameScore+1)}}>Controleer antwoord <ArrowRight size={16}/></button></section>}
         {page==='progress'&&<><section className="stats-grid"><Stat icon={Zap} label="Totaal XP" value={studyStats.xp} note="20 XP per afgeronde les" tone="purple"/><Stat icon={BookOpen} label="Afgeronde lessen" value={completedLessons.length} note="Alle sessies" tone="green"/><Stat icon={Flame} label="Actieve dagen" value={activeDays} note="Sinds je start" tone="orange"/><Stat icon={Award} label="Leermomenten" value={studyStats.sessions.length} note="Totaal" tone="blue"/></section><section className="panel progress-panel"><h3>Voortgang per vak</h3>{subjects.map(s=><SubjectRow key={s.name} subject={s}/>)}</section></>}
         {page==='planning'&&<Planning planning={planning} setPlanning={setPlanning} subjects={subjects}/>}
-        <footer className="footer"><span>SlimLeren <b>·</b> Leren op jouw manier. <b>·</b> v{packageInfo.version.split('.').slice(0, 2).join('.')} beta</span><span>Je leerstof wordt veilig met je account gesynchroniseerd</span></footer>
+        <footer className="footer"><span>SlimLeren <b>·</b> Leren op jouw manier. <b>·</b> v{appVersion} beta</span><span>Je leerstof wordt veilig met je account gesynchroniseerd</span></footer>
       </div>
     </main>
     {showAddSubject&&<div className="modal-backdrop" onClick={()=>setShowAddSubject(false)}><form className="modal" onSubmit={addSubject} onClick={e=>e.stopPropagation()}><button type="button" className="modal-close" onClick={()=>setShowAddSubject(false)}><X size={18}/></button><span className="panel-kicker">NIEUW VAK</span><h2>Wat wil je leren?</h2><p>Voeg een vak toe aan je persoonlijke leerplek.</p><input autoFocus value={subjectName} onChange={e=>setSubjectName(e.target.value)} placeholder="Bijv. Aardrijkskunde" maxLength={40}/><button className="primary-btn" type="submit" disabled={!subjectName.trim()}>Vak toevoegen <ArrowRight size={16}/></button></form></div>}
