@@ -1,5 +1,16 @@
 # Versiebeheer
 
-SlimLeren blijft voorlopig in **beta**. Gebruik in de app steeds een zichtbaar versienummer met het label `beta`; gebruik nog geen `release`-label.
+De zichtbare versie van SlimLeren wordt automatisch afgeleid van het nummer van de pull request.
 
-Bij iedere nieuwe productie-deploy verhogen we het versienummer met **0.1** (bijvoorbeeld `0.2` → `0.3`) en werken we zowel `package.json` als de zichtbare versie in de app bij. De eerstvolgende versie na `0.2 beta` is dus `0.3 beta`.
+- Tijdens de beta krijgt de versie de vorm `v0.<PR-nummer> beta` (bijvoorbeeld PR #34 wordt `v0.34 beta`).
+- In Vercel-previewbuilds wordt het nummer van de betreffende pull request gebruikt.
+- In een productiebuild wordt het nummer van de meest recent gemergede pull request opgehaald.
+- Als GitHub tijdelijk niet bereikbaar is, valt de build terug op de versie in `package.json`.
+
+## Volledige release
+
+Zolang `release-status.json` de waarde `"released": false` bevat, blijft de versie op `0.<PR-nummer> beta`.
+
+Wanneer SlimLeren volledig wordt uitgebracht, zet je in `release-status.json` `"released"` op `true`. Vanaf de eerstvolgende build wordt dezelfde PR-volgnummering gebruikt met majorversie 1 en zonder beta-label, bijvoorbeeld `v1.34`.
+
+De versie wordt op beide plekken in de interface (linksonder en in de footer) vanuit dezelfde buildwaarde getoond.
