@@ -55,6 +55,7 @@ function parseCsvData(text) {
 
 function App() {
   const { user, signOut, syncStatus, isAdmin } = useAuth()
+  const profile = readSaved('profile', null)
   const visibleNav = isAdmin ? [...nav, { group: 'BEHEER', items: [{ id: 'admin', label: 'Beheer', icon: ShieldCheck }] }] : nav
   const [page, setPage] = useState('home')
   const [lessonActive, setLessonActive] = useState(false)
@@ -135,7 +136,7 @@ function App() {
   const nextCard = () => { setCardIndex((cardIndex + 1) % cards.length); setFlipped(false) }
   const completeLesson = (id) => { if (!completedLessons.includes(id)) { setCompletedLessons(previous => [...previous, id]); setStudyStats(previous => ({ ...previous, xp: previous.xp + 20, sessions: [...previous.sessions, { at: new Date().toISOString(), subject: 'Aardrijkskunde' }] })); notify('+20 XP · Les afgerond!') } else notify('Les opnieuw afgerond · geen extra XP') }
   const toggleWidget = (id) => setWidgets(widgets.includes(id) ? widgets.filter(w => w !== id) : [...widgets, id])
-  const title = ({home:'Goedemorgen!',subjects:'Mijn lessen',study:'Slim herhalen',games:'Speel & leer',progress:'Jouw voortgang',planning:'Mijn planning',admin:'Beheer'})[page]
+  const title = ({home:profile?.username ? `Goedemorgen, ${profile.username}!` : 'Goedemorgen!',subjects:'Mijn lessen',study:'Slim herhalen',games:'Speel & leer',progress:'Jouw voortgang',planning:'Mijn planning',admin:'Beheer'})[page]
   return <div className={`app ${dark ? 'dark' : ''}`} data-accent={accent}>
     <aside className={`sidebar ${mobileOpen ? 'open' : ''}`}>
       <div className="brand"><div className="brand-mark"><GraduationCap size={22}/></div><span>Slim<span>Leren</span></span><button className="icon-btn mobile-close" onClick={()=>setMobileOpen(false)} aria-label="Menu sluiten"><X size={18}/></button></div>
