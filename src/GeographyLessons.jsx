@@ -77,6 +77,12 @@ const profileLevelMatch = (item, profile) => {
   }
   return false
 }
+const goalMatch = (item, profile) => {
+  const ignored = new Set(['voor', 'halen', 'mijn', 'beter', 'betere', 'leren', 'meer', 'goed', 'goede', 'zijn', 'met', 'van', 'een', 'het', 'de', 'en', 'op', 'om', 'dat', 'wil', 'kan', 'hebben', 'tijd'])
+  const terms = normalizeText(profile?.goal).split(/[^a-z0-9À-ÿ]+/i).filter(term => term.length > 3 && !ignored.has(term))
+  const lessonText = normalizeText([item.title, item.subtitle, item.subject, item.topic, item.intro].join(' '))
+  return terms.some(term => lessonText.includes(term))
+}
 
 export default function GeographyLessons({ completedLessons = [], onComplete, onActiveChange, profile }) {
   const [catalogLessons, setCatalogLessons] = useState([])
@@ -202,7 +208,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
     const matchesClass = !item.target_class || normalizeText(item.target_class) === normalizeText(profile?.className)
     const matchesSchool = !item.target_school || normalizeText(item.target_school) === normalizeText(profile?.school)
     return matchesSearch && matchesSubject && matchesTopic && matchesLevel && matchesStatus && matchesDifficulty && matchesClass && matchesSchool
-  }).sort((a, b) => Number(profileLevelMatch(b, profile)) - Number(profileLevelMatch(a, profile)))
+  }).sort((a, b) => Number(goalMatch(b, profile)) - Number(goalMatch(a, profile)) || Number(profileLevelMatch(b, profile)) - Number(profileLevelMatch(a, profile)))
 
   if (finished) return <section className="panel lesson-player lesson-fullscreen"><div className="lesson-complete"><span className="complete-icon"><Check size={38}/></span><h2>Je hebt de les afgerond</h2><p>Je hebt alle onderdelen gelezen en de oefenvragen doorlopen.</p><div className="complete-xp"><Zap size={20}/><strong>{completedLessons.includes(selectedLesson?.id) ? 'Les opnieuw afgerond' : '20 XP verdiend'}</strong></div><button className="primary-btn" onClick={() => { setActive(false); onActiveChange?.(false); setFinished(false); setSelectedLesson(null) }}>Terug naar mijn lessen</button></div></section>
 
@@ -234,7 +240,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
           <h3>{item.title}</h3><p>{item.subtitle}</p><p className="lesson-preview-copy">{item.intro}</p>
           <div className="lesson-preview-list">{item.sections.map((part, index) => <div className="lesson-preview-row" key={part.title}><span>{index + 1}</span><Compass size={17}/><div><strong>{part.title}</strong><small>Uitleg en {part.questions.length} oefenvraag{part.questions.length === 1 ? '' : 'en'}</small></div><Check size={15}/></div>)}</div>
           <div className="lesson-preview-foot"><span><BookOpen size={15}/> {questionCount} vragen in totaal</span><span><Zap size={15}/> 20 XP na afronding</span></div>
-          <div className="lesson-tile-tags"><span>{item.mode === 'minigame' ? 'Minigame' : 'Normale les'}</span>{isRecommended && <span>Past bij jouw niveau</span>}{item.target_class && <span>{item.target_class}</span>}</div>
+          <div className="lesson-tile-tags"><span>{item.mode === 'minigame' ? 'Minigame' : 'Normale les'}</span>{isRecommended && <span>Past bij jouw niveau</span>}{goalMatch(item, profile) && <span>Sluit aan op je leerdoel</span>}{item.target_class && <span>{item.target_class}</span>}</div>
           {completedLessons.includes(item.id) && <p className="lesson-done-note"><Check size={15}/> Deze les is al afgerond. Je kunt hem opnieuw oefenen.</p>}
           <button className="primary-btn" onClick={() => requestStart(item)}>{saved ? 'Les openen' : completedLessons.includes(item.id) ? 'Opnieuw oefenen' : 'Bekijk de les'} <ArrowRight size={16}/></button>
         </article>
