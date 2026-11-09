@@ -458,3 +458,45 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .stat-card:hover,
   .planner-day:hover { transform: none; box-shadow: none; }
 }
+
+
+/* Dagoverzicht met verticale tijdlijn */
+.planner-day-view{padding:20px}
+.planner-day-view-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.planner-day-view-head h3{font-size:19px;margin:5px 0;text-transform:capitalize}
+.planner-day-view-head p{font-size:11px;color:var(--muted);margin:0}
+.planner-day-view-head .soft-btn{display:flex;align-items:center;gap:7px}
+.planner-timeline{padding:12px 0 0}
+.planner-time-row{display:grid;grid-template-columns:62px minmax(0,1fr);min-height:76px}
+.planner-time-label{font-size:10px;font-weight:700;color:var(--muted);padding:2px 12px 0 0;text-align:right}
+.planner-time-track{position:relative;border-left:2px solid var(--line);border-top:1px solid var(--line);padding:10px 10px 12px 20px;min-width:0}
+.planner-time-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--accent);left:-5.5px;top:13px;box-shadow:0 0 0 3px var(--panel)}
+.planner-free-time{font-size:10px;color:var(--muted);opacity:.7}
+.planner-timeline-event{display:flex;align-items:center;gap:12px;padding:10px 12px;margin:0 0 7px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:9px;background:var(--surface);min-width:0}
+.planner-timeline-event:last-child{margin-bottom:0}
+.planner-timeline-event-time{font-size:11px;font-weight:750;white-space:nowrap;color:var(--ink);min-width:76px}
+.planner-timeline-event-time span{font-size:9px;font-weight:500;color:var(--muted)}
+.planner-timeline-event-main{display:grid;gap:4px;min-width:0;flex:1}
+.planner-timeline-event-main strong{font-size:12px;overflow-wrap:anywhere}
+.planner-timeline-event-main small{font-size:10px;color:var(--muted)}
+.planner-timeline-event .planner-kind{width:max-content;font-size:9px}
+.planner-timeline-event.kind-toets{border-left-color:#d98c68}
+.planner-timeline-event.kind-opdracht{border-left-color:#78a6d1}
+.planner-timeline-event.kind-leermoment{border-left-color:#75b69a}
+.planner-timeline-event.is-done{opacity:.65}
+.planner-timeline-actions{display:flex;align-items:center;gap:4px}
+.planner-timeline-extra{padding:16px 0 0 82px}
+.planner-timeline-extra>strong{font-size:11px}
+@media(max-width:600px){
+ .planner-day-view{padding:14px}
+ .planner-day-view-head{flex-direction:column}
+ .planner-time-row{grid-template-columns:48px minmax(0,1fr);min-height:68px}
+ .planner-time-label{padding-right:8px;font-size:9px}
+ .planner-time-track{padding:8px 7px 9px 15px}
+ .planner-timeline-event{gap:7px;padding:8px}
+ .planner-timeline-event-time{min-width:56px;font-size:10px}
+ .planner-timeline-event-time span{display:block}
+ .planner-timeline-event-main strong{font-size:11px}
+ .planner-timeline-actions{flex-direction:column}
+ .planner-timeline-extra{padding-left:62px}
+}
