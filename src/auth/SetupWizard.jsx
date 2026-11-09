@@ -11,7 +11,7 @@ const steps = [
 
 const initial = { username: '', school: '', className: '', level: '', goal: '', dailyMinutes: 10 }
 
-export default function SetupWizard({ user, onComplete }) {
+export default function SetupWizard({ onComplete }) {
   const [step, setStep] = useState(0)
   const [profile, setProfile] = useState(initial)
   const [error, setError] = useState('')
