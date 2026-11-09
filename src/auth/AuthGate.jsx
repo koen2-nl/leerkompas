@@ -20,6 +20,7 @@ export default function AuthGate() {
   const [syncReady, setSyncReady] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [profileReady, setProfileReady] = useState(false)
+  const [profileLoaded, setProfileLoaded] = useState(false)
   useEffect(() => {
     if (!supabase) { setLoading(false); return }
     let alive = true
@@ -35,10 +36,10 @@ export default function AuthGate() {
     return () => { alive = false; listener.subscription.unsubscribe() }
   }, [])
   useEffect(() => {
-    if (!session?.user) { setSyncReady(false); setProfileReady(false); return }
+    if (!session?.user) { setSyncReady(false); setProfileReady(false); setProfileLoaded(false); return }
     let cancelled = false
     const hydrate = async () => {
-      setSyncReady(false); setProfileReady(false); setSyncStatus('saving')
+      setSyncReady(false); setProfileReady(false); setProfileLoaded(false); setSyncStatus('saving')
       const { data, error } = await supabase.from('user_data').select('data').eq('user_id', session.user.id).maybeSingle()
       if (cancelled) return
       if (error) { setSyncStatus('error'); console.error('Clouddata laden mislukt:', error.message); return }
@@ -75,7 +76,7 @@ export default function AuthGate() {
   }, [syncReady, session?.user?.id])
   useEffect(() => {
     if (!syncReady || !session?.user) return
-    try { setProfileReady(!!JSON.parse(localStorage.getItem('leerkompas:profile') || 'null')) } catch { setProfileReady(false) }
+    try { setProfileReady(!!JSON.parse(localStorage.getItem('leerkompas:profile') || 'null')) } catch { setProfileReady(false) } finally { setProfileLoaded(true) }
   }, [syncReady, session?.user?.id])
   const value = useMemo(() => ({ user: session?.user ?? null, syncStatus, isAdmin, signOut: async () => {
     DATA_KEYS.forEach(key => localStorage.removeItem('leerkompas:' + key))
@@ -85,6 +86,7 @@ export default function AuthGate() {
   if (!isSupabaseConfigured) return <div className="auth-screen"><div className="auth-card auth-setup"><div className="auth-brand"><span className="auth-brand-mark"><GraduationCap/></span><span>Slim<span style={{color:'#7664db'}}>Leren</span></span></div><h1>Bijna klaar voor jouw leerplek</h1><p>De accountfunctie is voorbereid. Vul eerst de Supabase-omgevingsvariabelen in om registratie en inloggen te activeren.</p><p><strong>Benodigd:</strong> <code>VITE_SUPABASE_URL</code> en <code>VITE_SUPABASE_ANON_KEY</code>. Volg de installatiehandleiding in <code>docs/PROJECT.md</code>.</p></div></div>
   if (!session) return <AuthScreen />
   if (!syncReady) return <div className="auth-screen"><div className="auth-card">Je persoonlijke leerplek veilig laden…</div></div>
+  if (!profileLoaded) return <div className="auth-screen"><div className="auth-card">Je profiel laden…</div></div>
   if (!profileReady) return <SetupWizard user={session.user} onComplete={profile => { localStorage.setItem('leerkompas:profile', JSON.stringify(profile)); window.dispatchEvent(new CustomEvent('leerkompas:data-changed')); setProfileReady(true) }} />
   return <AuthContext.Provider value={value}><App /></AuthContext.Provider>
 }
