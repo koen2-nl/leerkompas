@@ -500,3 +500,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  .planner-timeline-actions{flex-direction:column}
  .planner-timeline-extra{padding-left:62px}
 }
+
+
+/* Live datum, klok en huidige-tijdlijnindicator */
+.planner-live-clock{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;color:var(--muted);font-size:10px}
+.planner-live-clock>svg{color:var(--accent)}
+.planner-live-clock-divider{opacity:.5}
+.planner-live-clock-time{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-weight:750;font-variant-numeric:tabular-nums}
+.planner-time-track{min-height:76px}
+.planner-now-indicator{position:absolute;left:-2px;right:0;height:0;z-index:3;pointer-events:none;display:flex;align-items:center}
+.planner-now-rule{height:2px;background:#dc665b;flex:1;box-shadow:0 0 0 1px color-mix(in srgb,#dc665b 12%,transparent)}
+.planner-now-label{position:absolute;right:calc(100% + 7px);top:-8px;padding:3px 6px;border-radius:5px;background:#dc665b;color:white;font-size:9px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.planner-now-indicator:before{content:"";position:absolute;left:-6px;width:8px;height:8px;border-radius:50%;background:#dc665b;border:2px solid var(--panel);z-index:1}
+@media(max-width:600px){.planner-live-clock{font-size:9px}.planner-now-label{right:calc(100% + 4px);font-size:8px}}
