@@ -1,15 +1,12 @@
-import { useMemo, useState } from 'react'
-import { CalendarDays, Check, ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { CalendarDays, Check, ChevronLeft, ChevronRight, Clock, Plus, Trash2 } from 'lucide-react'
 
 const today = () => {
   const date = new Date()
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-')
 }
 const dateFrom = value => new Date(value + 'T12:00:00')
-const dateKey = date => {
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-  return local.toISOString().slice(0, 10)
-}
+const dateKey = date => [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-')
 const emptyForm = date => ({ title: '', subject: '', kind: 'Toets', date: date || today(), time: '09:00', minutes: '30' })
 const monthNames = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december']
 const weekdays = ['Ma','Di','Wo','Do','Vr','Za','Zo']
@@ -20,11 +17,33 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
   const [view, setView] = useState('maand')
   const [selectedDate, setSelectedDate] = useState(today)
   const [visibleDate, setVisibleDate] = useState(() => dateFrom(today()))
+  const [now, setNow] = useState(() => new Date())
+  const previousToday = useRef(today())
+  useEffect(() => {
+    const updateClock = () => {
+      const current = new Date()
+      setNow(current)
+      const currentDate = today()
+      if (currentDate !== previousToday.current) {
+        const previousDate = previousToday.current
+        setSelectedDate(value => value === previousDate ? currentDate : value)
+        setVisibleDate(value => dateKey(value) === previousDate ? dateFrom(currentDate) : value)
+        previousToday.current = currentDate
+      }
+    }
+    const interval = window.setInterval(updateClock, 15000)
+    return () => window.clearInterval(interval)
+  }, [])
   const sorted = useMemo(() => [...planning].sort((a,b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || '')), [planning])
   const openItems = sorted.filter(item => !item.done)
   const completed = sorted.filter(item => item.done)
   const selectedItems = sorted.filter(item => item.date === selectedDate)
   const dayHours = Array.from({ length: 17 }, (_, index) => index + 6)
+  const isTodaySelected = selectedDate === today()
+  const currentHour = now.getHours()
+  const currentMinute = now.getMinutes()
+  const currentTime = now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', hour12: false })
+  const currentDateLabel = now.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
   const itemsByHour = hour => selectedItems.filter(item => Number((item.time || '00:00').slice(0, 2)) === hour)
   const addItem = event => {
     event.preventDefault()
@@ -67,16 +86,17 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
     <section className="planner-intro panel"><div><span className="panel-kicker">JOUW SCHOOLAGENDA</span><h2>Alles op één plek</h2><p>Plan toetsen, opdrachten en leermomenten. Kies een dag in de agenda om te zien wat er gepland staat of voeg meteen iets toe.</p></div><div className="planner-summary"><strong>{openItems.length}</strong><span>open agendapunten</span><small>{completed.length} afgerond</small></div></section>
     {view === 'dag' ? <section className="panel planner-day-view">
       <div className="planner-day-view-head">
-        <div><span className="panel-kicker">DAGOVERZICHT</span><h3>{formatDate(selectedDate)}</h3><p>{selectedItems.length ? selectedItems.length + ' geplande onderdelen' : 'Je hebt nog geen plannen voor deze dag.'}</p></div>
+        <div><span className="panel-kicker">DAGOVERZICHT</span><h3>{formatDate(selectedDate)}</h3><p>{selectedItems.length ? selectedItems.length + ' geplande onderdelen' : 'Je hebt nog geen plannen voor deze dag.'}</p>{isTodaySelected && <div className="planner-live-clock"><CalendarDays size={13}/><span>{currentDateLabel}</span><span className="planner-live-clock-divider">·</span><span className="planner-live-clock-time"><Clock size={13}/> {currentTime}</span></div>}</div>
         <button type="button" className="soft-btn" onClick={() => setView('maand')}><CalendarDays size={15}/> Terug naar agenda</button>
       </div>
       <div className="planner-timeline">
         {dayHours.map(hour => {
           const hourItems = itemsByHour(hour)
-          return <div className="planner-time-row" key={hour}>
+          return <div className={'planner-time-row'+(isTodaySelected && currentHour === hour ? ' is-current-hour' : '')} key={hour}>
             <div className="planner-time-label">{String(hour).padStart(2,'0')}:00</div>
             <div className="planner-time-track">
               <span className="planner-time-dot"/>
+              {isTodaySelected && currentHour === hour && <div className="planner-now-indicator" style={{ top: `calc(${(currentMinute / 60) * 100}% )` }}><span className="planner-now-label">{currentTime}</span><span className="planner-now-rule"/></div>}
               {hourItems.length ? hourItems.map(item => <article className={'planner-timeline-event'+(item.done?' is-done':'')} key={item.id}>
                 <div className="planner-timeline-event-time">{item.time || String(hour).padStart(2,'0')+':00'} <span>· {item.minutes} min</span></div>
                 <div className="planner-timeline-event-main"><span className={'planner-kind kind-'+item.kind.toLowerCase()}>{item.kind}</span><strong>{item.title}</strong><small>{item.subject}</small></div>
