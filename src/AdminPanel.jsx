@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, RefreshCw, ShieldCheck, Users, BookOpen, RotateCcw, Trash2, Plus, X, HelpCircle } from 'lucide-react'
+import { Check, RefreshCw, ShieldCheck, Users, BookOpen, RotateCcw, Trash2, Plus, X, Gamepad2, BookOpenCheck, ChevronLeft, Sparkles } from 'lucide-react'
 import { supabase } from './auth/supabase.js'
 
 const blankQuestion = () => ({ type: 'multiple_choice', question: '', answer: '', explanation: '', options: '' })
-const empty = { title: '', subject: 'Aardrijkskunde', topic: '', level: 'Onderbouw', difficulty: 'Basis', description: '', questions: [blankQuestion()] }
+const empty = { title: '', subject: 'Aardrijkskunde', topic: '', level: 'Onderbouw', difficulty: 'Basis', description: '', mode: 'normal', questions: [blankQuestion()] }
 
 function questionsFromContent(content) {
   const questions = (content?.sections || []).flatMap(section => section.questions || [])
@@ -26,12 +26,12 @@ function buildContent(form) {
     if (q.type === 'true_false') return { type: q.type, q: q.question.trim(), options: ['Waar', 'Niet waar'], answer: q.answer === 'Waar' ? 0 : 1, feedback: q.explanation.trim() }
     return { type: q.type, q: q.question.trim(), answer: q.answer.trim(), feedback: q.explanation.trim() }
   })
-  return { sections: [{ title: form.topic.trim() || form.title.trim(), explanation: form.description.trim(), example: '', questions }] }
+  return { mode: form.mode || 'normal', sections: [{ title: form.topic.trim() || form.title.trim(), explanation: form.description.trim(), example: '', questions }] }
 }
 
 export default function AdminPanel() {
   const [users,setUsers]=useState([]), [lessons,setLessons]=useState([])
-  const [form,setForm]=useState(empty), [editId,setEditId]=useState(null), [email,setEmail]=useState('')
+  const [form,setForm]=useState(empty), [editId,setEditId]=useState(null), [email,setEmail]=useState(''), [creatorStep,setCreatorStep]=useState('choice')
   const [busy,setBusy]=useState(false), [loading,setLoading]=useState(true), [notice,setNotice]=useState(''), [error,setError]=useState(''), [currentUserId,setCurrentUserId]=useState(null)
   const load=useCallback(async()=>{
     setLoading(true); setError('')
@@ -56,15 +56,16 @@ export default function AdminPanel() {
     setBusy(true);setError('')
     const payload={title:form.title.trim(),subject:form.subject.trim(),topic:form.topic.trim(),level:form.level,difficulty:form.difficulty,description:form.description.trim(),content:buildContent(form)}
     const result=editId?await supabase.from('lesson_catalog').update(payload).eq('id',editId):await supabase.from('lesson_catalog').insert(payload)
-    setBusy(false);if(result.error)setError(result.error.message);else{setNotice(editId?'Les bijgewerkt.':'Les aangemaakt.');setForm(empty);setEditId(null);load()}
+    setBusy(false);if(result.error)setError(result.error.message);else{setNotice(editId?'Les bijgewerkt.':'Les aangemaakt.');setForm(empty);setEditId(null);setCreatorStep('choice');load()}
   }
   const edit=l=>{
     setEditId(l.id)
-    setForm({title:l.title||'',subject:l.subject||'',topic:l.topic||'',level:l.level||'Onderbouw',difficulty:l.difficulty||'Basis',description:l.description||'',questions:questionsFromContent(l.content||{})})
+    setForm({title:l.title||'',subject:l.subject||'',topic:l.topic||'',level:l.level||'Onderbouw',difficulty:l.difficulty||'Basis',description:l.description||'',mode:l.content?.mode||'normal',questions:questionsFromContent(l.content||{})});setCreatorStep('builder')
   }
   const remove=async l=>{if(!window.confirm('Les '+l.title+' verwijderen?'))return;const {error:e}=await supabase.from('lesson_catalog').delete().eq('id',l.id);if(e)setError(e.message);else{setNotice('Les verwijderd.');load()}}
   const updateQuestion=(index,patch)=>setForm(current=>({...current,questions:current.questions.map((q,i)=>i===index?{...q,...patch}:q)}))
-  const cancelEdit=()=>{setEditId(null);setForm(empty)}
+  const cancelEdit=()=>{setEditId(null);setForm(empty);setCreatorStep('choice')}
+  const startCreating=mode=>{setForm({...empty,mode});setEditId(null);setCreatorStep('builder');setError('');setNotice('')}
   return <div className="admin-page">
     <div className="admin-heading"><div><span className="panel-kicker">SLIMLEREN · BEHEER</span><h2>Beheerderspaneel</h2><p>Accounts, leerstatistieken en lessen beheren.</p></div><button className="soft-btn" onClick={load}><RefreshCw size={15}/> Vernieuwen</button></div>
     {notice&&<p className="admin-message"><Check size={15}/>{notice}</p>}{error&&<p className="admin-error">{error}</p>}
@@ -73,8 +74,21 @@ export default function AdminPanel() {
     </section>
     <section className="panel admin-panel"><div className="panel-head"><div><span className="panel-kicker">RECHTEN</span><h3><ShieldCheck size={17}/> Beheerder toevoegen</h3></div></div><p className="muted">Maak eerst het account aan in Supabase → Authentication → Users. Geef het daarna hier beheerdersrechten.</p><form className="admin-inline-form" onSubmit={grant}><input type="email" required placeholder="beheerder@voorbeeld.nl" value={email} onChange={e=>setEmail(e.target.value)}/><button className="primary-btn" disabled={busy}>Beheerder toevoegen</button></form></section>
     <section className="panel admin-panel"><div className="panel-head"><div><span className="panel-kicker">LESMATERIAAL</span><h3><BookOpen size={17}/> Lesbibliotheek</h3></div><small>{lessons.length} lessen</small></div>
-      <form className="admin-lesson-form" onSubmit={save}>
-        <div className="admin-lesson-form-heading"><div><h4>{editId?'Les bewerken':'Nieuwe les maken'}</h4><p>Maak een les en voeg daaronder eenvoudig je vragen toe.</p></div><span className="admin-question-count">{form.questions.length} {form.questions.length===1?'vraag':'vragen'}</span></div>
+      {creatorStep==='choice'&&<div className="lesson-create-start">
+        <div className="lesson-create-intro"><span className="panel-kicker">NIEUW LESMATERIAAL</span><h4>Klaar om iets te maken?</h4><p>Kies eerst hoe leerlingen jouw les gaan beleven. Daarna bouw je de vragen één voor één op.</p></div>
+        <button type="button" className="lesson-create-main" onClick={()=>setCreatorStep('mode')}><span className="lesson-create-main-icon"><Plus size={21}/></span><span><strong>Les maken</strong><small>Start een nieuwe les of minigame</small></span><ChevronLeft className="lesson-create-main-arrow" size={18}/></button>
+      </div>}
+      {creatorStep==='mode'&&<div className="lesson-mode-picker">
+        <button type="button" className="lesson-back-link" onClick={()=>setCreatorStep('choice')}><ChevronLeft size={15}/> Terug</button>
+        <div className="lesson-create-intro"><span className="panel-kicker">STAP 1 · KIES JE VORM</span><h4>Wat wil je maken?</h4><p>Kies een normale les of maak er een minigame van.</p></div>
+        <div className="lesson-mode-grid">
+          <button type="button" className="lesson-mode-card normal" onClick={()=>startCreating('normal')}><span className="lesson-mode-icon"><BookOpenCheck size={25}/></span><strong>Normale les</strong><small>Leer stap voor stap met vragen en uitleg.</small><span className="lesson-mode-cta">Kies normale les <ChevronLeft size={15}/></span></button>
+          <button type="button" className="lesson-mode-card mini" onClick={()=>startCreating('minigame')}><span className="lesson-mode-icon"><Gamepad2 size={25}/></span><strong>Minigame</strong><small>Maak een speelse quiz met korte vragen.</small><span className="lesson-mode-cta">Kies minigame <ChevronLeft size={15}/></span></button>
+        </div>
+      </div>}
+      {creatorStep==='builder'&&<form className="admin-lesson-form" onSubmit={save}>
+        <div className="lesson-builder-top"><button type="button" className="lesson-back-link" onClick={cancelEdit}><ChevronLeft size={15}/> Terug naar les maken</button><span className={form.mode==='minigame'?'lesson-mode-tag mini':'lesson-mode-tag'}>{form.mode==='minigame'?<Gamepad2 size={13}/>:<BookOpenCheck size={13}/>} {form.mode==='minigame'?'Minigame':'Normale les'}</span></div>
+        <div className="admin-lesson-form-heading"><div><h4>{editId?'Les bewerken':form.mode==='minigame'?'Minigame maken':'Normale les maken'}</h4><p>Vul de gegevens in en voeg daarna je vragen toe.</p></div><span className="admin-question-count">{form.questions.length} {form.questions.length===1?'vraag':'vragen'}</span></div>
         <div className="admin-form-grid">
           <label>Titel<input required value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="Bijv. Het zonnestelsel"/></label>
           <label>Vak<input required value={form.subject} onChange={e=>setForm({...form,subject:e.target.value})} placeholder="Bijv. Aardrijkskunde"/></label>
@@ -95,7 +109,7 @@ export default function AdminPanel() {
           </article>)}
         </div>
         <div className="admin-form-actions"><button className="primary-btn" disabled={busy||!form.questions.length}>{editId?'Wijzigingen opslaan':'Les opslaan'}</button>{editId&&<button type="button" className="soft-btn" onClick={cancelEdit}>Annuleren</button>}</div>
-      </form>
+      </form>}
       {lessons.map(l=><div className="admin-lesson-row" key={l.id}><div><strong>{l.title}</strong><small>{l.subject} · {l.topic} · {l.level} · {l.difficulty}</small></div><button className="soft-btn" onClick={()=>edit(l)}>Bewerken</button><button className="danger-btn" onClick={()=>remove(l)}><Trash2 size={13}/> Verwijderen</button></div>)}
     </section>
   </div>
