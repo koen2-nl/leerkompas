@@ -513,3 +513,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .planner-now-label{position:absolute;right:calc(100% + 7px);top:-8px;padding:3px 6px;border-radius:5px;background:#dc665b;color:white;font-size:9px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
 .planner-now-indicator:before{content:"";position:absolute;left:-6px;width:8px;height:8px;border-radius:50%;background:#dc665b;border:2px solid var(--panel);z-index:1}
 @media(max-width:600px){.planner-live-clock{font-size:9px}.planner-now-label{right:calc(100% + 4px);font-size:8px}}
+
+
+/* Live datum en klok in de vaste header */
+.date-pill{gap:13px;white-space:nowrap}
+.header-date,.header-clock{display:inline-flex;align-items:center;gap:7px;text-transform:capitalize}
+.header-date svg,.header-clock svg{color:var(--accent);flex:0 0 auto}
+.header-clock{font-variant-numeric:tabular-nums;font-weight:750;color:var(--ink);padding-left:12px;border-left:1px solid var(--line)}
+@media(max-width:760px){.date-pill{display:flex;gap:8px;padding:0;border:0;font-size:9px}.header-date{display:none}.header-clock{padding:0;border:0}.top-actions{gap:8px}}
