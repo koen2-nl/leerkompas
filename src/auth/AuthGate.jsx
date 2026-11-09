@@ -13,6 +13,21 @@ const writeLocalData = data => DATA_KEYS.forEach(key => {
   if (data?.[key] !== null && data?.[key] !== undefined) localStorage.setItem('leerkompas:' + key, JSON.stringify(data[key]))
 })
 
+const profileMetadata = profile => ({
+  username: profile.username,
+  school: profile.school || '',
+  class_name: profile.className,
+  level: profile.level,
+  goal: profile.goal,
+  daily_minutes: Number(profile.dailyMinutes) || 10,
+  profile_completed_at: profile.completedAt || new Date().toISOString()
+})
+
+const syncProfileMetadata = async profile => {
+  const { error } = await supabase.auth.updateUser({ data: profileMetadata(profile) })
+  if (error) throw new Error('Je profiel kon niet bij Authentication worden opgeslagen: ' + error.message)
+}
+
 export default function AuthGate() {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -53,10 +68,11 @@ export default function AuthGate() {
       }
       const { data: profileRow, error: profileError } = await supabase.from('student_profiles').select('*').eq('user_id', session.user.id).maybeSingle()
       if (cancelled) return
+      let profileForMetadata = null
       if (profileError) {
         console.error('Profiel laden uit Supabase mislukt:', profileError.message)
       } else if (profileRow) {
-        localStorage.setItem('leerkompas:profile', JSON.stringify({
+        profileForMetadata = {
           username: profileRow.username,
           school: profileRow.school || '',
           className: profileRow.class_name,
@@ -64,7 +80,8 @@ export default function AuthGate() {
           goal: profileRow.goal,
           dailyMinutes: profileRow.daily_minutes,
           completedAt: profileRow.completed_at
-        }))
+        }
+        localStorage.setItem('leerkompas:profile', JSON.stringify(profileForMetadata))
       } else {
         let legacyProfile = null
         try { legacyProfile = JSON.parse(localStorage.getItem('leerkompas:profile') || 'null') } catch {}
@@ -80,7 +97,12 @@ export default function AuthGate() {
             completed_at: legacyProfile.completedAt || new Date().toISOString()
           })
           if (profileSaveError) console.error('Bestaand profiel migreren mislukt:', profileSaveError.message)
+          else profileForMetadata = legacyProfile
         }
+      }
+      if (profileForMetadata) {
+        try { await syncProfileMetadata(profileForMetadata) }
+        catch (metadataError) { console.error('Authentication metadata synchroniseren mislukt:', metadataError.message) }
       }
       const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', session.user.id).maybeSingle()
       if (cancelled) return
@@ -130,6 +152,7 @@ export default function AuthGate() {
       completed_at: profile.completedAt
     })
     if (error) throw new Error('Je profiel kon niet worden opgeslagen: ' + error.message)
+    await syncProfileMetadata(profile)
     localStorage.setItem('leerkompas:profile', JSON.stringify(profile))
     window.dispatchEvent(new CustomEvent('leerkompas:data-changed'))
     setProfileReady(true)
