@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { AuthContext } from './AuthContext.jsx'
 import { GraduationCap } from 'lucide-react'
 import App from '../App.jsx'
+import SetupWizard from './SetupWizard.jsx'
 import { isSupabaseConfigured, supabase } from './supabase.js'
 
-const DATA_KEYS = ['subjects', 'cards', 'known', 'studyStats', 'completedLessons', 'lessonProgress', 'planning', 'dark', 'accent', 'widgets']
+const DATA_KEYS = ['subjects', 'cards', 'known', 'studyStats', 'completedLessons', 'lessonProgress', 'planning', 'dark', 'accent', 'widgets', 'profile']
 const localData = () => Object.fromEntries(DATA_KEYS.map(key => {
   try { const value = localStorage.getItem('leerkompas:' + key); return [key, value ? JSON.parse(value) : null] } catch { return [key, null] }
 }))
@@ -18,6 +19,7 @@ export default function AuthGate() {
   const [syncStatus, setSyncStatus] = useState('saved')
   const [syncReady, setSyncReady] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [profileReady, setProfileReady] = useState(false)
   useEffect(() => {
     if (!supabase) { setLoading(false); return }
     let alive = true
@@ -33,10 +35,10 @@ export default function AuthGate() {
     return () => { alive = false; listener.subscription.unsubscribe() }
   }, [])
   useEffect(() => {
-    if (!session?.user) { setSyncReady(false); return }
+    if (!session?.user) { setSyncReady(false); setProfileReady(false); return }
     let cancelled = false
     const hydrate = async () => {
-      setSyncStatus('saving')
+      setSyncReady(false); setProfileReady(false); setSyncStatus('saving')
       const { data, error } = await supabase.from('user_data').select('data').eq('user_id', session.user.id).maybeSingle()
       if (cancelled) return
       if (error) { setSyncStatus('error'); console.error('Clouddata laden mislukt:', error.message); return }
@@ -71,6 +73,10 @@ export default function AuthGate() {
     window.addEventListener('leerkompas:data-changed', save)
     return () => { window.clearTimeout(timer); window.removeEventListener('leerkompas:data-changed', save) }
   }, [syncReady, session?.user?.id])
+  useEffect(() => {
+    if (!syncReady || !session?.user) return
+    try { setProfileReady(!!JSON.parse(localStorage.getItem('leerkompas:profile') || 'null')) } catch { setProfileReady(false) }
+  }, [syncReady, session?.user?.id])
   const value = useMemo(() => ({ user: session?.user ?? null, syncStatus, isAdmin, signOut: async () => {
     DATA_KEYS.forEach(key => localStorage.removeItem('leerkompas:' + key))
     await supabase.auth.signOut()
@@ -79,6 +85,7 @@ export default function AuthGate() {
   if (!isSupabaseConfigured) return <div className="auth-screen"><div className="auth-card auth-setup"><div className="auth-brand"><span className="auth-brand-mark"><GraduationCap/></span><span>Slim<span style={{color:'#7664db'}}>Leren</span></span></div><h1>Bijna klaar voor jouw leerplek</h1><p>De accountfunctie is voorbereid. Vul eerst de Supabase-omgevingsvariabelen in om registratie en inloggen te activeren.</p><p><strong>Benodigd:</strong> <code>VITE_SUPABASE_URL</code> en <code>VITE_SUPABASE_ANON_KEY</code>. Volg de installatiehandleiding in <code>docs/PROJECT.md</code>.</p></div></div>
   if (!session) return <AuthScreen />
   if (!syncReady) return <div className="auth-screen"><div className="auth-card">Je persoonlijke leerplek veilig laden…</div></div>
+  if (!profileReady) return <SetupWizard user={session.user} onComplete={profile => { localStorage.setItem('leerkompas:profile', JSON.stringify(profile)); window.dispatchEvent(new CustomEvent('leerkompas:data-changed')); setProfileReady(true) }} />
   return <AuthContext.Provider value={value}><App /></AuthContext.Provider>
 }
 
