@@ -76,6 +76,7 @@ create table if not exists public.admin_role_applications (
   reviewed_by uuid references auth.users(id)
 );
 create index if not exists admin_role_applications_user_idx on public.admin_role_applications(user_id, created_at desc);
+create unique index if not exists admin_role_applications_one_pending_per_user on public.admin_role_applications(user_id) where status = 'pending';
 alter table public.admin_role_applications enable row level security;
 
 create or replace function public.can_apply_for_admin_role()
