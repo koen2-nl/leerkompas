@@ -762,3 +762,32 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .vocabulary-entry-row{grid-template-columns:24px minmax(100px,1fr) minmax(130px,1.2fr) minmax(105px,.8fr) minmax(105px,.8fr) 32px}
 .vocabulary-saved-group{list-style:none;margin:12px 0 4px;padding:7px 9px;border-left:3px solid var(--accent);border-radius:0 7px 7px 0;background:var(--surface-2,var(--surface));font-size:11px;font-weight:700}
 @media(max-width:760px){.vocabulary-entry-row{grid-template-columns:22px minmax(0,1fr) 30px}.vocabulary-entry-row input{grid-column:2}.vocabulary-entry-row button{grid-column:3;grid-row:1}}
+
+/* Minimalistische SlimLeren UX-update */
+.brand-home{display:flex;align-items:center;gap:10px;border:0;background:transparent;padding:0;color:inherit;font:inherit;letter-spacing:inherit;cursor:pointer;text-align:left}
+.brand-home:focus-visible,.footer-home:focus-visible,.global-search input:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:7px}
+.global-search{height:36px;width:min(260px,24vw);display:flex;align-items:center;gap:9px;padding:0 11px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);transition:border-color .18s,background .18s}
+.global-search:focus-within{border-color:var(--accent);background:var(--panel)}
+.global-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);font:inherit;font-size:11px}
+.global-search input::placeholder{color:var(--muted)}
+.footer-home{border:0;background:transparent;padding:0;color:inherit;font:inherit;cursor:pointer}
+.app{--accent:#64748b;--accent-soft:#f1f5f9;--ink:#1f2937;--muted:#778294;--line:#e7ebf0;--panel:#fff;--surface:#f8fafc;background:#f8fafc}
+.app[data-accent=violet],.app[data-accent=blue],.app[data-accent=green],.app[data-accent=coral]{--accent:#64748b;--accent-soft:#eef2f6}
+.app.dark{--accent:#a5b4c7;--accent-soft:#303b4a;--ink:#edf1f6;--muted:#a3adba;--line:#35404d;--panel:#202a36;--surface:#263240;background:#18222d}
+.app:not(.dark) .welcome-banner{background:#f1f4f7;color:#263342;border:1px solid #e7ebf0}
+.app:not(.dark) .welcome-banner h2 em,.app:not(.dark) .banner-tag{color:#64748b}
+.app:not(.dark) .book-illustration{background:#fff;color:#64748b;box-shadow:0 12px 28px #26334212}
+.app:not(.dark) .orbit{border-color:#dce2e9}
+.app:not(.dark) .floating-note{box-shadow:0 5px 16px #26334212}
+.app:not(.dark) .primary-btn{background:#334155;box-shadow:none}
+.app:not(.dark) .nav-item.active{background:#eef2f6;color:#334155}
+.app:not(.dark) .nav-item.active svg{color:#64748b}
+.app:not(.dark) .stat-icon,.app:not(.dark) .icon-tile{background:#f1f4f7;color:#64748b}
+.app:not(.dark) .progress-track>div{background:#94a3b8}
+.app:not(.dark) .flashcard,.app:not(.dark) .flashcard.flipped{background:#f8fafc;color:#334155;border-color:#e2e8f0}
+.app:not(.dark) .banner-btn{background:#fff;color:#334155}
+.panel,.stat-card,.subject-card,.game-card,.profile{box-shadow:0 1px 2px #1f293708}
+.nav-item,.soft-btn,.primary-btn,.game-card,.brand-home{transition:background .18s,border-color .18s,color .18s,transform .18s}
+.nav-item:hover{background:var(--surface)}
+@media(max-width:900px){.global-search{width:min(220px,30vw)}}
+@media(max-width:680px){.global-search{order:3;width:100%;max-width:none;margin:0 0 10px}.topbar{height:auto;min-height:64px;flex-wrap:wrap;padding:12px 17px;gap:10px}.breadcrumbs{flex:1}.top-actions{gap:7px}.date-pill{display:none}.content{padding:25px 17px 20px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}.subject-grid,.games-grid{grid-template-columns:1fr}.page-heading h1{font-size:24px}.welcome-banner{padding:23px;min-height:190px}.banner-art{display:none}}
