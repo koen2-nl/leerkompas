@@ -111,7 +111,16 @@ function App() {
   }, [])
   const greeting = headerNow.getHours() < 12 ? 'Goedemorgen' : headerNow.getHours() < 18 ? 'Goedemiddag' : 'Goedenavond'
   const headerDate = headerNow.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-  useEffect(() => {\n    if (!sharedToken) return\n    setSharedLoading(true)\n    supabase.rpc('get_shared_lesson', { p_share_token: sharedToken }).then(({data,error}) => { setSharedError(error?.message || ''); setSharedLesson(data?.[0] || null); setSharedLoading(false) })\n  }, [sharedToken])\n  useEffect(() => {\n    if (headerNow.getHours() < 22 || dark) return\n    const key = 'leerkompas:nightPromptDismissed:' + headerNow.toLocaleDateString('en-CA')\n    if (localStorage.getItem(key) !== 'yes') setNightPrompt(true)\n  }, [headerNow, dark])\n  const dismissNightPrompt = () => { localStorage.setItem('leerkompas:nightPromptDismissed:' + headerNow.toLocaleDateString('en-CA'), 'yes'); setNightPrompt(false) }\n  const headerTime = headerNow.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+  useEffect(() => {
+    if (!sharedToken) return
+    setSharedLoading(true)
+    supabase.rpc('get_shared_lesson', { p_share_token: sharedToken }).then(({data,error}) => { setSharedError(error?.message || ''); setSharedLesson(data?.[0] || null); setSharedLoading(false) })
+  }, [sharedToken])
+  useEffect(() => {
+    if (headerNow.getHours() < 22 || dark) return
+    const key = 'leerkompas:nightPromptDismissed:' + headerNow.toLocaleDateString('en-CA')
+    if (localStorage.getItem(key) !== 'yes') setNightPrompt(true)
+  }, [headerNow, dark])\n  const dismissNightPrompt = () => { localStorage.setItem('leerkompas:nightPromptDismissed:' + headerNow.toLocaleDateString('en-CA'), 'yes'); setNightPrompt(false) }\n  const headerTime = headerNow.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
   useEffect(() => { try { saveLocal('subjects', subjects) } catch { notify('Opslaan lukte niet. Controleer je browserinstellingen.') } }, [subjects])
   useEffect(() => { try { saveLocal('cards', cards) } catch { notify('Opslaan lukte niet. Controleer je browserinstellingen.') } }, [cards])
   useEffect(() => { try { saveLocal('dark', dark) } catch {} }, [dark])
