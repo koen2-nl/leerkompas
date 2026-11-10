@@ -52,7 +52,7 @@ export default function AuthGate() {
     return () => { alive = false; listener.subscription.unsubscribe() }
   }, [])
   useEffect(() => {
-    if (!session?.user) { setSyncReady(false); setProfileReady(false); setProfileLoaded(false); return }
+    if (!session?.user) { setSyncReady(false); setProfileReady(false); setProfileLoaded(false); setIsAdmin(false); setIsLessonMaker(false); return }
     let cancelled = false
     const hydrate = async () => {
       setSyncReady(false); setProfileReady(false); setProfileLoaded(false); setSyncStatus('saving')
