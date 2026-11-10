@@ -91,7 +91,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
     let cancelled = false
     const load = async () => {
       if (!supabase) { setCatalogLoading(false); return }
-      const { data, error } = await supabase.from('lesson_catalog').select('*').order('created_at', { ascending: false })
+      const { data, error } = await supabase.from('lesson_catalog').select('*').eq('is_public', true).eq('publish_status', 'approved').order('created_at', { ascending: false })
       if (cancelled) return
       if (error) setCatalogError('De lessen konden niet worden geladen: ' + error.message)
       else {
