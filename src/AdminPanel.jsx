@@ -80,7 +80,7 @@ export default function AdminPanel({ canManageUsers = false, canReviewLessons = 
       <article className="admin-overview-card"><span className="admin-overview-icon users"><Users size={18}/></span><div><small>Accounts</small><strong>{users.length}</strong><span>{adminCount} beheerders</span></div></article>
       <article className="admin-overview-card"><span className="admin-overview-icon lessons"><BookOpen size={18}/></span><div><small>Lesmateriaal</small><strong>{lessons.length}</strong><span>Beschikbare lessen</span></div></article>
       <article className="admin-overview-card"><span className="admin-overview-icon activity"><LayoutDashboard size={18}/></span><div><small>Leersessies</small><strong>{totalSessions}</strong><span>{totalXp.toLocaleString('nl-NL')} XP verdiend</span></div></article>
-    </div>
+    </div>}
     <nav className="admin-tabs" aria-label="Beheerdersonderdelen">
       {(canManageUsers?[['overview','Overzicht'],['users','Gebruikers'],['lessons','Lesbibliotheek'],['applications','Aanvragen'],['rights','Beheerdersrechten']]:[['lessons','Mijn lessen']]).map(([id,label])=><button key={id} className={activeTab===id?'active':''} onClick={()=>setActiveTab(id)}>{label}{id==='users'?<span>{users.length}</span>:id==='lessons'?<span>{lessons.length}</span>:null}</button>)}
     </nav>
