@@ -8,24 +8,24 @@ const blankQuestion = () => ({ type: 'multiple_choice', question: '', answer: ''
 const empty = { title: '', subject: 'Algemeen', topic: '', level: 'Alle niveaus', targetClass: '', targetSchool: '', difficulty: 'Basis', description: '', mode: 'normal', questions: [blankQuestion()] }
 
 
-const cleanSourceLine = value => value.replace(/^\\s*(?:[-•*]|\\d+[.)])\\s*/, '').trim()
-const chapterLine = /^(?:lektion|leçon|lesson|les|hoofdstuk|kapitel|chapter|unit|eenheid|paragraaf)\\s*\\d+\\b.*$/i
-const languageLine = /^(?:nederlands|duits|engels|frans|spaans|latijn|italiaans|deutsch|english|français|español|latin|vocabulary|wortschatz|begrippen|woordenlijst)(?:\\s*[-–—/]\\s*(?:nederlands|duits|engels|frans|spaans|deutsch|english|français|español))?$/i
+const cleanSourceLine = value => value.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim()
+const chapterLine = /^(?:lektion|leçon|lesson|les|hoofdstuk|kapitel|chapter|unit|eenheid|paragraaf)\s*\d+\b.*$/i
+const languageLine = /^(?:nederlands|duits|engels|frans|spaans|latijn|italiaans|deutsch|english|français|español|latin|vocabulary|wortschatz|begrippen|woordenlijst)(?:\s*[-–—/]\s*(?:nederlands|duits|engels|frans|spaans|deutsch|english|français|español))?$/i
 function glossaryPairs(source, instruction) {
-  const requested = (instruction.match(/(?:lektion|leçon|lesson|les|hoofdstuk|kapitel|chapter|unit)\\s*\\d+/i)||[])[0]?.toLocaleLowerCase('nl-NL')
+  const requested = (instruction.match(/(?:lektion|leçon|lesson|les|hoofdstuk|kapitel|chapter|unit)\s*\d+/i)||[])[0]?.toLocaleLowerCase('nl-NL')
   let section='', active=!requested
   const pairs=[]
-  for (const raw of source.split(/\\r?\\n/)) {
+  for (const raw of source.split(/\r?\n/)) {
     const line=cleanSourceLine(raw)
     if(!line) continue
     if(chapterLine.test(line)){section=line;active=!requested||line.toLocaleLowerCase('nl-NL').includes(requested);continue}
     if(languageLine.test(line)) continue
-    if(!active||line.length>180||/^pagina\\s+\\d+/i.test(line)||/^\\d+$/.test(line))continue
-    const match=line.match(/^(.{1,75}?)\\s*(?::|\\t|\\s+[–—-]\\s+|\\s{2,})\\s*(.{2,})$/)
+    if(!active||line.length>180||/^pagina\s+\d+/i.test(line)||/^\d+$/.test(line))continue
+    const match=line.match(/^(.{1,75}?)\s*(?::|\t|\s+[–—-]\s+|\s{2,})\s*(.{2,})$/)
     if(!match) continue
-    const term=match[1].replace(/[;,.]$/,'').replace(/\\s+/g,' ').trim(), meaning=match[2].replace(/\\s+/g,' ').trim()
+    const term=match[1].replace(/[;,.]$/,'').replace(/\s+/g,' ').trim(), meaning=match[2].replace(/\s+/g,' ').trim()
     if(!term||!meaning||term.length>75||languageLine.test(term)||chapterLine.test(term))continue
-    if(/^(?:deutsch|english|français|español|nederlands)\\s*[-–—/]\\s*/i.test(term))continue
+    if(/^(?:deutsch|english|français|español|nederlands)\s*[-–—/]\s*/i.test(term))continue
     pairs.push({term,meaning,section})
   }
   const seen=new Set()
