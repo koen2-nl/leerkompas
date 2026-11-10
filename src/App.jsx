@@ -92,7 +92,7 @@ function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [nightPrompt, setNightPrompt] = useState(false)
   const [settingsTab, setSettingsTab] = useState('profile')
-  const [profileDraft, setProfileDraft] = useState(() => readSaved('profile', { username: '', school: '', className: '', level: '', goal: '', dailyMinutes: 10 }))
+  const [profileDraft, setProfileDraft] = useState(() => readSaved('profile', null) || { username: '', school: '', className: '', level: '', goal: '', dailyMinutes: 10 })
   const [settingsBusy, setSettingsBusy] = useState(false)
   const [settingsMessage, setSettingsMessage] = useState('')
   const [adminEligible, setAdminEligible] = useState(false)
