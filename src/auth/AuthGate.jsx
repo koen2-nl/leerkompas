@@ -3,6 +3,7 @@ import { AuthContext } from './AuthContext.jsx'
 import { GraduationCap } from 'lucide-react'
 import App from '../App.jsx'
 import SetupWizard from './SetupWizard.jsx'
+import PublicSharedLesson from './PublicSharedLesson.jsx'
 import { isSupabaseConfigured, supabase } from './supabase.js'
 
 const DATA_KEYS = ['subjects', 'cards', 'known', 'studyStats', 'completedLessons', 'lessonProgress', 'planning', 'dark', 'accent', 'widgets', 'profile', 'vocabularyLists']
@@ -139,6 +140,8 @@ export default function AuthGate() {
   } }), [session, syncStatus, isAdmin, isLessonMaker])
   if (loading) return <div className="auth-screen"><div className="auth-card">SlimLeren laden…</div></div>
   if (!isSupabaseConfigured) return <div className="auth-screen"><div className="auth-card auth-setup"><div className="auth-brand"><span className="auth-brand-mark"><GraduationCap/></span><span>Slim<span style={{color:'#7664db'}}>Leren</span></span></div><h1>Bijna klaar voor jouw leerplek</h1><p>De accountfunctie is voorbereid. Vul eerst de Supabase-omgevingsvariabelen in om registratie en inloggen te activeren.</p><p><strong>Benodigd:</strong> <code>VITE_SUPABASE_URL</code> en <code>VITE_SUPABASE_ANON_KEY</code>. Volg de installatiehandleiding in <code>docs/PROJECT.md</code>.</p></div></div>
+  const sharedToken = new URLSearchParams(window.location.search).get('share')
+  if (!session && sharedToken) return <PublicSharedLesson token={sharedToken}/>
   if (!session) return <AuthScreen />
   if (!syncReady) return <div className="auth-screen"><div className="auth-card">Je persoonlijke leerplek veilig laden…</div></div>
   if (!profileLoaded) return <div className="auth-screen"><div className="auth-card">Je profiel laden…</div></div>
