@@ -85,8 +85,8 @@ export default function VocabularyBuilder() {
   const addEntry = () => setEntries(current => [...current, { term: '', meaning: '', section: '' }])
   const removeEntry = index => setEntries(current => current.filter((_, i) => i !== index))
   const saveList = () => {
-    const clean = entries.map(entry => ({ term: entry.term.trim(), meaning: entry.meaning.trim() })).filter(entry => entry.term)
-    const unique = clean.filter((entry,index) => clean.findIndex(other=>other.term.toLocaleLowerCase('nl-NL')===entry.term.toLocaleLowerCase('nl-NL'))===index)
+    const clean = entries.map(entry => ({ term: entry.term.trim(), meaning: entry.meaning.trim(), language: entry.language || '', section: entry.section || '' })).filter(entry => entry.term)
+    const unique = clean.filter((entry,index) => clean.findIndex(other=>other.term.toLocaleLowerCase('nl-NL')===entry.term.toLocaleLowerCase('nl-NL') && other.language===entry.language)===index)
     if (!unique.length) { setError('Voeg eerst minimaal één begrip toe.'); return }
     const list = { id: crypto.randomUUID(), title: title.trim() || 'Mijn woordenlijst', entries: unique, terms: unique.map(entry=>entry.term), createdAt: new Date().toISOString() }
     const next = [list, ...readLists()]
