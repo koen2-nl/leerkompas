@@ -163,19 +163,30 @@ function App() {
   const nextCard = () => { setCardIndex((cardIndex + 1) % cards.length); setFlipped(false) }
   const completeLesson = (id) => { if (!completedLessons.includes(id)) { setCompletedLessons(previous => [...previous, id]); setStudyStats(previous => ({ ...previous, xp: previous.xp + 20, sessions: [...previous.sessions, { at: new Date().toISOString(), subject: 'Algemeen' }] })); notify('+20 XP · Les afgerond!') } else notify('Les opnieuw afgerond · geen extra XP') }
   const toggleWidget = (id) => setWidgets(widgets.includes(id) ? widgets.filter(w => w !== id) : [...widgets, id])
-  async e => {
-  e.preventDefault(); setSettingsBusy(true); setSettingsMessage('');
-  const next={...profileDraft,completedAt:profile?.completedAt||new Date().toISOString(),dailyMinutes:Number(profileDraft.dailyMinutes)||10};
-  try {
+  const saveProfile = async e => {
+    e.preventDefault(); setSettingsBusy(true); setSettingsMessage('');
+    const next={...profileDraft,completedAt:profile?.completedAt||new Date().toISOString(),dailyMinutes:Number(profileDraft.dailyMinutes)||10};
+    try {
+      const {data:{user:authUser}}=await supabase.auth.getUser();
+      const {error}=await supabase.from('student_profiles').upsert({user_id:authUser.id,username:next.username,school:next.school||'',class_name:next.className,level:next.level,goal:next.goal,daily_minutes:next.dailyMinutes,completed_at:next.completedAt});
+      if(error) throw error;
+      const {error:metaError}=await supabase.auth.updateUser({data:{username:next.username,school:next.school||'',class_name:next.className,level:next.level,goal:next.goal,daily_minutes:next.dailyMinutes,profile_completed_at:next.completedAt}});
+      if(metaError) throw metaError;
+      localStorage.setItem('leerkompas:profile',JSON.stringify(next));setProfile(next);window.dispatchEvent(new CustomEvent('leerkompas:data-changed'));setSettingsMessage('Je profiel is opgeslagen.');
+    } catch(err){setSettingsMessage('Opslaan is niet gelukt: '+(err.message||'Onbekende fout'))}
+    finally{setSettingsBusy(false)}
+  };
+  const loadAdminApplication = async () => {
+    const [{data:eligible},{data:applications}] = await Promise.all([supabase.rpc('can_apply_for_admin_role'),supabase.from('admin_role_applications').select('*').order('created_at',{ascending:false}).limit(1)]);
+    setAdminEligible(!!eligible);setAdminApplication(applications?.[0]||null);
+  };
+  const submitAdminApplication = async e => {
+    e.preventDefault();setSettingsBusy(true);setSettingsMessage('');
     const {data:{user:authUser}}=await supabase.auth.getUser();
-    const {error}=await supabase.from('student_profiles').upsert({user_id:authUser.id,username:next.username,school:next.school||'',class_name:next.className,level:next.level,goal:next.goal,daily_minutes:next.dailyMinutes,completed_at:next.completedAt});
-    if(error) throw error;
-    const {error:metaError}=await supabase.auth.updateUser({data:{username:next.username,school:next.school||'',class_name:next.className,level:next.level,goal:next.goal,daily_minutes:next.dailyMinutes,profile_completed_at:next.completedAt}});
-    if(metaError) throw metaError;
-    localStorage.setItem('leerkompas:profile',JSON.stringify(next));setProfile(next);window.dispatchEvent(new CustomEvent('leerkompas:data-changed'));setSettingsMessage('Je profiel is opgeslagen.');
-  } catch(err){setSettingsMessage('Opslaan is niet gelukt: '+(err.message||'Onbekende fout'))}
-  finally{setSettingsBusy(false)}
-}
+    const {error}=await supabase.from('admin_role_applications').insert({user_id:authUser.id,reason:adminReason.trim()});
+    setSettingsBusy(false);
+    if(error)setSettingsMessage(error.message);else{setAdminReason('');setSettingsMessage('Je aanvraag is ingediend en wacht op beoordeling.');loadAdminApplication();}
+  };
   const title = ({home:profile?.username ? `${greeting}, ${profile.username}!` : `${greeting}!`,subjects:'Mijn lessen',study:'Slim herhalen',vocabulary:'Woordenlijst maken',create:'Zelf een les maken',games:'Speel & leer',progress:'Jouw voortgang',planning:'Mijn planning',admin:'Beheer'})[page]
   return <div className={`app ${dark ? 'dark' : ''}`} data-accent={accent}>
     <aside className={`sidebar ${mobileOpen ? 'open' : ''}`}>
