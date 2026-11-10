@@ -7,8 +7,8 @@ const STORAGE_KEY = 'leerkompas:vocabularyLists'
 const readLists = () => {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') } catch { return [] }
 }
-const cleanLine = value => value.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').replace(/\s+/g, ' ').trim()
-const languageHeading = /^(nederlands|duits|engels|frans|spaans|latijn|italiaans|deutsch|english|français|español|latin|vocabulary|wortschatz|begriffe|begrippen)(?:\s+(?:woorden|vocabulary|wortschatz))?$/i
+const cleanLine = value => value.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim()
+const languageHeading = /^(nederlands|duits|engels|frans|spaans|latijn|italiaans|deutsch|english|français|español|latin|vocabulary|wortschatz|begriffe|begrippen|woord|betekenis|vertaling|term)(?:\s+(?:woorden|vocabulary|wortschatz|betekenis|vertaling))?(?:\s*[-–—/]\s*(?:nederlands|duits|engels|frans|spaans|deutsch|english|français|español))?$/i
 const chapterHeading = /^(?:lektion|leçon|lesson|les|hoofdstuk|kapitel|chapter|unit|eenheid|paragraaf)\s*\d+[\s:.-]*.*$/i
 
 function detectEntries(text, instruction) {
@@ -38,7 +38,7 @@ function detectEntries(text, instruction) {
   }
   const seen = new Set()
   return entries.filter(entry => {
-    const key = entry.term.toLocaleLowerCase('nl-NL')+'|'+(entry.language||'').toLocaleLowerCase('nl-NL')
+    const key = entry.term.toLocaleLowerCase('nl-NL')+'|'+(entry.language||'').toLocaleLowerCase('nl-NL')+'|'+(entry.language||'').toLocaleLowerCase('nl-NL')
     if (key.length < 2 || seen.has(key)) return false
     seen.add(key); return true
   }).slice(0, 250)
