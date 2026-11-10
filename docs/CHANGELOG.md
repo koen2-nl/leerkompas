@@ -10,6 +10,7 @@ Dit overzicht wordt bij iedere release aangevuld. De nieuwste wijzigingen staan 
 - Woordenlijstherkenning onderscheidt beter hoofdstuktitels en taalnamen, herkent begrippen met betekenissen en ondersteunt een extra opdracht zoals "alleen Lektion 2".
 - Iedere gebruiker kan privélessen maken en via een geheime deellink delen.
 - Makers kunnen een privéles aanbieden voor de openbare bibliotheek; een beheerder of Lesmaker moet deze eerst goedkeuren.
+- Beheerders kunnen changelog-updates vanuit Instellingen toevoegen, bewerken en verwijderen.
 
 ## v0.37 beta — 10 november 2026
 - Leerstof-menu met Mijn lessen, Minigames, Flashcards en Woordenlijst maken.
