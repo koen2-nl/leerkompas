@@ -12,7 +12,7 @@ import { Activity, ArrowDownRight, ArrowRight, Award, BookOpen, Blocks, Brain, C
 
 const initialSubjects = []
 const initialCards = []
-const pagePaths = { home: '/', subjects: '/lessen', study: '/flashcards', vocabulary: '/woordenlijsten', create: '/les-maken', games: '/minigames', quiz: '/minigames/quiz', progress: '/resultaten', planning: '/planning', admin: '/beheer', settings: '/instellingen' }
+const pagePaths = { home: '/', subjects: '/lessen', publicLessons: '/openbare-lessen', study: '/flashcards', vocabulary: '/woordenlijsten', create: '/les-maken', games: '/minigames', quiz: '/minigames/quiz', progress: '/resultaten', planning: '/planning', admin: '/beheer', settings: '/instellingen' }
 const pathPages = Object.fromEntries(Object.entries(pagePaths).map(([page, path]) => [path, page]))
 const pageFromPath = pathname => pathPages[pathname.replace(/\/+$/, '') || '/'] || 'home'
 const mergeChangelogEntries = databaseEntries => {
@@ -29,7 +29,7 @@ const formatChangelogDate = entry => entry.release_date
   ? new Date(entry.release_date + 'T12:00:00').toLocaleDateString('nl-NL')
   : entry.date
 const nav = [
-  { group: 'WERKPLEK', items: [{ id: 'home', label: 'Overzicht', icon: LayoutDashboard }, { id: 'learning', label: 'Leerstof', icon: BookOpen, children: [{ id: 'subjects', label: 'Mijn lessen' }, { id: 'games', label: 'Minigames' }, { id: 'study', label: 'Flashcards' }, { id: 'vocabulary', label: 'Woordenlijst maken' }, { id: 'create', label: 'Zelf een les maken' }] }] },
+  { group: 'WERKPLEK', items: [{ id: 'home', label: 'Overzicht', icon: LayoutDashboard }, { id: 'learning', label: 'Leerstof', icon: BookOpen, children: [{ id: 'subjects', label: 'Mijn lesbibliotheek' }, { id: 'publicLessons', label: 'Openbare lesbibliotheek' }, { id: 'games', label: 'Minigames' }, { id: 'study', label: 'Flashcards' }, { id: 'vocabulary', label: 'Woordenlijst maken' }, { id: 'create', label: 'Zelf een les maken' }] }] },
   { group: 'INZICHT', items: [{ id: 'progress', label: 'Voortgang', icon: Activity }, { id: 'planning', label: 'Planning', icon: CalendarDays }] },
 ]
 function saveLocal(key, value) {
@@ -279,7 +279,7 @@ function App() {
     setSettingsBusy(false);
     if(error)setSettingsMessage(error.message);else{setAdminReason('');setSettingsMessage('Je aanvraag is ingediend en wacht op beoordeling.');loadAdminApplication();}
   };
-  const title = ({home:profile?.username ? `${greeting}, ${profile.username}!` : `${greeting}!`,subjects:'Mijn lessen',study:'Slim herhalen',vocabulary:'Woordenlijst maken',create:'Zelf een les maken',games:'Speel & leer',progress:'Jouw voortgang',planning:'Mijn planning',admin:'Beheer',settings:'Instellingen'})[page]
+  const title = ({home:profile?.username ? `${greeting}, ${profile.username}!` : `${greeting}!`,subjects:'Mijn lesbibliotheek',publicLessons:'Openbare lesbibliotheek',study:'Slim herhalen',vocabulary:'Woordenlijst maken',create:'Zelf een les maken',games:'Speel & leer',progress:'Jouw voortgang',planning:'Mijn planning',admin:'Beheer',settings:'Instellingen'})[page]
   return <div className={`app ${dark ? 'dark' : ''}`} data-accent={accent}>
     <aside className={`sidebar ${mobileOpen ? 'open' : ''}`}>
       <div className="brand"><button type="button" className="brand-home" onClick={()=>go('home')} aria-label="SlimLeren — terug naar overzicht"><div className="brand-mark"><GraduationCap size={22}/></div><span>Slim<span>Leren</span></span></button><button className="icon-btn mobile-close" onClick={()=>setMobileOpen(false)} aria-label="Menu sluiten"><X size={18}/></button></div>
@@ -299,7 +299,7 @@ function App() {
         {widgets.includes('subjects')&&<section className="panel subjects-panel"><div className="panel-head"><div><span className="panel-kicker">BLIJF IN BEWEGING</span><h3>Verder met je vakken</h3></div><button className="text-btn" onClick={()=>go('subjects')}>Alles bekijken <ArrowRight size={14}/></button></div>{subjects.slice(0,3).map(s=><SubjectRow key={s.name} subject={s}/>)}</section>}
         {widgets.includes('week')&&<section className="panel week-panel"><div className="panel-head"><div><span className="panel-kicker">JOUW DOEL</span><h3>Week in beeld</h3></div><span className="icon-tile green"><Trophy size={18}/></span></div><div className="week-number">{weeklyGoalProgress}<span>%</span></div><p className="muted">Je weekdoel is 6 leermomenten.</p><div className="progress-track"><div style={{width:weeklyGoalProgress+'%'}}/></div><div className="week-foot"><span>{sessionsThisWeek.length} van 6 leermomenten</span><strong>{Math.max(0, 6-sessionsThisWeek.length)} te gaan</strong></div><div className="week-days">{['M','D','W','D','V','Z','Z'].map((d,i)=><div key={i} className={i<4?'day done':'day'}><span>{d}</span><b>{i<4?<Check size={13}/>:i===4?'•':'·'}</b></div>)}</div></section>}</div>
         </>}
-        {page==='subjects'&&<GeographyLessons completedLessons={completedLessons} onComplete={completeLesson} onActiveChange={setLessonActive} onCatalogLoaded={lessonIds=>setCompletedLessons(previous=>previous.filter(id=>lessonIds.includes(id)))} profile={profile}/>}
+        {(page==='subjects'||page==='publicLessons')&&<GeographyLessons libraryView={page==='publicLessons'?'public':'personal'} completedLessons={completedLessons} onComplete={completeLesson} onActiveChange={setLessonActive} onCatalogLoaded={lessonIds=>setCompletedLessons(previous=>previous.filter(id=>lessonIds.includes(id)))} profile={profile}/>}
         {page==='admin'&&(isAdmin||isLessonMaker)&&<AdminPanel canManageUsers={isAdmin} canReviewLessons={true}/>}
         {page==='create'&&<AdminPanel canManageUsers={false} canReviewLessons={false}/>}
         {page==='vocabulary'&&<VocabularyBuilder/>}
