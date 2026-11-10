@@ -689,3 +689,21 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .night-prompt{max-width:440px}
 .night-prompt-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}
 @media(max-width:620px){.settings-profile-form{grid-template-columns:1fr}.settings-profile-form .settings-note,.settings-profile-form .primary-btn{grid-column:auto}.settings-tabs{gap:3px}.settings-tabs button{padding:8px}.night-prompt-actions{flex-direction:column-reverse}.night-prompt-actions button{width:100%}}
+
+.vocabulary-entry-row{display:grid;grid-template-columns:24px minmax(0,1fr) minmax(0,1.2fr) 30px;align-items:center;gap:8px}
+.vocabulary-entry-row>span{font-size:10px;color:var(--muted);text-align:center}
+.vocabulary-entry-row input{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);padding:10px 11px;font:inherit;font-size:12px;outline-color:var(--accent)}
+.shared-lesson-backdrop{z-index:25}
+.shared-lesson-modal{max-width:760px;max-height:88vh;overflow:auto}
+.shared-lesson-section{border-top:1px solid var(--line);padding:14px 0}
+.shared-lesson-section h3{font-size:15px}
+.shared-lesson-section>p,.shared-lesson-question{font-size:12px;color:var(--muted);line-height:1.6}
+.shared-lesson-question{padding:10px 0;border-top:1px solid var(--line)}
+.shared-lesson-question strong{color:var(--ink)}
+.admin-application-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.admin-application-row>div:first-child{min-width:0}
+.admin-application-row strong,.admin-application-row small{display:block}
+.admin-application-row small{color:var(--muted);font-size:10px;margin-top:4px}
+.admin-application-row p{font-size:12px;line-height:1.6}
+.admin-application-actions{display:flex;gap:7px;flex-wrap:wrap}
+@media(max-width:640px){.vocabulary-entry-row{grid-template-columns:20px minmax(0,1fr) minmax(0,1fr) 28px;gap:5px}.vocabulary-entry-row input{padding:8px 6px;font-size:11px}.admin-application-row{flex-direction:column}}
