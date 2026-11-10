@@ -14,7 +14,7 @@ const initialSubjects = []
 const initialCards = []
 const pagePaths = { home: '/', subjects: '/lessen', study: '/flashcards', vocabulary: '/woordenlijsten', create: '/les-maken', games: '/minigames', quiz: '/minigames/quiz', progress: '/resultaten', planning: '/planning', admin: '/beheer', settings: '/instellingen' }
 const pathPages = Object.fromEntries(Object.entries(pagePaths).map(([page, path]) => [path, page]))
-const pageFromPath = pathname => pathPages[pathname.replace(/\\/+$/, '') || '/'] || 'home'
+const pageFromPath = pathname => pathPages[pathname.replace(/\/+$/, '') || '/'] || 'home'
 const mergeChangelogEntries = databaseEntries => {
   const databaseByVersion = new Map((databaseEntries || []).map(entry => [entry.version, entry]))
   const sourceVersions = new Set(CHANGELOG.map(entry => entry.version))
