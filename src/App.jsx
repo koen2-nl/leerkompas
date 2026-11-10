@@ -21,7 +21,6 @@ const mergeChangelogEntries = databaseEntries => {
   const sourceEntries = CHANGELOG.map(entry => ({
     ...(databaseByVersion.get(entry.version) || {}),
     ...entry,
-    id: databaseByVersion.get(entry.version)?.id || null
   }))
   const customEntries = (databaseEntries || []).filter(entry => !sourceVersions.has(entry.version))
   return [...sourceEntries, ...customEntries]
