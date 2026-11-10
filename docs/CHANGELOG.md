@@ -1,5 +1,12 @@
 # Changelog SlimLeren
 
+## v0.39 beta — 10 november 2026
+- Woordenlijsten worden automatisch gegroepeerd op taal, hoofdstuk en onderwerp.
+- Herkenning van hoofdstukken zoals Lektion, Chapter en Hoofdstuk.
+- Hoofdstukken en categorieën zijn per begrip handmatig aanpasbaar.
+- Opgeslagen woordenlijsten tonen dezelfde overzichtelijke indeling.
+- Begrippen zonder duidelijke indeling blijven onder Overige begrippen.
+
 Dit overzicht wordt bij iedere release aangevuld. De nieuwste wijzigingen staan bovenaan.
 
 ## v0.38 beta — 10 november 2026
