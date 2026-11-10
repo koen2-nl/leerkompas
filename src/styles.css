@@ -757,3 +757,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .lesson-source-file:focus-within{outline:2px solid var(--accent);outline-offset:2px}
 .lesson-source-status{display:flex;align-items:center;gap:8px;margin:0;color:var(--muted);font-size:11px}
 .lesson-source-filename{color:var(--muted);font-size:10px}
+
+.vocabulary-group-heading{grid-column:1/-1;margin:12px 0 2px;padding:8px 10px;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;background:var(--surface-2,var(--surface));color:var(--ink);font-size:11px;font-weight:700;letter-spacing:.02em}
+.vocabulary-entry-row{grid-template-columns:24px minmax(110px,1fr) minmax(140px,1.3fr) minmax(120px,.9fr) 32px}
+@media(max-width:760px){.vocabulary-entry-row{grid-template-columns:22px minmax(0,1fr) 30px}.vocabulary-entry-row input{grid-column:2}.vocabulary-entry-row button{grid-column:3;grid-row:1}}
