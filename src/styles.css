@@ -727,3 +727,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .changelog-editor-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .settings-changelog article .changelog-editor-actions{margin-top:12px}
 @media(max-width:560px){.changelog-form-grid{grid-template-columns:1fr}.changelog-admin-editor{padding:13px}}
+
+.startup-changelog-backdrop{z-index:120;align-items:center;justify-content:center;padding:20px}
+.startup-changelog-modal{width:min(680px,100%);max-height:min(82vh,820px);display:flex;flex-direction:column;overflow:hidden;padding:26px}
+.startup-changelog-modal>h2{margin:8px 0 4px}
+.startup-changelog-modal>p{margin:0 0 16px;color:var(--muted)}
+.startup-changelog-list{overflow-y:auto;min-height:0;padding-right:6px}
+.startup-changelog-list article{padding:15px 0;border-bottom:1px solid var(--line)}
+.startup-changelog-list article:first-child{padding-top:4px}
+.startup-changelog-list article small{color:var(--muted);font-size:10px}
+.startup-changelog-list article h3{margin:6px 0;font-size:15px}
+.startup-changelog-list article p{margin:4px 0 8px;color:var(--muted);font-size:12px}
+.startup-changelog-list article ul{margin:8px 0 0;padding-left:19px}
+.startup-changelog-list article li{margin:5px 0;color:var(--muted);font-size:12px;line-height:1.5}
+.startup-changelog-actions{display:flex;justify-content:flex-end;padding-top:16px;flex-shrink:0}
+@media(max-width:560px){.startup-changelog-backdrop{padding:10px}.startup-changelog-modal{max-height:90vh;padding:20px 16px}.startup-changelog-actions .primary-btn{width:100%}}
