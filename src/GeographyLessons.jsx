@@ -204,7 +204,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
   }
 
   const stopLesson = () => {
-    if (selectedLesson) saveProgress(selectedLesson.id, { sectionIndex, questionIndex, stage, updatedAt: new Date().toISOString() })
+    if (selectedLesson) saveProgress(selectedLesson.id, { sectionIndex, questionIndex, stage, practiceMode, updatedAt: new Date().toISOString() })
     setProgress(selectedLesson ? readProgress(selectedLesson.id) : null)
     setActive(false)
     onActiveChange?.(false)
@@ -253,7 +253,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
     return matchesSearch && matchesSubject && matchesTopic && matchesLevel && matchesStatus && matchesDifficulty && matchesClass && matchesSchool
   }).sort((a, b) => Number(goalMatch(b, profile)) - Number(goalMatch(a, profile)) || Number(profileLevelMatch(b, profile)) - Number(profileLevelMatch(a, profile)))
 
-  if (finished) return <section className="panel lesson-player lesson-fullscreen"><div className="lesson-complete"><span className="complete-icon"><Check size={38}/></span><h2>Je hebt de les afgerond</h2><p>Je hebt alle onderdelen gelezen en de oefenvragen doorlopen.</p><div className="complete-xp"><Zap size={20}/><strong>{completedLessons.includes(selectedLesson?.id) ? 'Les opnieuw afgerond' : '20 XP verdiend'}</strong></div><button className="primary-btn" onClick={() => { setActive(false); onActiveChange?.(false); setFinished(false); setSelectedLesson(null) }}>Terug naar mijn lessen</button></div></section>
+  if (finished) return <section className="panel lesson-player lesson-fullscreen"><div className="lesson-complete"><span className="complete-icon"><Check size={38}/></span><h2>Je hebt de les afgerond</h2><p>{practiceMode === 'flashcards' ? 'Je hebt alle flashcards van deze les doorgenomen.' : practiceMode === 'minigame' ? 'Je hebt alle vragen van deze minigame beantwoord.' : 'Je hebt alle onderdelen gelezen en de oefenvragen doorlopen.'}</p><div className="complete-xp"><Zap size={20}/><strong>{completedLessons.includes(selectedLesson?.id) ? 'Les opnieuw afgerond' : '20 XP verdiend'}</strong></div><button className="primary-btn" onClick={() => { setActive(false); onActiveChange?.(false); setFinished(false); setSelectedLesson(null) }}>Terug naar mijn lessen</button></div></section>
 
   if (!active) return (
     <div>
