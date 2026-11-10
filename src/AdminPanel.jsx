@@ -1,9 +1,36 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, RefreshCw, ShieldCheck, Users, BookOpen, RotateCcw, Trash2, Plus, X, Gamepad2, BookOpenCheck, ChevronLeft, Sparkles, Search, LayoutDashboard } from 'lucide-react'
+import { Check, RefreshCw, ShieldCheck, Users, BookOpen, RotateCcw, Trash2, Plus, X, Gamepad2, BookOpenCheck, ChevronLeft, Sparkles, Search, LayoutDashboard, Upload, LoaderCircle, FileText } from 'lucide-react'
+import mammoth from 'mammoth'
+import { recognize } from 'tesseract.js'
 import { supabase } from './auth/supabase.js'
 
 const blankQuestion = () => ({ type: 'multiple_choice', question: '', answer: '', explanation: '', options: '' })
 const empty = { title: '', subject: 'Algemeen', topic: '', level: 'Alle niveaus', targetClass: '', targetSchool: '', difficulty: 'Basis', description: '', mode: 'normal', questions: [blankQuestion()] }
+
+
+const cleanSourceLine = value => value.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim()
+const chapterLine = /^(?:lektion|leçon|lesson|les|hoofdstuk|kapitel|chapter|unit|eenheid|paragraaf)\s*\d+\b.*$/i
+const languageLine = /^(?:nederlands|duits|engels|frans|spaans|latijn|italiaans|deutsch|english|français|español|latin|vocabulary|wortschatz|begrippen|woordenlijst)(?:\s*[-–—/]\s*(?:nederlands|duits|engels|frans|spaans|deutsch|english|français|español))?$/i
+function glossaryPairs(source, instruction) {
+  const requested = (instruction.match(/(?:lektion|leçon|lesson|les|hoofdstuk|kapitel|chapter|unit)\s*\d+/i)||[])[0]?.toLocaleLowerCase('nl-NL')
+  let section='', active=!requested
+  const pairs=[]
+  for (const raw of source.split(/\r?\n/)) {
+    const line=cleanSourceLine(raw)
+    if(!line) continue
+    if(chapterLine.test(line)){section=line;active=!requested||line.toLocaleLowerCase('nl-NL').includes(requested);continue}
+    if(languageLine.test(line)) continue
+    if(!active||line.length>180||/^pagina\s+\d+/i.test(line)||/^\d+$/.test(line))continue
+    const match=line.match(/^(.{1,75}?)\s*(?::|\t|\s+[–—-]\s+|\s{2,})\s*(.{2,})$/)
+    if(!match) continue
+    const term=match[1].replace(/[;,.]$/,'').replace(/\s+/g,' ').trim(), meaning=match[2].replace(/\s+/g,' ').trim()
+    if(!term||!meaning||term.length>75||languageLine.test(term)||chapterLine.test(term))continue
+    if(/^(?:deutsch|english|français|español|nederlands)\s*[-–—/]\s*/i.test(term))continue
+    pairs.push({term,meaning,section})
+  }
+  const seen=new Set()
+  return pairs.filter(pair=>{const key=pair.term.toLocaleLowerCase('nl-NL');if(seen.has(key))return false;seen.add(key);return true}).slice(0,100)
+}
 
 function questionsFromContent(content) {
   const questions = (content?.sections || []).flatMap(section => section.questions || [])
@@ -32,6 +59,7 @@ function buildContent(form) {
 export default function AdminPanel({ canManageUsers = false, canReviewLessons = false }) {
   const [users,setUsers]=useState([]), [lessons,setLessons]=useState([]), [applications,setApplications]=useState([])
   const [form,setForm]=useState(empty), [editId,setEditId]=useState(null), [email,setEmail]=useState(''), [creatorStep,setCreatorStep]=useState('choice')
+  const [sourceBusy,setSourceBusy]=useState(false), [sourceInstruction,setSourceInstruction]=useState(''), [sourceLanguage,setSourceLanguage]=useState('nld+eng'), [sourceFileName,setSourceFileName]=useState(''), [sourceStatus,setSourceStatus]=useState('')
   const [activeTab,setActiveTab]=useState(canManageUsers?'overview':'lessons'), [userQuery,setUserQuery]=useState(''), [lessonQuery,setLessonQuery]=useState('')
   const filteredUsers=users.filter(user=>(user.email||'').toLowerCase().includes(userQuery.toLowerCase()))
   const filteredLessons=lessons.filter(lesson=>[lesson.title,lesson.subject,lesson.topic,lesson.level].some(value=>(value||'').toLowerCase().includes(lessonQuery.toLowerCase())))
@@ -71,6 +99,25 @@ export default function AdminPanel({ canManageUsers = false, canReviewLessons = 
     setForm({title:l.title||'',subject:l.subject||'',topic:l.topic||'',level:l.level||'Alle niveaus',targetClass:l.target_class||'',targetSchool:l.target_school||'',difficulty:l.difficulty||'Basis',description:l.description||'',mode:l.content?.mode||'normal',questions:questionsFromContent(l.content||{})});setCreatorStep('builder')
   }
   const remove=async l=>{if(!window.confirm('Les '+l.title+' verwijderen?'))return;const {error:e}=await supabase.from('lesson_catalog').delete().eq('id',l.id);if(e)setError(e.message);else{setNotice('Les verwijderd.');load()}}
+  const importLessonSource=async file=>{
+    if(!file)return
+    setSourceBusy(true);setError('');setSourceStatus('Bestand lezen…');setSourceFileName(file.name)
+    try{
+      let text=''
+      const lower=file.name.toLowerCase()
+      if(lower.endsWith('.docx')){const result=await mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});text=result.value}
+      else if(lower.endsWith('.txt'))text=await file.text()
+      else if(file.type.startsWith('image/')){setSourceStatus('Tekst op de afbeelding herkennen…');const result=await recognize(file,sourceLanguage,{logger:m=>{if(m.status==='recognizing text')setSourceStatus('Tekst herkennen… '+Math.round((m.progress||0)*100)+'%')}});text=result.data.text}
+      else throw new Error('Kies een DOCX-, TXT-, JPG-, PNG- of WEBP-bestand.')
+      const pairs=glossaryPairs(text,sourceInstruction)
+      if(!pairs.length)throw new Error('Ik vond geen duidelijke woord-begripparen. Gebruik bijvoorbeeld “Wort : woord” of “Wort — betekenis”, en geef eventueel een hoofdstukopdracht.')
+      const generated=pairs.map(pair=>({type:'open',question:'Wat betekent '+pair.term+'?',answer:pair.meaning,explanation:[pair.section,sourceFileName].filter(Boolean).join(' · '),options:''}))
+      setForm(current=>({...current,questions:[...(current.questions.length===1&&!current.questions[0].question.trim()&&!current.questions[0].answer.trim()?[]:current.questions),...generated]}))
+      if(!form.title.trim())setForm(current=>({...current,title:file.name.replace(/\\.[^.]+$/,'').replace(/[_-]+/g,' ')}))
+      setSourceStatus(pairs.length+' begrippen met betekenis gevonden. Controleer en verbeter de vragen hieronder.')
+    }catch(e){setError(e?.message||'Het bestand kon niet worden verwerkt.');setSourceStatus('')}
+    finally{setSourceBusy(false)}
+  }
   const updateQuestion=(index,patch)=>setForm(current=>({...current,questions:current.questions.map((q,i)=>i===index?{...q,...patch}:q)}))
   const cancelEdit=()=>{setEditId(null);setForm(empty);setCreatorStep('choice')}
   const startCreating=mode=>{setForm({...empty,mode});setEditId(null);setCreatorStep('builder');setError('');setNotice('')}
@@ -118,6 +165,7 @@ export default function AdminPanel({ canManageUsers = false, canReviewLessons = 
           <label>Moeilijkheid<select value={form.difficulty} onChange={e=>setForm({...form,difficulty:e.target.value})}><option>Basis</option><option>Gemiddeld</option><option>Uitdagend</option></select></label>
         </div>
         <label>Beschrijving van de les <span className="admin-optional">(optioneel)</span><textarea rows="2" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Waar gaat deze les over?"/></label>
+        <section className="lesson-source-import"><div className="lesson-source-import-heading"><span className="lesson-source-icon"><Upload size={18}/></span><div><strong>Vragen maken vanuit een bestand</strong><small>Upload een Word-bestand, tekstbestand of foto. Begrippen met hun betekenis worden omgezet naar open vragen.</small></div></div><label>Extra opdracht <span className="admin-optional">(optioneel)</span><input value={sourceInstruction} onChange={e=>setSourceInstruction(e.target.value)} placeholder="Bijv. alleen de woorden van Lektion 2"/></label><div className="lesson-source-controls"><label>Tekst op foto herkennen<select value={sourceLanguage} onChange={e=>setSourceLanguage(e.target.value)}><option value="nld+eng">Nederlands / Engels</option><option value="deu+eng">Duits / Engels</option><option value="fra+eng">Frans / Engels</option><option value="spa+eng">Spaans / Engels</option><option value="eng">Engels</option></select></label><label className="soft-btn lesson-source-file"><Upload size={15}/> Bestand of foto kiezen<input type="file" accept=".docx,.txt,image/jpeg,image/png,image/webp" disabled={sourceBusy} onChange={e=>{importLessonSource(e.target.files?.[0]);e.target.value=''}}/></label></div>{sourceBusy&&<p className="lesson-source-status"><LoaderCircle size={15} className="spin"/>{sourceStatus}</p>}{!sourceBusy&&sourceStatus&&<p className="lesson-source-status"><FileText size={15}/>{sourceStatus}</p>}{sourceFileName&&<small className="lesson-source-filename">Bron: {sourceFileName}</small>}</section>
         <div className="admin-question-builder-heading"><div><span className="panel-kicker">VRAGEN</span><strong>Vragen van je les</strong><small>De vraag en het antwoord zijn verplicht. Uitleg is optioneel.</small></div><button type="button" className="soft-btn" onClick={()=>setForm(current=>({...current,questions:[...current.questions,blankQuestion()]}))}><Plus size={15}/> Vraag toevoegen</button></div>
         <div className="admin-question-list">
           {form.questions.map((q,index)=><article className="admin-question-card" key={index}>
