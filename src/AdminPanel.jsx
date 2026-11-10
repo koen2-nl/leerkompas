@@ -62,7 +62,7 @@ export default function AdminPanel({ canManageUsers = false }) {
     }
     setBusy(true);setError('')
     const payload={title:form.title.trim(),subject:form.subject.trim(),topic:form.topic.trim(),level:form.level,target_class:form.targetClass.trim(),target_school:form.targetSchool.trim(),difficulty:form.difficulty,description:form.description.trim(),content:buildContent(form),...(editId?{}:{created_by:currentUserId})}
-    const result=editId? supabase.from('lesson_catalog').update(payload).eq('id',editId):await supabase.from('lesson_catalog').insert(payload)
+    const result=editId?await supabase.from('lesson_catalog').update(payload).eq('id',editId):await supabase.from('lesson_catalog').insert(payload)
     setBusy(false);if(result.error)setError(result.error.message);else{setNotice(editId?'Les bijgewerkt.':'Les aangemaakt.');setForm(empty);setEditId(null);setCreatorStep('choice');load()}
   }
   const edit=l=>{
