@@ -41,12 +41,13 @@ export default function AdminPanel({ canManageUsers = false }) {
   const [busy,setBusy]=useState(false), [loading,setLoading]=useState(true), [notice,setNotice]=useState(''), [error,setError]=useState(''), [currentUserId,setCurrentUserId]=useState(null)
   const load=useCallback(async()=>{
     setLoading(true); setError('')
-    const [u,l]=await Promise.all([supabase.rpc('admin_list_users'),supabase.from('lesson_catalog').select('*').order('created_at',{ascending:false})])
-    if(u.error)setError(u.error.message); else setUsers(u.data||[])
+    const lessonRequest=supabase.from('lesson_catalog').select('*').order('created_at',{ascending:false})
+    const [u,l]=await Promise.all([canManageUsers?supabase.rpc('admin_list_users'):Promise.resolve({data:null,error:null}),lessonRequest])
+    if(u.error)setError(u.error.message); else if(canManageUsers)setUsers(u.data||[])
     if(l.error)setError(v=>[v,l.error.message].filter(Boolean).join(' · ')); else setLessons(l.data||[])
     setLoading(false)
-  },[])
-  useEffect(()=>{if(canManageUsers)load();else{setLoading(false);supabase.from('lesson_catalog').select('*').order('created_at',{ascending:false}).then(({data,error})=>{if(error)setError(error.message);else setLessons(data||[])})}supabase.auth.getUser().then(({data})=>setCurrentUserId(data.user?.id||null))},[load,canManageUsers])
+  },[canManageUsers])
+  useEffect(()=>{load();supabase.auth.getUser().then(({data})=>setCurrentUserId(data.user?.id||null))},[load])
   const reset=async(user,section,label)=>{
     if(!window.confirm(label+' resetten voor '+user.email+'? Dit kan niet ongedaan worden gemaakt.'))return
     setBusy(true);setError('');const {error:e}=await supabase.rpc('admin_reset_user_data',{p_user_id:user.user_id,p_sections:[section]});setBusy(false)
