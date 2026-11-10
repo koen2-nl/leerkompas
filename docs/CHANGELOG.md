@@ -1,5 +1,11 @@
 # Changelog SlimLeren
 
+## v0.46 beta — 10 november 2026
+- Bij iedere les kiezen tussen de gewone les, minigame-modus en flashcards.
+- Flashcards tonen vragen en antwoorden als omdraaibare kaarten.
+- Minigame-modus geeft punten voor goede antwoorden.
+- Invoervelden, keuzelijsten en antwoordvakken hebben grotere, beter leesbare tekst.
+
 ## v0.45 beta — 10 november 2026
 - Zelfgemaakte lessen verschijnen automatisch in je persoonlijke lesbibliotheek.
 - Nieuwe openbare lesbibliotheek met zoeken en filters voor gepubliceerde lessen.
