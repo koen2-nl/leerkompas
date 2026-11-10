@@ -101,7 +101,7 @@ export default function VocabularyBuilder() {
     </section>}
     <section className="panel vocabulary-saved">
       <div className="panel-head"><div><span className="panel-kicker">OPGESLAGEN</span><h3>Mijn woordenlijsten</h3></div><span className="vocabulary-count">{savedLists.length}</span></div>
-      {savedLists.length===0?<p className="muted">Je hebt nog geen woordenlijsten opgeslagen.</p>:savedLists.map(list=><div className="vocabulary-saved-row" key={list.id}><div><strong>{list.title}</strong><small>{list.terms.length} begrippen</small></div><button className="icon-btn" onClick={()=>deleteList(list.id)} aria-label={'Verwijder '+list.title}><Trash2 size={16}/></button></div>)}
+      {savedLists.length===0?<p className="muted">Je hebt nog geen woordenlijsten opgeslagen.</p>:savedLists.map(list=><details className="vocabulary-saved-item" key={list.id}><summary><span><strong>{list.title}</strong><small>{list.terms.length} begrippen</small></span><button type="button" className="icon-btn" onClick={e=>{e.preventDefault();deleteList(list.id)}} aria-label={'Verwijder '+list.title}><Trash2 size={16}/></button></summary><ul>{list.terms.map((term,index)=><li key={index}>{term}</li>)}</ul></details>)}
     </section>
   </div>
 }
