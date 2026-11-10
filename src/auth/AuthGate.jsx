@@ -5,7 +5,7 @@ import App from '../App.jsx'
 import SetupWizard from './SetupWizard.jsx'
 import { isSupabaseConfigured, supabase } from './supabase.js'
 
-const DATA_KEYS = ['subjects', 'cards', 'known', 'studyStats', 'completedLessons', 'lessonProgress', 'planning', 'dark', 'accent', 'widgets', 'profile']
+const DATA_KEYS = ['subjects', 'cards', 'known', 'studyStats', 'completedLessons', 'lessonProgress', 'planning', 'dark', 'accent', 'widgets', 'profile', 'vocabularyLists']
 const localData = () => Object.fromEntries(DATA_KEYS.map(key => {
   try { const value = localStorage.getItem('leerkompas:' + key); return [key, value ? JSON.parse(value) : null] } catch { return [key, null] }
 }))
