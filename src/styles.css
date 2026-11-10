@@ -793,3 +793,24 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media(max-width:680px){.global-search{order:3;width:100%;max-width:none;margin:0 0 10px}.topbar{height:auto;min-height:64px;flex-wrap:wrap;padding:12px 17px;gap:10px}.breadcrumbs{flex:1}.top-actions{gap:7px}.date-pill{display:none}.content{padding:25px 17px 20px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}.subject-grid,.games-grid{grid-template-columns:1fr}.page-heading h1{font-size:24px}.welcome-banner{padding:23px;min-height:190px}.banner-art{display:none}}
 
 .lesson-library-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px}.lesson-library-actions .primary-btn{margin:0}.lesson-library-state{font-size:12px;color:var(--muted);font-weight:600;padding:8px 2px}.lesson-library-notice{padding:12px 16px;color:var(--accent);font-weight:600}@media(max-width:640px){.lesson-library-actions{align-items:stretch;flex-direction:column}.lesson-library-actions>*{width:100%;justify-content:center}.lesson-library-state{text-align:center}}
+
+
+/* Grotere, beter leesbare invoervelden */
+.app input:not([type="checkbox"]):not([type="radio"]), .app select, .app textarea{font-size:15px}
+.field-label{font-size:13px}
+.field-label input,.field-label select,.field-label textarea{font-size:15px;padding:13px;min-height:46px}
+.lesson-question textarea{width:100%;min-height:110px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;font-size:16px;line-height:1.55;resize:vertical}
+.lesson-mode-picker{width:min(680px,100%)}
+.lesson-mode-picker>p{font-size:13px;line-height:1.6}
+.lesson-mode-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:20px 0}
+.lesson-mode-option{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-width:0;padding:16px 13px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;transition:border-color .18s,transform .18s}
+.lesson-mode-option:hover{border-color:var(--accent);transform:translateY(-2px)}
+.lesson-mode-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:11px;background:var(--accent-soft);color:var(--accent)}
+.lesson-mode-icon.game{background:#fff1df;color:#d28b38}.lesson-mode-icon.cards{background:#e8f6ef;color:#369b78}
+.lesson-mode-option strong{font-size:15px}.lesson-mode-option small{font-size:12px;line-height:1.5;color:var(--muted);min-height:36px}.lesson-mode-option b{display:flex;align-items:center;gap:5px;margin-top:auto;color:var(--accent);font-size:12px}
+.lesson-mode-score{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;margin:0 0 15px;border-radius:10px;background:#fff4e4;color:#9b6828;font-size:13px}
+.lesson-mode-score span{display:flex;align-items:center;gap:7px;font-weight:700}.lesson-mode-score strong{font-size:15px}.lesson-mode-score.flashcard-mode-label{background:var(--accent-soft);color:var(--accent)}
+.mode-minigame .lesson-options button{font-size:16px;padding:17px;border-radius:12px}.mode-minigame .lesson-question h2{font-size:25px}
+.lesson-flashcard-wrap{max-width:680px;margin:22px auto}.lesson-flashcard{min-height:260px;padding:32px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:17px;text-align:center;border:1px solid #dcd5fb;border-radius:18px;background:linear-gradient(145deg,#f7f5ff,#ece9ff);color:#3e376b;box-shadow:0 12px 30px #594a9810}
+.lesson-flashcard h2{font-size:26px;line-height:1.45;margin:0;white-space:pre-wrap}.lesson-flashcard p{font-size:14px;line-height:1.65;max-width:540px}.lesson-flashcard-actions{display:flex;justify-content:center;margin-top:16px}
+@media(max-width:600px){.lesson-mode-options{grid-template-columns:1fr}.lesson-mode-option{display:grid;grid-template-columns:44px 1fr;column-gap:12px;align-items:center}.lesson-mode-option .lesson-mode-icon{grid-row:span 2}.lesson-mode-option small{min-height:0}.lesson-mode-option b{grid-column:2}.lesson-flashcard{min-height:220px;padding:25px 18px}.lesson-flashcard h2{font-size:22px}.lesson-mode-score{font-size:12px}}
