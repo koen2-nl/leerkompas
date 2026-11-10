@@ -707,3 +707,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .admin-application-row p{font-size:12px;line-height:1.6}
 .admin-application-actions{display:flex;gap:7px;flex-wrap:wrap}
 @media(max-width:640px){.vocabulary-entry-row{grid-template-columns:20px minmax(0,1fr) minmax(0,1fr) 28px;gap:5px}.vocabulary-entry-row input{padding:8px 6px;font-size:11px}.admin-application-row{flex-direction:column}}
+
+.public-shared-page{min-height:100vh;background:#f6f7fb;color:#24233a;padding:28px;max-width:960px;margin:0 auto}
+.public-shared-page>header{display:flex;align-items:center;gap:10px;font-size:20px;margin-bottom:25px;color:#7664db}
+.public-shared-card{padding:28px}
+.public-shared-card h1{font-size:27px;margin:8px 0}
+.public-shared-card article{border-top:1px solid var(--line);padding:16px 0}
+.public-shared-card article h2{font-size:17px}
+.public-shared-card article p,.public-shared-question{font-size:12px;line-height:1.6;color:var(--muted)}
+.public-shared-question{border-top:1px solid var(--line);padding:12px 0}
+.public-shared-question strong{color:var(--ink)}
+@media(max-width:600px){.public-shared-page{padding:14px}.public-shared-card{padding:17px}}
