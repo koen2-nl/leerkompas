@@ -14,8 +14,9 @@ const chapterHeading = /^(?:lektion|leçon|lesson|les|hoofdstuk|kapitel|chapter|
 function detectEntries(text, instruction) {
   const lines = text.split(/\r?\n/).map(cleanLine).filter(Boolean)
   const entries = []
-  const wanted = (instruction.match(/(?:lektion|hoofdstuk|kapitel|chapter|lesson|unit)\s*\d+/i) || [])[0]?.toLocaleLowerCase('nl-NL')
+  const wanted = (instruction.match(/(?:lektion|hoofdstuk|kapitel|chapter|lesson|les|unit)\s*\d+/i) || [])[0]?.toLocaleLowerCase('nl-NL')
   let currentSection = ''
+  let currentLanguage = ''
   let active = !wanted
   for (const line of lines) {
     if (chapterHeading.test(line)) {
@@ -23,7 +24,8 @@ function detectEntries(text, instruction) {
       active = !wanted || line.toLocaleLowerCase('nl-NL').includes(wanted)
       continue
     }
-    if (languageHeading.test(line) || /^\d+$/.test(line) || /^pagina\s+\d+/i.test(line) || line.length > 100) continue
+    if (languageHeading.test(line)) { currentLanguage = line; continue }
+    if (/^\d+$/.test(line) || /^pagina\s+\d+/i.test(line) || line.length > 100) continue
     if (!active) continue
     const pair = line.match(/^(.{1,70}?)\s*(?::|\t|\s[–—-]\s|\s{2,})\s*(.{2,})$/)
     if (pair) {
