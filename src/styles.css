@@ -718,3 +718,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .public-shared-question{border-top:1px solid var(--line);padding:12px 0}
 .public-shared-question strong{color:var(--ink)}
 @media(max-width:600px){.public-shared-page{padding:14px}.public-shared-card{padding:17px}}
+
+.changelog-admin-editor{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px}
+.changelog-admin-editor form{display:grid;gap:12px}
+.changelog-admin-editor label{display:grid;gap:6px;font-size:11px;color:var(--muted);font-weight:600}
+.changelog-admin-editor input,.changelog-admin-editor textarea{width:100%;min-width:0;border:1px solid var(--line);border-radius:9px;background:var(--surface-2,var(--surface));color:var(--ink);padding:10px 12px;font:inherit;font-size:12px;outline-color:var(--accent)}
+.changelog-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.changelog-editor-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.settings-changelog article .changelog-editor-actions{margin-top:12px}
+@media(max-width:560px){.changelog-form-grid{grid-template-columns:1fr}.changelog-admin-editor{padding:13px}}
