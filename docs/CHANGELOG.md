@@ -1,5 +1,11 @@
 # Changelog SlimLeren
 
+## v0.45 beta — 10 november 2026
+- Zelfgemaakte lessen verschijnen automatisch in je persoonlijke lesbibliotheek.
+- Nieuwe openbare lesbibliotheek met zoeken en filters voor gepubliceerde lessen.
+- Voeg openbare lessen met één klik toe aan je persoonlijke bibliotheek en verwijder ze daar later weer zonder de openbare bron te wijzigen.
+- Persoonlijke leskoppelingen zijn afgeschermd per account met Row Level Security.
+
 ## v0.44 beta — 10 november 2026
 - De changelog op de website combineert voortaan altijd de changelog uit de broncode met aanvullende beheerupdates uit Supabase.
 - Nieuwe releases blijven zichtbaar in Instellingen en in het venster Wat is er nieuw?, ook als Supabase al oudere changelogregels bevat.
