@@ -9,7 +9,7 @@ const readLists = () => {
 }
 const cleanLine = value => value.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').replace(/\s+/g, ' ').trim()
 const languageHeading = /^(nederlands|duits|engels|frans|spaans|latijn|italiaans|deutsch|english|français|español|latin|vocabulary|wortschatz|begriffe|begrippen)(?:\s+(?:woorden|vocabulary|wortschatz))?$/i
-const chapterHeading = /^(?:lektion|leçon|lesson|hoofdstuk|kapitel|chapter|unit|eenheid|paragraaf)\s*\d+[\s:.-]*.*$/i
+const chapterHeading = /^(?:lektion|leçon|lesson|les|hoofdstuk|kapitel|chapter|unit|eenheid|paragraaf)\s*\d+[\s:.-]*.*$/i
 
 function detectEntries(text, instruction) {
   const lines = text.split(/\r?\n/).map(cleanLine).filter(Boolean)
@@ -29,9 +29,9 @@ function detectEntries(text, instruction) {
     if (pair) {
       const term = pair[1].replace(/[;,.]$/, '').trim()
       const meaning = pair[2].trim()
-      if (term && meaning && !languageHeading.test(term) && !chapterHeading.test(term)) entries.push({ term, meaning, section: currentSection })
+      if (term && meaning && !languageHeading.test(term) && !chapterHeading.test(term)) entries.push({ term, meaning, section: currentSection, language: currentLanguage })
     } else if (line.length <= 65 && !/[.!?]$/.test(line) && !languageHeading.test(line)) {
-      entries.push({ term: line.replace(/[:;,.]$/, ''), meaning: '', section: currentSection })
+      entries.push({ term: line.replace(/[:;,.]$/, ''), meaning: '', section: currentSection, language: currentLanguage })
     }
   }
   const seen = new Set()
@@ -121,7 +121,7 @@ export default function VocabularyBuilder() {
     </section>}
     <section className="panel vocabulary-saved">
       <div className="panel-head"><div><span className="panel-kicker">OPGESLAGEN</span><h3>Mijn woordenlijsten</h3></div><span className="vocabulary-count">{savedLists.length}</span></div>
-      {savedLists.length===0?<p className="muted">Je hebt nog geen woordenlijsten opgeslagen.</p>:savedLists.map(list=><details className="vocabulary-saved-item" key={list.id}><summary><span><strong>{list.title}</strong><small>{listEntries(list).length} begrippen</small></span><button type="button" className="icon-btn" onClick={e=>{e.preventDefault();deleteList(list.id)}} aria-label={'Verwijder '+list.title}><Trash2 size={16}/></button></summary><ul>{listEntries(list).map((entry,index)=><li key={index}><strong>{entry.term}</strong>{entry.meaning?' — '+entry.meaning:''}</li>)}</ul></details>)}
+      {savedLists.length===0?<p className="muted">Je hebt nog geen woordenlijsten opgeslagen.</p>:savedLists.map(list=><details className="vocabulary-saved-item" key={list.id}><summary><span><strong>{list.title}</strong><small>{listEntries(list).length} begrippen</small></span><button type="button" className="icon-btn" onClick={e=>{e.preventDefault();deleteList(list.id)}} aria-label={'Verwijder '+list.title}><Trash2 size={16}/></button></summary><ul>{listEntries(list).map((entry,index)=><li key={index}><strong>{entry.term}</strong>{entry.meaning?' — '+entry.meaning:''}{entry.language?' ('+entry.language+')':''}</li>)}</ul></details>)}
     </section>
   </div>
 }
