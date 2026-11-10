@@ -632,3 +632,39 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .dark .admin-overview-card,.dark .admin-tabs button.active{background:var(--panel)}
 .dark .admin-overview-icon.users{background:#37304f;color:#b5a7ff}.dark .admin-overview-icon.lessons{background:#203d35;color:#80d4ae}.dark .admin-overview-icon.activity{background:#493728;color:#ffc18a}
 @media(max-width:700px){.admin-overview-grid{grid-template-columns:1fr}.admin-overview-card{padding:13px}.admin-quick-links{grid-template-columns:1fr}.admin-tabs button{padding:9px 11px}.admin-page{gap:13px}.admin-panel{padding:15px}}
+
+.nav-dropdown{display:grid;gap:4px}
+.nav-dropdown>.nav-item{width:100%}
+.nav-dropdown>.nav-item>svg:last-child{margin-left:auto;transition:transform .18s ease}
+.nav-dropdown>.nav-item>svg.rotated{transform:rotate(180deg)}
+.nav-subitems{display:grid;gap:3px;margin:0 0 5px 27px;padding-left:12px;border-left:1px solid var(--line)}
+.nav-subitem{border:0;background:transparent;color:var(--muted);text-align:left;padding:9px 10px;border-radius:7px;font:inherit;font-size:11px;cursor:pointer}
+.nav-subitem:hover,.nav-subitem.active{background:var(--surface);color:var(--accent);font-weight:700}
+
+/* Woordenlijst maken */
+.vocabulary-page{display:grid;gap:16px;max-width:980px}
+.vocabulary-heading h2{font-size:25px;margin:7px 0}.vocabulary-heading p{color:var(--muted);font-size:12px}
+.vocabulary-upload{text-align:center;padding:32px 20px}
+.vocabulary-upload-icon{width:48px;height:48px;border-radius:14px;background:var(--surface);color:var(--accent);display:grid;place-items:center;margin:0 auto 12px}
+.vocabulary-upload h3{font-size:16px;margin:0 0 7px}.vocabulary-upload>p{font-size:11px;color:var(--muted);max-width:480px;margin:0 auto 15px;line-height:1.6}
+.vocabulary-file-button{display:inline-flex;align-items:center;gap:8px;position:relative;overflow:hidden;cursor:pointer}.vocabulary-file-button input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.vocabulary-status{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px!important;color:var(--accent)!important}
+.vocabulary-editor,.vocabulary-saved{padding:20px}
+.vocabulary-title-field{display:grid;gap:7px;font-size:11px;font-weight:700;margin:14px 0;color:var(--ink)}
+.vocabulary-title-field input,.vocabulary-term-row input{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);padding:10px 11px;font:inherit;font-size:12px;outline-color:var(--accent)}
+.vocabulary-source{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:10px;margin:12px 0}
+.vocabulary-term-list{display:grid;gap:7px;margin:12px 0 16px}
+.vocabulary-term-row{display:grid;grid-template-columns:25px minmax(0,1fr) 30px;align-items:center;gap:8px}
+.vocabulary-term-row>span{font-size:10px;color:var(--muted);text-align:center}
+.vocabulary-term-row .icon-btn{width:30px;height:32px;color:var(--muted)}
+.vocabulary-saved-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.vocabulary-saved-row:last-child{border-bottom:0}
+.vocabulary-saved-row>div{display:grid;gap:4px}.vocabulary-saved-row strong{font-size:12px}.vocabulary-saved-row small,.vocabulary-count{font-size:10px;color:var(--muted)}
+@keyframes vocabulary-spin{to{transform:rotate(360deg)}}.spin{animation:vocabulary-spin 1s linear infinite}
+@media(max-width:640px){.vocabulary-upload{padding:24px 14px}.vocabulary-editor,.vocabulary-saved{padding:15px}.vocabulary-heading h2{font-size:22px}}
+
+.vocabulary-saved-item{border-bottom:1px solid var(--line);padding:10px 0}
+.vocabulary-saved-item summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none}
+.vocabulary-saved-item summary::-webkit-details-marker{display:none}
+.vocabulary-saved-item summary>span{display:grid;gap:4px}.vocabulary-saved-item summary strong{font-size:12px}.vocabulary-saved-item summary small{font-size:10px;color:var(--muted)}
+.vocabulary-saved-item ul{display:flex;flex-wrap:wrap;gap:7px 18px;padding:10px 0 5px 18px;margin:0;color:var(--muted);font-size:11px}

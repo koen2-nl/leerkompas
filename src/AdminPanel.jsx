@@ -3,7 +3,7 @@ import { Check, RefreshCw, ShieldCheck, Users, BookOpen, RotateCcw, Trash2, Plus
 import { supabase } from './auth/supabase.js'
 
 const blankQuestion = () => ({ type: 'multiple_choice', question: '', answer: '', explanation: '', options: '' })
-const empty = { title: '', subject: 'Aardrijkskunde', topic: '', level: 'Alle niveaus', targetClass: '', targetSchool: '', difficulty: 'Basis', description: '', mode: 'normal', questions: [blankQuestion()] }
+const empty = { title: '', subject: 'Algemeen', topic: '', level: 'Alle niveaus', targetClass: '', targetSchool: '', difficulty: 'Basis', description: '', mode: 'normal', questions: [blankQuestion()] }
 
 function questionsFromContent(content) {
   const questions = (content?.sections || []).flatMap(section => section.questions || [])
@@ -29,10 +29,10 @@ function buildContent(form) {
   return { mode: form.mode || 'normal', sections: [{ title: form.topic.trim() || form.title.trim(), explanation: form.description.trim(), example: '', questions }] }
 }
 
-export default function AdminPanel() {
+export default function AdminPanel({ canManageUsers = false }) {
   const [users,setUsers]=useState([]), [lessons,setLessons]=useState([])
   const [form,setForm]=useState(empty), [editId,setEditId]=useState(null), [email,setEmail]=useState(''), [creatorStep,setCreatorStep]=useState('choice')
-  const [activeTab,setActiveTab]=useState('overview'), [userQuery,setUserQuery]=useState(''), [lessonQuery,setLessonQuery]=useState('')
+  const [activeTab,setActiveTab]=useState(canManageUsers?'overview':'lessons'), [userQuery,setUserQuery]=useState(''), [lessonQuery,setLessonQuery]=useState('')
   const filteredUsers=users.filter(user=>(user.email||'').toLowerCase().includes(userQuery.toLowerCase()))
   const filteredLessons=lessons.filter(lesson=>[lesson.title,lesson.subject,lesson.topic,lesson.level].some(value=>(value||'').toLowerCase().includes(lessonQuery.toLowerCase())))
   const adminCount=users.filter(user=>user.role==='admin').length
@@ -41,11 +41,12 @@ export default function AdminPanel() {
   const [busy,setBusy]=useState(false), [loading,setLoading]=useState(true), [notice,setNotice]=useState(''), [error,setError]=useState(''), [currentUserId,setCurrentUserId]=useState(null)
   const load=useCallback(async()=>{
     setLoading(true); setError('')
-    const [u,l]=await Promise.all([supabase.rpc('admin_list_users'),supabase.from('lesson_catalog').select('*').order('created_at',{ascending:false})])
-    if(u.error)setError(u.error.message); else setUsers(u.data||[])
+    const lessonRequest=supabase.from('lesson_catalog').select('*').order('created_at',{ascending:false})
+    const [u,l]=await Promise.all([canManageUsers?supabase.rpc('admin_list_users'):Promise.resolve({data:null,error:null}),lessonRequest])
+    if(u.error)setError(u.error.message); else if(canManageUsers)setUsers(u.data||[])
     if(l.error)setError(v=>[v,l.error.message].filter(Boolean).join(' · ')); else setLessons(l.data||[])
     setLoading(false)
-  },[])
+  },[canManageUsers])
   useEffect(()=>{load();supabase.auth.getUser().then(({data})=>setCurrentUserId(data.user?.id||null))},[load])
   const reset=async(user,section,label)=>{
     if(!window.confirm(label+' resetten voor '+user.email+'? Dit kan niet ongedaan worden gemaakt.'))return
@@ -80,15 +81,15 @@ export default function AdminPanel() {
       <article className="admin-overview-card"><span className="admin-overview-icon activity"><LayoutDashboard size={18}/></span><div><small>Leersessies</small><strong>{totalSessions}</strong><span>{totalXp.toLocaleString('nl-NL')} XP verdiend</span></div></article>
     </div>
     <nav className="admin-tabs" aria-label="Beheerdersonderdelen">
-      {[['overview','Overzicht'],['users','Gebruikers'],['lessons','Lesbibliotheek'],['rights','Beheerdersrechten']].map(([id,label])=><button key={id} className={activeTab===id?'active':''} onClick={()=>setActiveTab(id)}>{label}{id==='users'?<span>{users.length}</span>:id==='lessons'?<span>{lessons.length}</span>:null}</button>)}
+      {(canManageUsers?[['overview','Overzicht'],['users','Gebruikers'],['lessons','Lesbibliotheek'],['rights','Beheerdersrechten']]:[['lessons','Lessen maken']]).map(([id,label])=><button key={id} className={activeTab===id?'active':''} onClick={()=>setActiveTab(id)}>{label}{id==='users'?<span>{users.length}</span>:id==='lessons'?<span>{lessons.length}</span>:null}</button>)}
     </nav>
-    {activeTab==='overview'&&<section className="panel admin-panel admin-welcome"><span className="panel-kicker">SNEL NAAR</span><h3>Wat wil je beheren?</h3><div className="admin-quick-links"><button onClick={()=>setActiveTab('users')}><Users size={18}/><span><strong>Gebruikers</strong><small>Accounts, voortgang en resets</small></span></button><button onClick={()=>setActiveTab('lessons')}><BookOpen size={18}/><span><strong>Lesbibliotheek</strong><small>Lessen en minigames maken of aanpassen</small></span></button><button onClick={()=>setActiveTab('rights')}><ShieldCheck size={18}/><span><strong>Beheerdersrechten</strong><small>Nieuwe beheerders toegang geven</small></span></button></div></section>}
+    {canManageUsers&&activeTab==='overview'&&<section className="panel admin-panel admin-welcome"><span className="panel-kicker">SNEL NAAR</span><h3>Wat wil je beheren?</h3><div className="admin-quick-links"><button onClick={()=>setActiveTab('users')}><Users size={18}/><span><strong>Gebruikers</strong><small>Accounts, voortgang en resets</small></span></button><button onClick={()=>setActiveTab('lessons')}><BookOpen size={18}/><span><strong>Lesbibliotheek</strong><small>Lessen en minigames maken of aanpassen</small></span></button><button onClick={()=>setActiveTab('rights')}><ShieldCheck size={18}/><span><strong>Beheerdersrechten</strong><small>Nieuwe beheerders toegang geven</small></span></button></div></section>}
     {notice&&<p className="admin-message"><Check size={15}/>{notice}</p>}{error&&<p className="admin-error">{error}</p>}
-    {activeTab==='users'&&<section className="panel admin-panel"><div className="panel-head"><div><span className="panel-kicker">GEBRUIKERS</span><h3><Users size={17}/> Accounts en voortgang</h3></div><small>{users.length} accounts</small></div>
+    {canManageUsers&&activeTab==='users'&&<section className="panel admin-panel"><div className="panel-head"><div><span className="panel-kicker">GEBRUIKERS</span><h3><Users size={17}/> Accounts en voortgang</h3></div><small>{users.length} accounts</small></div>
       <div className="admin-search"><Search size={16}/><input value={userQuery} onChange={e=>setUserQuery(e.target.value)} placeholder="Zoek op e-mailadres…" aria-label="Zoek gebruikers"/></div>
-      {loading?'Gebruikers laden…':filteredUsers.map(u=><div className="admin-user" key={u.user_id}><div className="admin-user-info"><strong>{u.email||u.user_id}</strong><small>{u.data?.studyStats?.xp||0} XP · {(u.data?.studyStats?.sessions||[]).length} sessies</small></div><label className="admin-role-field">Role<select aria-label={'Role voor '+(u.email||u.user_id)} value={u.role||'user'} disabled={busy||u.user_id===currentUserId} onChange={e=>changeRole(u,e.target.value)}><option value="user">Gebruiker</option><option value="admin">Beheerder</option></select></label><div className="admin-reset-actions"><button className="soft-btn" disabled={busy} onClick={()=>reset(u,'xp','XP')}>XP reset</button><button className="soft-btn" disabled={busy} onClick={()=>reset(u,'streak','Sessies')}>Sessies reset</button><button className="soft-btn" disabled={busy} onClick={()=>reset(u,'progress','Voortgang')}>Voortgang</button><button className="soft-btn" disabled={busy} onClick={()=>reset(u,'flashcards','Flashcards')}>Flashcards</button><button className="danger-btn" disabled={busy} onClick={()=>reset(u,'all','Alle gegevens')}><RotateCcw size={13}/> Alles</button></div></div>)}
+      {loading?'Gebruikers laden…':filteredUsers.map(u=><div className="admin-user" key={u.user_id}><div className="admin-user-info"><strong>{u.email||u.user_id}</strong><small>{u.data?.studyStats?.xp||0} XP · {(u.data?.studyStats?.sessions||[]).length} sessies</small></div>{canManageUsers&&<label className="admin-role-field">Rol<select aria-label={'Role voor '+(u.email||u.user_id)} value={u.role||'user'} disabled={busy||u.user_id===currentUserId} onChange={e=>changeRole(u,e.target.value)}><option value="user">Leerling</option><option value="lesson_maker">Lesmaker</option><option value="admin">Beheerder</option></select></label>}{canManageUsers&&<div className="admin-reset-actions"><button className="soft-btn" disabled={busy} onClick={()=>reset(u,'xp','XP')}>XP reset</button><button className="soft-btn" disabled={busy} onClick={()=>reset(u,'streak','Sessies')}>Sessies reset</button><button className="soft-btn" disabled={busy} onClick={()=>reset(u,'progress','Voortgang')}>Voortgang</button><button className="soft-btn" disabled={busy} onClick={()=>reset(u,'flashcards','Flashcards')}>Flashcards</button><button className="danger-btn" disabled={busy} onClick={()=>reset(u,'all','Alle gegevens')}><RotateCcw size={13}/> Alles</button></div>}</div>)}
     </section>}
-    {activeTab==='rights'&&<section className="panel admin-panel"><div className="panel-head"><div><span className="panel-kicker">RECHTEN</span><h3><ShieldCheck size={17}/> Beheerder toevoegen</h3></div></div><p className="muted">Maak eerst het account aan in Supabase → Authentication → Users. Geef het daarna hier beheerdersrechten.</p><form className="admin-inline-form" onSubmit={grant}><input type="email" required placeholder="beheerder@voorbeeld.nl" value={email} onChange={e=>setEmail(e.target.value)}/><button className="primary-btn" disabled={busy}>Beheerder toevoegen</button></form></section>}
+    {canManageUsers&&activeTab==='rights'&&<section className="panel admin-panel"><div className="panel-head"><div><span className="panel-kicker">RECHTEN</span><h3><ShieldCheck size={17}/> Beheerder toevoegen</h3></div></div><p className="muted">Maak eerst het account aan in Supabase → Authentication → Users. Geef het daarna hier beheerdersrechten.</p><form className="admin-inline-form" onSubmit={grant}><input type="email" required placeholder="beheerder@voorbeeld.nl" value={email} onChange={e=>setEmail(e.target.value)}/><button className="primary-btn" disabled={busy}>Beheerder toevoegen</button></form></section>}
     {activeTab==='lessons'&&<section className="panel admin-panel"><div className="panel-head"><div><span className="panel-kicker">LESMATERIAAL</span><h3><BookOpen size={17}/> Lesbibliotheek</h3></div><small>{lessons.length} lessen</small></div>
       {creatorStep==='choice'&&<div className="lesson-create-start">
         <div className="lesson-create-intro"><span className="panel-kicker">NIEUW LESMATERIAAL</span><h4>Klaar om iets te maken?</h4><p>Kies eerst hoe leerlingen jouw les gaan beleven. Daarna bouw je de vragen één voor één op.</p></div>
@@ -129,7 +130,7 @@ export default function AdminPanel() {
         <div className="admin-form-actions"><button className="primary-btn" disabled={busy||!form.questions.length}>{editId?'Wijzigingen opslaan':'Les opslaan'}</button>{editId&&<button type="button" className="soft-btn" onClick={cancelEdit}>Annuleren</button>}</div>
       </form>}
       <div className="admin-search"><Search size={16}/><input value={lessonQuery} onChange={e=>setLessonQuery(e.target.value)} placeholder="Zoek op titel, vak, onderwerp of niveau…" aria-label="Zoek lessen"/></div>
-      {filteredLessons.map(l=><div className="admin-lesson-row" key={l.id}><div><strong>{l.title}</strong><small>{l.subject} · {l.topic} · {l.level} · {l.difficulty}</small></div><button className="soft-btn" onClick={()=>edit(l)}>Bewerken</button><button className="danger-btn" onClick={()=>remove(l)}><Trash2 size={13}/> Verwijderen</button></div>)}
+      {filteredLessons.map(l=><div className="admin-lesson-row" key={l.id}><div><strong>{l.title}</strong><small>{l.subject} · {l.topic} · {l.level} · {l.difficulty}</small></div>{(canManageUsers||l.created_by===currentUserId)&&<button className="soft-btn" onClick={()=>edit(l)}>Bewerken</button>}{canManageUsers&&<button className="danger-btn" onClick={()=>remove(l)}><Trash2 size={13}/> Verwijderen</button>}</div>)}
       {filteredLessons.length===0&&<p className="admin-empty">Geen lessen gevonden. Pas je zoekopdracht aan of maak een nieuwe les.</p>}
     </section>}
   </div>

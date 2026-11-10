@@ -5,7 +5,7 @@ import App from '../App.jsx'
 import SetupWizard from './SetupWizard.jsx'
 import { isSupabaseConfigured, supabase } from './supabase.js'
 
-const DATA_KEYS = ['subjects', 'cards', 'known', 'studyStats', 'completedLessons', 'lessonProgress', 'planning', 'dark', 'accent', 'widgets', 'profile']
+const DATA_KEYS = ['subjects', 'cards', 'known', 'studyStats', 'completedLessons', 'lessonProgress', 'planning', 'dark', 'accent', 'widgets', 'profile', 'vocabularyLists']
 const localData = () => Object.fromEntries(DATA_KEYS.map(key => {
   try { const value = localStorage.getItem('leerkompas:' + key); return [key, value ? JSON.parse(value) : null] } catch { return [key, null] }
 }))
@@ -34,6 +34,7 @@ export default function AuthGate() {
   const [syncStatus, setSyncStatus] = useState('saved')
   const [syncReady, setSyncReady] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isLessonMaker, setIsLessonMaker] = useState(false)
   const [profileReady, setProfileReady] = useState(false)
   const [profileLoaded, setProfileLoaded] = useState(false)
   useEffect(() => {
@@ -51,7 +52,7 @@ export default function AuthGate() {
     return () => { alive = false; listener.subscription.unsubscribe() }
   }, [])
   useEffect(() => {
-    if (!session?.user) { setSyncReady(false); setProfileReady(false); setProfileLoaded(false); return }
+    if (!session?.user) { setSyncReady(false); setProfileReady(false); setProfileLoaded(false); setIsAdmin(false); setIsLessonMaker(false); return }
     let cancelled = false
     const hydrate = async () => {
       setSyncReady(false); setProfileReady(false); setProfileLoaded(false); setSyncStatus('saving')
@@ -107,6 +108,7 @@ export default function AuthGate() {
       const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', session.user.id).maybeSingle()
       if (cancelled) return
       setIsAdmin(roleData?.role === 'admin')
+      setIsLessonMaker(roleData?.role === 'lesson_maker')
       if (!cancelled) { setSyncStatus('saved'); setSyncReady(true) }
     }
     hydrate()
@@ -131,10 +133,10 @@ export default function AuthGate() {
     if (!syncReady || !session?.user) return
     try { setProfileReady(!!JSON.parse(localStorage.getItem('leerkompas:profile') || 'null')) } catch { setProfileReady(false) } finally { setProfileLoaded(true) }
   }, [syncReady, session?.user?.id])
-  const value = useMemo(() => ({ user: session?.user ?? null, syncStatus, isAdmin, signOut: async () => {
+  const value = useMemo(() => ({ user: session?.user ?? null, syncStatus, isAdmin, isLessonMaker, signOut: async () => {
     DATA_KEYS.forEach(key => localStorage.removeItem('leerkompas:' + key))
     await supabase.auth.signOut()
-  } }), [session, syncStatus, isAdmin])
+  } }), [session, syncStatus, isAdmin, isLessonMaker])
   if (loading) return <div className="auth-screen"><div className="auth-card">SlimLeren laden…</div></div>
   if (!isSupabaseConfigured) return <div className="auth-screen"><div className="auth-card auth-setup"><div className="auth-brand"><span className="auth-brand-mark"><GraduationCap/></span><span>Slim<span style={{color:'#7664db'}}>Leren</span></span></div><h1>Bijna klaar voor jouw leerplek</h1><p>De accountfunctie is voorbereid. Vul eerst de Supabase-omgevingsvariabelen in om registratie en inloggen te activeren.</p><p><strong>Benodigd:</strong> <code>VITE_SUPABASE_URL</code> en <code>VITE_SUPABASE_ANON_KEY</code>. Volg de installatiehandleiding in <code>docs/PROJECT.md</code>.</p></div></div>
   if (!session) return <AuthScreen />
