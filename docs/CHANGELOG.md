@@ -1,5 +1,13 @@
 # Changelog SlimLeren
 
+## v0.39 beta — 10 november 2026
+- Minimalistische, rustigere vormgeving met neutralere kleuren en consistente componenten.
+- Logo en naam SlimLeren brengen je met één klik terug naar het overzicht.
+- Pagina’s hebben eigen URL’s, werken met browser-terug/vooruit en kunnen direct worden geopend.
+- Nieuwe navigatiezoekbalk om snel naar onderdelen te springen.
+- Instellingen hebben een eigen route en blijven ook via de zijbalk bereikbaar.
+- Mobiele navigatie en kleine schermen verder verfijnd.
+
 Dit overzicht wordt bij iedere release aangevuld. De nieuwste wijzigingen staan bovenaan.
 
 ## v0.38 beta — 10 november 2026
