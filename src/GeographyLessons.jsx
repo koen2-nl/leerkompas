@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, BookOpen, Check, ChevronLeft, Clock3, Compass, Play, RotateCcw, Save, X, Zap } from 'lucide-react'
+import { ArrowRight, BookOpen, Check, ChevronLeft, Clock3, Compass, Layers, Play, RotateCcw, Save, X, Zap } from 'lucide-react'
 import { supabase } from './auth/supabase.js'
 
 function normalizeLesson(row) {
@@ -90,6 +90,10 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
   const [answer, setAnswer] = useState(null)
   const [checked, setChecked] = useState(false)
   const [showStartChoice, setShowStartChoice] = useState(false)
+  const [restartFromStart, setRestartFromStart] = useState(false)
+  const [practiceMode, setPracticeMode] = useState('normal')
+  const [flashcardRevealed, setFlashcardRevealed] = useState(false)
+  const [earnedGamePoints, setEarnedGamePoints] = useState(0)
   const [showStopConfirm, setShowStopConfirm] = useState(false)
   const [finished, setFinished] = useState(false)
 
@@ -167,13 +171,16 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
   }, [active])
 
   useEffect(() => {
-    if (active && !finished && selectedLesson) saveProgress(selectedLesson.id, { sectionIndex, questionIndex, stage, updatedAt: new Date().toISOString() })
-  }, [active, finished, selectedLesson, sectionIndex, questionIndex, stage])
+    if (active && !finished && selectedLesson) saveProgress(selectedLesson.id, { sectionIndex, questionIndex, stage, practiceMode, updatedAt: new Date().toISOString() })
+  }, [active, finished, selectedLesson, sectionIndex, questionIndex, stage, practiceMode])
 
-  const begin = (restart = false, item = selectedLesson) => {
+  const begin = (restart = false, item = selectedLesson, mode = practiceMode) => {
     if (!item) return
     const saved = !restart ? readProgress(item.id) : null
     const next = saved || { sectionIndex: 0, questionIndex: 0, stage: 'explanation' }
+    setPracticeMode(mode)
+    setFlashcardRevealed(false)
+    setEarnedGamePoints(0)
     setSelectedLesson(item)
     setProgress(saved)
     setSectionIndex(next.sectionIndex || 0)
@@ -185,14 +192,15 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
     setActive(true)
     onActiveChange?.(true)
     setShowStartChoice(false)
+    setRestartFromStart(false)
   }
 
   const requestStart = item => {
     const saved = readProgress(item.id)
     setSelectedLesson(item)
     setProgress(saved)
-    if (saved) setShowStartChoice(true)
-    else begin(true, item)
+    setRestartFromStart(!saved)
+    setShowStartChoice(true)
   }
 
   const stopLesson = () => {
@@ -207,6 +215,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
 
   const nextQuestion = () => {
     if (!selectedLesson || !section) return
+    setFlashcardRevealed(false)
     if (questionIndex + 1 < section.questions.length) {
       setQuestionIndex(value => value + 1)
       setAnswer(null)
@@ -287,29 +296,53 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
         </article>
       })}
       {!catalogLoading && !visibleLessons.length && <div className="panel lesson-empty-filter">{libraryView === 'public' ? 'Er zijn nog geen openbare lessen die bij deze filters passen. Probeer andere zoekwoorden of filters.' : 'Je bibliotheek is nog leeg. Maak zelf een les of voeg lessen toe vanuit de openbare lesbibliotheek.'}</div>}
-      {showStartChoice && selectedLesson && <div className="modal-backdrop" role="presentation"><section className="modal lesson-choice-modal" role="dialog" aria-modal="true" aria-labelledby="lesson-choice-title"><button className="modal-close" onClick={() => setShowStartChoice(false)} aria-label="Sluiten"><X size={18}/></button><span className="panel-kicker">OPGESLAGEN VOORTGANG</span><h2 id="lesson-choice-title">Je was al bezig met deze les</h2><p>Je voortgang is bewaard. Wat wil je doen?</p><button className="primary-btn" onClick={() => begin(false, selectedLesson)}><Play size={16}/> Verdergaan</button><button className="google-submit" onClick={() => begin(true, selectedLesson)}><RotateCcw size={16}/> Start opnieuw</button></section></div>}
+      {showStartChoice && selectedLesson && <div className="modal-backdrop" role="presentation"><section className="modal lesson-choice-modal lesson-mode-picker" role="dialog" aria-modal="true" aria-labelledby="lesson-choice-title"><button className="modal-close" onClick={() => setShowStartChoice(false)} aria-label="Sluiten"><X size={18}/></button><span className="panel-kicker">KIES JOUW LEERMANIER</span><h2 id="lesson-choice-title">Hoe wil je deze les doen?</h2><p>{progress ? 'Je hebt al voortgang bij deze les. Kies een manier om verder te gaan of begin opnieuw.' : 'Kies de manier die het beste bij jou past. Je kunt dit bij iedere les opnieuw kiezen.'}</p>
+        <div className="lesson-mode-options">
+          <button className="lesson-mode-option" onClick={() => begin(restartFromStart, selectedLesson, 'normal')}><span className="lesson-mode-icon"><BookOpen size={23}/></span><strong>Gewone les</strong><small>Lees de uitleg en maak de vragen.</small><b>{progress && !restartFromStart ? 'Verdergaan' : 'Start les'} <ArrowRight size={14}/></b></button>
+          <button className="lesson-mode-option" onClick={() => begin(restartFromStart, selectedLesson, 'minigame')}><span className="lesson-mode-icon game"><Zap size={23}/></span><strong>Minigame</strong><small>Beantwoord de vragen en verdien punten.</small><b>{progress && !restartFromStart ? 'Verdergaan' : 'Start minigame'} <ArrowRight size={14}/></b></button>
+          <button className="lesson-mode-option" onClick={() => begin(restartFromStart, selectedLesson, 'flashcards')}><span className="lesson-mode-icon cards"><Layers size={23}/></span><strong>Flashcards</strong><small>Draai de kaarten om en leer actief.</small><b>{progress && !restartFromStart ? 'Verdergaan' : 'Start flashcards'} <ArrowRight size={14}/></b></button>
+        </div>
+        {progress && !restartFromStart && <button className="google-submit" onClick={() => setRestartFromStart(true)}><RotateCcw size={15}/> Toch helemaal opnieuw beginnen</button>}
+        {progress && restartFromStart && <button className="google-submit" onClick={() => setRestartFromStart(false)}>Verdergaan vanaf opgeslagen voortgang</button>}
+      </section></div>}
     </div>
   )
 
   const Icon = section?.icon || Compass
   const isOpenQuestion = question?.type === 'open'
   const isCorrect = isOpenQuestion ? normalizeText(answer) === normalizeText(question?.answer) : Number(answer) === Number(question?.answer)
+  const flashcardAnswer = isOpenQuestion ? question?.answer : question?.options?.[Number(question?.answer)] ?? String(question?.answer ?? '')
+  const checkLessonAnswer = () => {
+    if (practiceMode === 'minigame' && isCorrect) setEarnedGamePoints(points => points + 10)
+    setChecked(true)
+  }
   return (
-    <section className="panel lesson-player lesson-fullscreen">
+    <section className={`panel lesson-player lesson-fullscreen ${practiceMode === 'minigame' ? 'mode-minigame' : ''} ${practiceMode === 'flashcards' ? 'mode-flashcards' : ''}`}>
       <div className="lesson-player-top"><button className="text-btn" onClick={() => setShowStopConfirm(true)}><ChevronLeft size={15}/> Les stoppen</button><span className="panel-kicker">{selectedLesson?.subject?.toUpperCase()} · ONDERDEEL {sectionIndex + 1} VAN {selectedLesson?.sections?.length}</span></div>
       <div className="lesson-progress"><span style={{ width: percent + '%' }}/></div>
       <div className="lesson-player-meta"><span>{section?.title}</span><span>{completedQuestions} van {totalQuestions} vragen doorlopen</span></div>
+      {practiceMode === 'minigame' && <div className="lesson-mode-score"><span><Zap size={16}/> Minigame-modus</span><strong>{earnedGamePoints} punten</strong></div>}
+      {practiceMode === 'flashcards' && <div className="lesson-mode-score flashcard-mode-label"><span><BookOpen size={16}/> Flashcard-modus</span><strong>Kaart {completedQuestions + 1} / {totalQuestions}</strong></div>}
       {stage === 'explanation' ? <>
         <div className="lesson-hero"><span><Icon size={34}/></span><div><span className="panel-kicker">EERST BEGRIJPEN</span><h2>{section?.title}</h2></div></div>
         <div className="lesson-explanation"><p>{section?.explanation || 'Bekijk de vragen en oefen met dit onderdeel.'}</p>{section?.example && <div className="lesson-example"><strong>Voorbeeld om te onthouden</strong><p>{section.example}</p></div>}</div>
         <div className="lesson-stage-foot"><span><BookOpen size={15}/> Lees de uitleg rustig door. Je krijgt hierna vragen over dit onderdeel.</span><button className="primary-btn" onClick={() => setStage('questions')}>Ik snap het <ArrowRight size={16}/></button></div>
       </> : <>
         <span className="panel-kicker">OEFENEN · VRAAG {questionIndex + 1} VAN {section?.questions?.length}</span>
-        <div className="lesson-question"><h2>{question?.q}</h2>
+        {practiceMode === 'flashcards' ? <div className="lesson-flashcard-wrap">
+          <div className="lesson-flashcard" aria-live="polite">
+            <span className="panel-kicker">{flashcardRevealed ? 'ANTWOORD' : 'VRAAG'}</span>
+            <h2>{flashcardRevealed ? flashcardAnswer : question?.q}</h2>
+            {flashcardRevealed && question?.feedback && <p>{question.feedback}</p>}
+          </div>
+          <div className="lesson-flashcard-actions">
+            {!flashcardRevealed ? <button className="primary-btn" onClick={() => setFlashcardRevealed(true)}>Toon antwoord</button> : <button className="primary-btn" onClick={nextQuestion}>{questionIndex + 1 === section.questions.length ? sectionIndex + 1 === selectedLesson.sections.length ? 'Les afronden' : 'Volgend onderdeel' : 'Volgende kaart'} <ArrowRight size={15}/></button>}
+          </div>
+        </div> : <div className="lesson-question"><h2>{question?.q}</h2>
           {isOpenQuestion ? <textarea rows="3" value={answer ?? ''} disabled={checked} onChange={event => setAnswer(event.target.value)} placeholder="Typ je antwoord..."/> : <div className="lesson-options">{(question?.options || []).map((option, index) => <button key={index} className={answer === index ? 'selected' : ''} disabled={checked} onClick={() => setAnswer(index)}>{option}</button>)}</div>}
           {checked && <div className={'lesson-feedback ' + (isCorrect ? 'correct' : 'incorrect')}><strong>{isCorrect ? 'Goed gedaan' : 'Bekijk het antwoord'}</strong><p>{question?.feedback}</p>{isOpenQuestion && !isCorrect && <p><strong>Antwoord:</strong> {question?.answer}</p>}</div>}
-        </div>
-        <div className="lesson-question-foot"><span>Onderdeel {sectionIndex + 1} · Vraag {questionIndex + 1}</span>{!checked ? <button className="primary-btn" disabled={answer === null || (isOpenQuestion && !String(answer).trim())} onClick={() => setChecked(true)}>Controleer</button> : <button className="primary-btn" onClick={nextQuestion}>{questionIndex + 1 === section.questions.length ? sectionIndex + 1 === selectedLesson.sections.length ? 'Les afronden' : 'Volgend onderdeel' : 'Volgende vraag'} <ArrowRight size={15}/></button>}</div>
+        </div>}
+        {practiceMode !== 'flashcards' && <div className="lesson-question-foot"><span>Onderdeel {sectionIndex + 1} · Vraag {questionIndex + 1}</span>{!checked ? <button className="primary-btn" disabled={answer === null || (isOpenQuestion && !String(answer).trim())} onClick={checkLessonAnswer}>{practiceMode === 'minigame' ? 'Antwoord insturen' : 'Controleer'}</button> : <button className="primary-btn" onClick={nextQuestion}>{questionIndex + 1 === section.questions.length ? sectionIndex + 1 === selectedLesson.sections.length ? 'Les afronden' : 'Volgend onderdeel' : 'Volgende vraag'} <ArrowRight size={15}/></button>}</div>}
       </>}
       {showStopConfirm && <div className="modal-backdrop" role="presentation"><section className="modal lesson-choice-modal" role="dialog" aria-modal="true" aria-labelledby="stop-lesson-title"><button className="modal-close" onClick={() => setShowStopConfirm(false)} aria-label="Sluiten"><X size={18}/></button><span className="panel-kicker">LES PAUZEREN</span><h2 id="stop-lesson-title">Wil je deze les stoppen?</h2><p>Je voortgang tot hier wordt opgeslagen. De volgende keer kun je verdergaan waar je gebleven was of opnieuw beginnen.</p><button className="primary-btn" onClick={stopLesson}><Save size={16}/> Stoppen en voortgang bewaren</button><button className="google-submit" onClick={() => setShowStopConfirm(false)}>Verder met de les</button></section></div>}
     </section>
