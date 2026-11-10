@@ -38,7 +38,7 @@ function detectEntries(text, instruction) {
   }
   const seen = new Set()
   return entries.filter(entry => {
-    const key = entry.term.toLocaleLowerCase('nl-NL')
+    const key = entry.term.toLocaleLowerCase('nl-NL')+'|'+(entry.language||'').toLocaleLowerCase('nl-NL')
     if (key.length < 2 || seen.has(key)) return false
     seen.add(key); return true
   }).slice(0, 250)
