@@ -662,3 +662,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .vocabulary-saved-row>div{display:grid;gap:4px}.vocabulary-saved-row strong{font-size:12px}.vocabulary-saved-row small,.vocabulary-count{font-size:10px;color:var(--muted)}
 @keyframes vocabulary-spin{to{transform:rotate(360deg)}}.spin{animation:vocabulary-spin 1s linear infinite}
 @media(max-width:640px){.vocabulary-upload{padding:24px 14px}.vocabulary-editor,.vocabulary-saved{padding:15px}.vocabulary-heading h2{font-size:22px}}
+
+.vocabulary-saved-item{border-bottom:1px solid var(--line);padding:10px 0}
+.vocabulary-saved-item summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none}
+.vocabulary-saved-item summary::-webkit-details-marker{display:none}
+.vocabulary-saved-item summary>span{display:grid;gap:4px}.vocabulary-saved-item summary strong{font-size:12px}.vocabulary-saved-item summary small{font-size:10px;color:var(--muted)}
+.vocabulary-saved-item ul{display:flex;flex-wrap:wrap;gap:7px 18px;padding:10px 0 5px 18px;margin:0;color:var(--muted);font-size:11px}
