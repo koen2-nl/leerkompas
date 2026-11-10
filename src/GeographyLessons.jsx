@@ -30,6 +30,7 @@ function normalizeLesson(row) {
     target_class: row.target_class || '',
     target_school: row.target_school || '',
     mode: row.content?.mode || 'normal',
+    created_by: row.created_by || null,
     duration: Math.max(2, count * 2) + ' min',
     sections
   }
@@ -65,8 +66,13 @@ const goalMatch = (item, profile) => {
   return terms.some(term => lessonText.includes(term))
 }
 
-export default function GeographyLessons({ completedLessons = [], onComplete, onActiveChange, onCatalogLoaded, profile }) {
+export default function GeographyLessons({ completedLessons = [], onComplete, onActiveChange, onCatalogLoaded, profile, libraryView = 'personal' }) {
   const [catalogLessons, setCatalogLessons] = useState([])
+  const [personalLessons, setPersonalLessons] = useState([])
+  const [savedLessonIds, setSavedLessonIds] = useState([])
+  const [currentUserId, setCurrentUserId] = useState(null)
+  const [libraryBusyIds, setLibraryBusyIds] = useState([])
+  const [libraryNotice, setLibraryNotice] = useState('')
   const [catalogLoading, setCatalogLoading] = useState(true)
   const [catalogError, setCatalogError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -91,13 +97,32 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
     let cancelled = false
     const load = async () => {
       if (!supabase) { setCatalogLoading(false); return }
-      const { data, error } = await supabase.from('lesson_catalog').select('*').eq('is_public', true).eq('publish_status', 'approved').order('created_at', { ascending: false })
+      const { data: authData, error: authError } = await supabase.auth.getUser()
+      const userId = authData?.user?.id
+      if (authError || !userId) { if (!cancelled) { setCatalogError('Log in om je persoonlijke en openbare lesbibliotheek te bekijken.'); setCatalogLoading(false) }; return }
+      const [publicResult, ownResult, savedResult] = await Promise.all([
+        supabase.from('lesson_catalog').select('*').eq('is_public', true).eq('publish_status', 'approved').order('created_at', { ascending: false }),
+        supabase.from('lesson_catalog').select('*').eq('created_by', userId).order('created_at', { ascending: false }),
+        supabase.from('personal_lesson_library').select('lesson_id').eq('user_id', userId)
+      ])
       if (cancelled) return
-      if (error) setCatalogError('De lessen konden niet worden geladen: ' + error.message)
+      const loadError = publicResult.error || ownResult.error || savedResult.error
+      if (loadError) setCatalogError('De lesbibliotheek kon niet volledig worden geladen: ' + loadError.message)
       else {
-        const normalizedLessons = (data || []).map(normalizeLesson).filter(Boolean)
-        const lessonIds = normalizedLessons.map(lesson => String(lesson.id))
+        const savedIds = (savedResult.data || []).map(row => row.lesson_id)
+        const savedRowsResult = savedIds.length ? await supabase.from('lesson_catalog').select('*').in('id', savedIds) : { data: [], error: null }
+        if (cancelled) return
+        if (savedRowsResult.error) setCatalogError('Opgeslagen openbare lessen konden niet worden geladen: ' + savedRowsResult.error.message)
+        const publicRows = publicResult.data || []
+        const ownRows = ownResult.data || []
+        const personalById = new Map([...ownRows, ...(savedRowsResult.data || [])].map(row => [row.id, row]))
+        const normalizedLessons = publicRows.map(normalizeLesson).filter(Boolean)
+        const personalNormalized = [...personalById.values()].map(normalizeLesson).filter(Boolean)
+        const lessonIds = [...new Set([...normalizedLessons, ...personalNormalized].map(lesson => String(lesson.id)))]
+        setCurrentUserId(userId)
+        setSavedLessonIds(savedIds)
         setCatalogLessons(normalizedLessons)
+        setPersonalLessons(personalNormalized)
         try {
           const prefix = 'leerkompas:lessonProgress:'
           Object.keys(localStorage).filter(key => key.startsWith(prefix)).forEach(key => {
@@ -113,7 +138,23 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
     return () => { cancelled = true }
   }, [])
 
-  const lessons = catalogLessons
+  const lessons = libraryView === 'public' ? catalogLessons : personalLessons
+  const addToPersonalLibrary = async item => {
+    if (!currentUserId || savedLessonIds.includes(item.id) || item.created_by === currentUserId) return
+    setLibraryBusyIds(ids => [...ids, item.id]); setLibraryNotice('')
+    const { error } = await supabase.from('personal_lesson_library').insert({ user_id: currentUserId, lesson_id: item.id })
+    setLibraryBusyIds(ids => ids.filter(id => id !== item.id))
+    if (error) setCatalogError('Toevoegen aan je bibliotheek is niet gelukt: ' + error.message)
+    else { setSavedLessonIds(ids => [...ids, item.id]); setPersonalLessons(rows => rows.some(row => row.id === item.id) ? rows : [...rows, item]); setLibraryNotice('Les toegevoegd aan Mijn lesbibliotheek.') }
+  }
+  const removeFromPersonalLibrary = async item => {
+    if (!currentUserId || item.created_by === currentUserId) return
+    setLibraryBusyIds(ids => [...ids, item.id]); setLibraryNotice('')
+    const { error } = await supabase.from('personal_lesson_library').delete().eq('user_id', currentUserId).eq('lesson_id', item.id)
+    setLibraryBusyIds(ids => ids.filter(id => id !== item.id))
+    if (error) setCatalogError('Verwijderen uit je bibliotheek is niet gelukt: ' + error.message)
+    else { setSavedLessonIds(ids => ids.filter(id => id !== item.id)); setPersonalLessons(rows => rows.filter(row => row.id !== item.id)); setLibraryNotice('Les verwijderd uit Mijn lesbibliotheek. De openbare les blijft bestaan.') }
+  }
   const section = selectedLesson?.sections?.[sectionIndex]
   const question = section?.questions?.[questionIndex]
   const totalQuestions = useMemo(() => selectedLesson?.sections?.reduce((sum, item) => sum + item.questions.length, 0) || 0, [selectedLesson])
@@ -208,11 +249,11 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
   if (!active) return (
     <div>
       <section className="lesson-intro panel">
-        <div><span className="panel-kicker">JOUW LEERPROFIEL</span><h2>Lessen die bij jou passen</h2><p>{profile?.username ? 'Hoi ' + profile.username + ', ontdek lessen die aansluiten op ' + (profile.className || 'jouw klas') + ' en ' + (profile.level || 'jouw niveau') + '.' : 'Bekijk lessen en oefen op je eigen tempo.'}</p>{profile?.goal && <small className="muted">Jouw leerdoel: {profile.goal}</small>}</div>
+        <div><span className="panel-kicker">{libraryView === 'public' ? 'ONTDEK NIEUWE LESSEN' : 'JOUW PERSOONLIJKE BIBLIOTHEEK'}</span><h2>{libraryView === 'public' ? 'Openbare lesbibliotheek' : 'Mijn lesbibliotheek'}</h2><p>{libraryView === 'public' ? 'Ontdek lessen die door de community zijn gepubliceerd en voeg ze toe aan je eigen bibliotheek.' : 'Hier staan je zelfgemaakte lessen en alle openbare lessen die je hebt toegevoegd.'}</p>{profile?.goal && libraryView !== 'public' && <small className="muted">Jouw leerdoel: {profile.goal}</small>}</div>
         <strong><Clock3 size={16}/> Minimaal 10 min per dag</strong>
       </section>
       <section className="lesson-filters panel">
-        <div className="lesson-filter-heading"><div><span className="panel-kicker">LESSEN VINDEN</span><strong>Filter je lessen</strong></div><span>{visibleLessons.length} {visibleLessons.length === 1 ? 'les gevonden' : 'lessen gevonden'}</span></div>
+        <div className="lesson-filter-heading"><div><span className="panel-kicker">{libraryView === 'public' ? 'OPENBARE LESSEN' : 'MIJN LESSEN'}</span><strong>{libraryView === 'public' ? 'Zoek openbare lessen' : 'Zoek in je bibliotheek'}</strong></div><span>{visibleLessons.length} {visibleLessons.length === 1 ? 'les gevonden' : 'lessen gevonden'}</span></div>
         <input className="lesson-filter-search" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Zoek op lestitel of onderwerp..." aria-label="Zoek lessen" />
         <div className="lesson-filter-controls">
           <label>Vak<select value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)}><option value="alles">Alle vakken</option>{subjectOptions.map(value => <option key={value}>{value}</option>)}</select></label>
@@ -224,6 +265,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
       </section>
       {catalogLoading && <div className="panel lesson-empty-filter">Lessen laden…</div>}
       {catalogError && <div className="panel lesson-empty-filter">{catalogError}</div>}
+      {libraryNotice && <div className="panel lesson-library-notice">{libraryNotice}</div>}
       {!catalogLoading && visibleLessons.map(item => {
         const saved = readProgress(item.id)
         const isRecommended = profileLevelMatch(item, profile)
@@ -235,10 +277,16 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
           <div className="lesson-preview-foot"><span><BookOpen size={15}/> {questionCount} vragen in totaal</span><span><Zap size={15}/> 20 XP na afronding</span></div>
           <div className="lesson-tile-tags"><span>{item.mode === 'minigame' ? 'Minigame' : 'Normale les'}</span>{isRecommended && <span>Past bij jouw niveau</span>}{goalMatch(item, profile) && <span>Sluit aan op je leerdoel</span>}{item.target_class && <span>{item.target_class}</span>}</div>
           {completedLessons.includes(item.id) && <p className="lesson-done-note"><Check size={15}/> Deze les is al afgerond. Je kunt hem opnieuw oefenen.</p>}
-          <button className="primary-btn" onClick={() => requestStart(item)}>{saved ? 'Les openen' : completedLessons.includes(item.id) ? 'Opnieuw oefenen' : 'Bekijk de les'} <ArrowRight size={16}/></button>
+          <div className="lesson-library-actions">
+            <button className="primary-btn" onClick={() => requestStart(item)}>{saved ? 'Verder oefenen' : completedLessons.includes(item.id) ? 'Opnieuw oefenen' : 'Bekijk de les'} <ArrowRight size={16}/></button>
+            {libraryView === 'public' && item.created_by !== currentUserId && !savedLessonIds.includes(item.id) && <button className="soft-btn" disabled={libraryBusyIds.includes(item.id)} onClick={() => addToPersonalLibrary(item)}>{libraryBusyIds.includes(item.id) ? 'Toevoegen…' : 'Toevoegen aan mijn bibliotheek'}</button>}
+            {libraryView === 'public' && (item.created_by === currentUserId || savedLessonIds.includes(item.id)) && <span className="lesson-library-state">{item.created_by === currentUserId ? 'Je eigen les' : 'Staat in Mijn lesbibliotheek'}</span>}
+            {libraryView === 'personal' && item.created_by === currentUserId && <span className="lesson-library-state">Zelfgemaakt</span>}
+            {libraryView === 'personal' && item.created_by !== currentUserId && <button className="soft-btn" disabled={libraryBusyIds.includes(item.id)} onClick={() => removeFromPersonalLibrary(item)}>{libraryBusyIds.includes(item.id) ? 'Verwijderen…' : 'Uit mijn bibliotheek verwijderen'}</button>}
+          </div>
         </article>
       })}
-      {!catalogLoading && !visibleLessons.length && <div className="panel lesson-empty-filter">Geen lessen gevonden die passen bij deze filters en jouw leerprofiel. Pas je filters aan of vraag je docent om een les voor jouw klas of school te maken.</div>}
+      {!catalogLoading && !visibleLessons.length && <div className="panel lesson-empty-filter">{libraryView === 'public' ? 'Er zijn nog geen openbare lessen die bij deze filters passen. Probeer andere zoekwoorden of filters.' : 'Je bibliotheek is nog leeg. Maak zelf een les of voeg lessen toe vanuit de openbare lesbibliotheek.'}</div>}
       {showStartChoice && selectedLesson && <div className="modal-backdrop" role="presentation"><section className="modal lesson-choice-modal" role="dialog" aria-modal="true" aria-labelledby="lesson-choice-title"><button className="modal-close" onClick={() => setShowStartChoice(false)} aria-label="Sluiten"><X size={18}/></button><span className="panel-kicker">OPGESLAGEN VOORTGANG</span><h2 id="lesson-choice-title">Je was al bezig met deze les</h2><p>Je voortgang is bewaard. Wat wil je doen?</p><button className="primary-btn" onClick={() => begin(false, selectedLesson)}><Play size={16}/> Verdergaan</button><button className="google-submit" onClick={() => begin(true, selectedLesson)}><RotateCcw size={16}/> Start opnieuw</button></section></div>}
     </div>
   )
