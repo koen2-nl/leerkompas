@@ -10,6 +10,8 @@ const readLists = () => {
 const cleanLine = value => value.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim()
 const languageHeading = /^(nederlands|duits|engels|frans|spaans|latijn|italiaans|deutsch|english|français|español|latin|vocabulary|wortschatz|begriffe|begrippen|woord|betekenis|vertaling|term)(?:\s+(?:woorden|vocabulary|wortschatz|betekenis|vertaling))?(?:\s*[-–—/]\s*(?:nederlands|duits|engels|frans|spaans|deutsch|english|français|español))?$/i
 const chapterHeading = /^(?:lektion|leçon|lesson|les|hoofdstuk|kapitel|chapter|unit|eenheid|paragraaf)\s*\d+[\s:.-]*.*$/i
+const topicHeading = /^(?:thema|themaonderwerp|onderwerp|topic|deel)\s*\d*\b.*$/i
+const isVisualHeading = line => line.endsWith(':') || (line.length <= 48 && line === line.toLocaleUpperCase('nl-NL') && /[A-ZÀ-Ÿ]/.test(line) && !/[.!?]/.test(line))
 
 function detectEntries(text, instruction) {
   const lines = text.split(/\r?\n/).map(cleanLine).filter(Boolean)
@@ -17,28 +19,34 @@ function detectEntries(text, instruction) {
   const wanted = (instruction.match(/(?:lektion|hoofdstuk|kapitel|chapter|lesson|les|unit)\s*\d+/i) || [])[0]?.toLocaleLowerCase('nl-NL')
   let currentSection = ''
   let currentLanguage = ''
+  let currentCategory = ''
   let active = !wanted
   for (const line of lines) {
     if (chapterHeading.test(line)) {
-      currentSection = line
+      currentSection = line.replace(/:$/, '').trim()
+      currentCategory = ''
       active = !wanted || line.toLocaleLowerCase('nl-NL').includes(wanted)
       continue
     }
-    if (languageHeading.test(line)) { currentLanguage = line; continue }
-    if (/^\d+$/.test(line) || /^pagina\s+\d+/i.test(line) || line.length > 100) continue
+    if (languageHeading.test(line)) { currentLanguage = line.replace(/:$/, '').trim(); continue }
     if (!active) continue
+    if (topicHeading.test(line) || isVisualHeading(line)) {
+      currentCategory = line.replace(/:$/, '').trim()
+      continue
+    }
+    if (/^\d+$/.test(line) || /^pagina\s+\d+/i.test(line) || line.length > 120) continue
     const pair = line.match(/^(.{1,70}?)\s*(?::|\t|\s[–—-]\s|\s{2,})\s*(.{2,})$/)
     if (pair) {
-      const term = pair[1].replace(/[;,.]$/, '').trim()
-      const meaning = pair[2].trim()
-      if (term && meaning && !languageHeading.test(term) && !chapterHeading.test(term)) entries.push({ term, meaning, section: currentSection, language: currentLanguage })
-    } else if (line.length <= 65 && !/[.!?]$/.test(line) && !languageHeading.test(line)) {
-      entries.push({ term: line.replace(/[:;,.]$/, ''), meaning: '', section: currentSection, language: currentLanguage })
+      const term = pair[1].replace(/[;,.]$/, '').replace(/\s+/g, ' ').trim()
+      const meaning = pair[2].replace(/\s+/g, ' ').trim()
+      if (term && meaning && !languageHeading.test(term) && !chapterHeading.test(term)) entries.push({ term, meaning, section: currentSection, language: currentLanguage, category: currentCategory })
+    } else if (line.length <= 65 && !/[.!?]$/.test(line) && !languageHeading.test(line) && !isVisualHeading(line)) {
+      entries.push({ term: line.replace(/[:;,.]$/, ''), meaning: '', section: currentSection, language: currentLanguage, category: currentCategory })
     }
   }
   const seen = new Set()
   return entries.filter(entry => {
-    const key = entry.term.toLocaleLowerCase('nl-NL')+'|'+(entry.language||'').toLocaleLowerCase('nl-NL')+'|'+(entry.language||'').toLocaleLowerCase('nl-NL')
+    const key = entry.term.toLocaleLowerCase('nl-NL')+'|'+(entry.language||'').toLocaleLowerCase('nl-NL')+'|'+(entry.section||'').toLocaleLowerCase('nl-NL')
     if (key.length < 2 || seen.has(key)) return false
     seen.add(key); return true
   }).slice(0, 250)
@@ -85,7 +93,7 @@ export default function VocabularyBuilder() {
   const addEntry = () => setEntries(current => [...current, { term: '', meaning: '', section: '' }])
   const removeEntry = index => setEntries(current => current.filter((_, i) => i !== index))
   const saveList = () => {
-    const clean = entries.map(entry => ({ term: entry.term.trim(), meaning: entry.meaning.trim(), language: entry.language || '', section: entry.section || '' })).filter(entry => entry.term)
+    const clean = entries.map(entry => ({ term: entry.term.trim(), meaning: entry.meaning.trim(), language: entry.language || '', section: entry.section || '', category: entry.category || '' })).filter(entry => entry.term)
     const unique = clean.filter((entry,index) => clean.findIndex(other=>other.term.toLocaleLowerCase('nl-NL')===entry.term.toLocaleLowerCase('nl-NL') && other.language===entry.language)===index)
     if (!unique.length) { setError('Voeg eerst minimaal één begrip toe.'); return }
     const list = { id: crypto.randomUUID(), title: title.trim() || 'Mijn woordenlijst', entries: unique, terms: unique.map(entry=>entry.term), createdAt: new Date().toISOString() }
@@ -118,12 +126,12 @@ export default function VocabularyBuilder() {
       <div className="panel-head"><div><span className="panel-kicker">CONTROLEREN</span><h3>{entries.length} herkende regels</h3></div><button className="soft-btn" onClick={addEntry}><Plus size={15}/> Begrip toevoegen</button></div>
       <label className="vocabulary-title-field">Naam van de woordenlijst<input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Bijv. Duits · Lektion 2"/></label>
       {sourceName&&<p className="vocabulary-source"><FileText size={14}/>{sourceName}</p>}
-      <div className="vocabulary-term-list">{entries.map((entry,index)=><div className="vocabulary-entry-row" key={index}><span>{index+1}</span><input value={entry.term} onChange={e=>updateEntry(index,'term',e.target.value)} aria-label={'Begrip '+(index+1)} placeholder="Begrip of woord"/><input value={entry.meaning} onChange={e=>updateEntry(index,'meaning',e.target.value)} aria-label={'Betekenis '+(index+1)} placeholder="Betekenis / vertaling"/><button className="icon-btn" onClick={()=>removeEntry(index)} aria-label="Verwijder begrip"><X size={16}/></button></div>)}</div>
+      <div className="vocabulary-term-list">{entries.map((entry,index)=><>{(index===0||entries[index-1].section!==entry.section||entries[index-1].category!==entry.category||entries[index-1].language!==entry.language)&&<div className="vocabulary-group-heading">{[entry.section,entry.category,entry.language].filter(Boolean).join(' · ')||'Overige begrippen'}</div>}<div className="vocabulary-entry-row" key={index}><span>{index+1}</span><input value={entry.term} onChange={e=>updateEntry(index,'term',e.target.value)} aria-label={'Begrip '+(index+1)} placeholder="Begrip of woord"/><input value={entry.meaning} onChange={e=>updateEntry(index,'meaning',e.target.value)} aria-label={'Betekenis '+(index+1)} placeholder="Betekenis / vertaling"/><input value={entry.section||''} onChange={e=>updateEntry(index,'section',e.target.value)} aria-label={'Hoofdstuk '+(index+1)} placeholder="Hoofdstuk"/><input value={entry.category||''} onChange={e=>updateEntry(index,'category',e.target.value)} aria-label={'Categorie '+(index+1)} placeholder="Categorie"/><button className="icon-btn" onClick={()=>removeEntry(index)} aria-label="Verwijder begrip"><X size={16}/></button></div></>)}</div>
       <button className="primary-btn" onClick={saveList} disabled={!entries.some(entry=>entry.term.trim())}><Save size={16}/> Woordenlijst opslaan</button>
     </section>}
     <section className="panel vocabulary-saved">
       <div className="panel-head"><div><span className="panel-kicker">OPGESLAGEN</span><h3>Mijn woordenlijsten</h3></div><span className="vocabulary-count">{savedLists.length}</span></div>
-      {savedLists.length===0?<p className="muted">Je hebt nog geen woordenlijsten opgeslagen.</p>:savedLists.map(list=><details className="vocabulary-saved-item" key={list.id}><summary><span><strong>{list.title}</strong><small>{listEntries(list).length} begrippen</small></span><button type="button" className="icon-btn" onClick={e=>{e.preventDefault();deleteList(list.id)}} aria-label={'Verwijder '+list.title}><Trash2 size={16}/></button></summary><ul>{listEntries(list).map((entry,index)=><li key={index}><strong>{entry.term}</strong>{entry.meaning?' — '+entry.meaning:''}{entry.language?' ('+entry.language+')':''}</li>)}</ul></details>)}
+      {savedLists.length===0?<p className="muted">Je hebt nog geen woordenlijsten opgeslagen.</p>:savedLists.map(list=><details className="vocabulary-saved-item" key={list.id}><summary><span><strong>{list.title}</strong><small>{listEntries(list).length} begrippen</small></span><button type="button" className="icon-btn" onClick={e=>{e.preventDefault();deleteList(list.id)}} aria-label={'Verwijder '+list.title}><Trash2 size={16}/></button></summary><ul>{listEntries(list).map((entry,index)=><>{(index===0||listEntries(list)[index-1].section!==entry.section||listEntries(list)[index-1].category!==entry.category||listEntries(list)[index-1].language!==entry.language)&&<li className="vocabulary-saved-group">{[entry.language,entry.section,entry.category].filter(Boolean).join(' · ')||'Overige begrippen'}</li>}<li key={index}><strong>{entry.term}</strong>{entry.meaning?' — '+entry.meaning:''}</li></>)}</ul></details>)}
     </section>
   </div>
 }
