@@ -6,6 +6,7 @@
 - Als de database tijdelijk niet beschikbaar is, blijft de website de changelog uit de broncode tonen.
 - Dubbele versies worden samengevoegd; broncode-updates blijven leidend en unieke beheerupdates blijven behouden.
 - Beheeracties voor bewerken en verwijderen verschijnen alleen bij database-items die daadwerkelijk bewerkbaar zijn.
+- Buildfout in de URL-normalisatie opgelost, zodat Vite de website weer correct kan compileren.
 
 ## v0.39 beta — 10 november 2026
 - Minimalistische, rustigere vormgeving met neutralere kleuren en consistente componenten.
