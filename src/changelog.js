@@ -1,0 +1,7 @@
+export const CHANGELOG = [
+  { version: 'v0.37 beta', date: '10 november 2026', title: 'Leerstof en woordenlijsten', changes: ['Nieuw Leerstof-menu met Mijn lessen, Minigames, Flashcards en Woordenlijst maken.', 'Lesmaker-rol toegevoegd voor het beheren van eigen lesmateriaal.', 'Upload DOCX en foto’s om begrippen te herkennen en woordenlijsten op te slaan.'] },
+  { version: 'v0.36 beta', date: '9 november 2026', title: 'Voortgang en versiebeheer', changes: ['Voortgang wordt opgeschoond als een les uit de catalogus verdwijnt.', 'Dashboard toont de geplande leertijd en het persoonlijke leerdoel.', 'Versienummer wordt automatisch gekoppeld aan pull requests.'] },
+  { version: 'v0.31–0.35 beta', date: 'november 2026', title: 'Profiel en dashboard', changes: ['Profielinstellingen en niveau-afhankelijke klaskeuzes.', 'Lescatalogus en voortgang worden met het account gesynchroniseerd.', 'Planning, live klok en vernieuwde SlimLeren-huisstijl.'] },
+  { version: 'v0.17–0.30 beta', date: '2026', title: 'Basis van SlimLeren', changes: ['Nieuwe leeromgeving met overzicht, lessen, planning en voortgang.', 'Interactieve lessen, flashcards en minigames.', 'Accountregistratie, onboarding en beheerderspaneel.'] },
+  { version: 'v0.1 beta', date: 'eerste beta', title: 'Eerste versie', changes: ['Eerste versie van de leeromgeving en basisnavigatie.', 'Eerste onderdelen voor lessen en persoonlijke leerdoelen.'] }
+]
