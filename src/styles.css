@@ -632,3 +632,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .dark .admin-overview-card,.dark .admin-tabs button.active{background:var(--panel)}
 .dark .admin-overview-icon.users{background:#37304f;color:#b5a7ff}.dark .admin-overview-icon.lessons{background:#203d35;color:#80d4ae}.dark .admin-overview-icon.activity{background:#493728;color:#ffc18a}
 @media(max-width:700px){.admin-overview-grid{grid-template-columns:1fr}.admin-overview-card{padding:13px}.admin-quick-links{grid-template-columns:1fr}.admin-tabs button{padding:9px 11px}.admin-page{gap:13px}.admin-panel{padding:15px}}
+
+.nav-dropdown{display:grid;gap:4px}
+.nav-dropdown>.nav-item{width:100%}
+.nav-dropdown>.nav-item>svg:last-child{margin-left:auto;transition:transform .18s ease}
+.nav-dropdown>.nav-item>svg.rotated{transform:rotate(180deg)}
+.nav-subitems{display:grid;gap:3px;margin:0 0 5px 27px;padding-left:12px;border-left:1px solid var(--line)}
+.nav-subitem{border:0;background:transparent;color:var(--muted);text-align:left;padding:9px 10px;border-radius:7px;font:inherit;font-size:11px;cursor:pointer}
+.nav-subitem:hover,.nav-subitem.active{background:var(--surface);color:var(--accent);font-weight:700}
