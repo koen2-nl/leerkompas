@@ -3,7 +3,7 @@ import { Check, RefreshCw, ShieldCheck, Users, BookOpen, RotateCcw, Trash2, Plus
 import { supabase } from './auth/supabase.js'
 
 const blankQuestion = () => ({ type: 'multiple_choice', question: '', answer: '', explanation: '', options: '' })
-const empty = { title: '', subject: 'Aardrijkskunde', topic: '', level: 'Alle niveaus', targetClass: '', targetSchool: '', difficulty: 'Basis', description: '', mode: 'normal', questions: [blankQuestion()] }
+const empty = { title: '', subject: 'Algemeen', topic: '', level: 'Alle niveaus', targetClass: '', targetSchool: '', difficulty: 'Basis', description: '', mode: 'normal', questions: [blankQuestion()] }
 
 function questionsFromContent(content) {
   const questions = (content?.sections || []).flatMap(section => section.questions || [])
@@ -60,8 +60,8 @@ export default function AdminPanel({ canManageUsers = false }) {
       setError('Vul bij iedere vraag de vraag en het antwoord in. Voeg bij meerkeuze ook antwoordopties toe.');return
     }
     setBusy(true);setError('')
-    const payload={title:form.title.trim(),subject:form.subject.trim(),topic:form.topic.trim(),level:form.level,target_class:form.targetClass.trim(),target_school:form.targetSchool.trim(),difficulty:form.difficulty,description:form.description.trim(),content:buildContent(form)}
-    const result=editId?await supabase.from('lesson_catalog').update(payload).eq('id',editId):await supabase.from('lesson_catalog').insert(payload)
+    const payload={title:form.title.trim(),subject:form.subject.trim(),topic:form.topic.trim(),level:form.level,target_class:form.targetClass.trim(),target_school:form.targetSchool.trim(),difficulty:form.difficulty,description:form.description.trim(),content:buildContent(form),...(editId?{}:{created_by:currentUserId})}
+    const result=editId? supabase.from('lesson_catalog').update(payload).eq('id',editId):await supabase.from('lesson_catalog').insert(payload)
     setBusy(false);if(result.error)setError(result.error.message);else{setNotice(editId?'Les bijgewerkt.':'Les aangemaakt.');setForm(empty);setEditId(null);setCreatorStep('choice');load()}
   }
   const edit=l=>{
