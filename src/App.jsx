@@ -120,7 +120,9 @@ function App() {
     if (headerNow.getHours() < 22 || dark) return
     const key = 'leerkompas:nightPromptDismissed:' + headerNow.toLocaleDateString('en-CA')
     if (localStorage.getItem(key) !== 'yes') setNightPrompt(true)
-  }, [headerNow, dark])\n  const dismissNightPrompt = () => { localStorage.setItem('leerkompas:nightPromptDismissed:' + headerNow.toLocaleDateString('en-CA'), 'yes'); setNightPrompt(false) }\n  const headerTime = headerNow.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+  }, [headerNow, dark])
+  const dismissNightPrompt = () => { localStorage.setItem('leerkompas:nightPromptDismissed:' + headerNow.toLocaleDateString('en-CA'), 'yes'); setNightPrompt(false) }
+  const headerTime = headerNow.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
   useEffect(() => { try { saveLocal('subjects', subjects) } catch { notify('Opslaan lukte niet. Controleer je browserinstellingen.') } }, [subjects])
   useEffect(() => { try { saveLocal('cards', cards) } catch { notify('Opslaan lukte niet. Controleer je browserinstellingen.') } }, [cards])
   useEffect(() => { try { saveLocal('dark', dark) } catch {} }, [dark])
