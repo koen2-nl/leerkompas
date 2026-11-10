@@ -610,3 +610,25 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .setup-footnote{margin:22px 0 0;color:var(--muted);font-size:10px;line-height:1.6;text-align:center}
 @media(max-width:480px){.setup-card{padding:23px 19px;border-radius:18px}.setup-brand{margin-bottom:28px}}
 @media(prefers-reduced-motion:reduce){.setup-progress>span{transition:none}}
+
+/* Beheerderspaneel: compact overzicht en duidelijke navigatie */
+.admin-page{max-width:1180px;gap:18px}
+.admin-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.admin-overview-card{display:flex;align-items:center;gap:13px;padding:17px;background:var(--panel);border:1px solid var(--line);border-radius:13px;min-width:0}
+.admin-overview-icon{width:39px;height:39px;display:grid;place-items:center;border-radius:11px;flex:none}
+.admin-overview-icon.users{background:#eeeaff;color:#705bd1}.admin-overview-icon.lessons{background:#e8f6ef;color:#36936c}.admin-overview-icon.activity{background:#fff1e5;color:#c47b36}
+.admin-overview-card>div{display:grid;gap:3px;min-width:0}.admin-overview-card small,.admin-overview-card span{font-size:10px;color:var(--muted)}.admin-overview-card strong{font-size:21px;letter-spacing:-.5px;color:var(--ink)}
+.admin-tabs{display:flex;gap:5px;padding:5px;background:var(--surface);border:1px solid var(--line);border-radius:11px;overflow-x:auto}
+.admin-tabs button{display:flex;align-items:center;gap:8px;justify-content:center;white-space:nowrap;border:0;background:transparent;color:var(--muted);padding:10px 14px;border-radius:8px;font:inherit;font-size:11px;font-weight:700;cursor:pointer}
+.admin-tabs button.active{background:var(--panel);color:var(--accent);box-shadow:0 1px 4px #24233a12}
+.admin-tabs button span{padding:2px 6px;border-radius:20px;background:var(--surface);font-size:9px;color:var(--muted)}
+.admin-welcome h3{font-size:16px;margin:8px 0 15px}
+.admin-quick-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.admin-quick-links button{display:flex;align-items:flex-start;gap:11px;text-align:left;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--accent);cursor:pointer}
+.admin-quick-links button span{display:grid;gap:5px}.admin-quick-links strong{font-size:11px;color:var(--ink)}.admin-quick-links small{font-size:9px;line-height:1.5;color:var(--muted)}
+.admin-search{display:flex;align-items:center;gap:9px;margin:12px 0;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--muted)}
+.admin-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);font:inherit;font-size:11px;padding:11px 0}
+.admin-empty{padding:18px;text-align:center;color:var(--muted);font-size:11px;background:var(--surface);border-radius:9px}
+.dark .admin-overview-card,.dark .admin-tabs button.active{background:var(--panel)}
+.dark .admin-overview-icon.users{background:#37304f;color:#b5a7ff}.dark .admin-overview-icon.lessons{background:#203d35;color:#80d4ae}.dark .admin-overview-icon.activity{background:#493728;color:#ffc18a}
+@media(max-width:700px){.admin-overview-grid{grid-template-columns:1fr}.admin-overview-card{padding:13px}.admin-quick-links{grid-template-columns:1fr}.admin-tabs button{padding:9px 11px}.admin-page{gap:13px}.admin-panel{padding:15px}}
