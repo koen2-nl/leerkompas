@@ -48,7 +48,7 @@ export default function SetupWizard({ onComplete }) {
       </div>
       {error && <p className="setup-error" role="alert">{error}</p>}
       <div className="setup-actions">{step > 0 && <button className="setup-back" type="button" onClick={() => { setStep(value => value - 1); setError('') }}><ArrowLeft size={16}/> Vorige</button>}<button className="setup-next" type="button" onClick={next}>{step === 4 ? 'Mijn leerplek starten' : 'Volgende'} {step === 4 ? <Check size={17}/> : <ArrowRight size={17}/>}</button></div>
-      <p className="setup-footnote">Je gegevens helpen SlimLeren om lessen en aanbevelingen op jou af te stemmen.</p>
+      <p className="setup-footnote">Je gegevens helpen Leervo om lessen en aanbevelingen op jou af te stemmen.</p>
     </section>
   </main>
 }
