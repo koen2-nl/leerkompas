@@ -1,6 +1,6 @@
 # Versiebeheer
 
-De zichtbare versie van SlimLeren wordt automatisch afgeleid van het nummer van de pull request.
+De zichtbare versie van Leervo wordt automatisch afgeleid van het nummer van de pull request.
 
 - Tijdens de beta krijgt de versie de vorm `v0.<PR-nummer> beta` (bijvoorbeeld PR #35 wordt `v0.35 beta`).
 - In Vercel-previewbuilds wordt het nummer van de betreffende pull request gebruikt.
@@ -11,7 +11,7 @@ De zichtbare versie van SlimLeren wordt automatisch afgeleid van het nummer van 
 
 Zolang `release-status.json` de waarde `"released": false` bevat, blijft de versie op `0.<PR-nummer> beta`.
 
-Wanneer SlimLeren volledig wordt uitgebracht, zet je in `release-status.json` `"released"` op `true`. Vanaf de eerstvolgende build wordt dezelfde PR-volgnummering gebruikt met majorversie 1 en zonder beta-label, bijvoorbeeld `v1.35`.
+Wanneer Leervo volledig wordt uitgebracht, zet je in `release-status.json` `"released"` op `true`. Vanaf de eerstvolgende build wordt dezelfde PR-volgnummering gebruikt met majorversie 1 en zonder beta-label, bijvoorbeeld `v1.35`.
 
 De versie wordt op beide plekken in de interface (linksonder en in de footer) vanuit dezelfde buildwaarde getoond.
 
