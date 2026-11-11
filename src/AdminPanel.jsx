@@ -80,7 +80,7 @@ export default function AdminPanel({ canManageUsers = false, canReviewLessons = 
   const reset=async(user,section,label)=>{
     if(!window.confirm(label+' resetten voor '+user.email+'? Dit kan niet ongedaan worden gemaakt.'))return
     setBusy(true);setError('');const {error:e}=await supabase.rpc('admin_reset_user_data',{p_user_id:user.user_id,p_sections:[section]});setBusy(false)
-    if(e)setError(e.message);else{setNotice(label+' gereset. Vraag de gebruiker SlimLeren opnieuw te laden om de wijziging direct te zien.');load()}
+    if(e)setError(e.message);else{setNotice(label+' gereset. Vraag de gebruiker Leervo opnieuw te laden om de wijziging direct te zien.');load()}
   }
   const grant=async e=>{e.preventDefault();setBusy(true);setError('');const {error:x}=await supabase.rpc('admin_grant_admin',{p_email:email.trim()});setBusy(false);if(x)setError(x.message);else{setNotice('Beheerrechten toegekend aan '+email);setEmail('');load()}}
   const changeRole=async(user,role)=>{setBusy(true);setError('');setNotice('');const {error:e}=await supabase.rpc('admin_set_user_role',{p_user_id:user.user_id,p_role:role});setBusy(false);if(e){setError(e.message);load()}else{setNotice('Role bijgewerkt voor '+(user.email||'de gebruiker')+'.');load()}}
@@ -122,7 +122,7 @@ export default function AdminPanel({ canManageUsers = false, canReviewLessons = 
   const cancelEdit=()=>{setEditId(null);setForm(empty);setCreatorStep('choice')}
   const startCreating=mode=>{setForm({...empty,mode});setEditId(null);setCreatorStep('builder');setError('');setNotice('')}
   return <div className="admin-page">
-    <div className="admin-heading"><div><span className="panel-kicker">SLIMLEREN · LESSTUDIO</span><h2>{canManageUsers?'Beheerderspaneel':'Mijn lesstudio'}</h2><p>Maak, deel en beheer lesmateriaal. Privélessen zijn alleen zichtbaar voor jou en via jouw deellink.</p></div><button className="soft-btn" onClick={load} disabled={loading}><RefreshCw size={15}/> {loading?'Laden…':'Vernieuwen'}</button></div>
+    <div className="admin-heading"><div><span className="panel-kicker">LEERVO · LESSTUDIO</span><h2>{canManageUsers?'Beheerderspaneel':'Mijn lesstudio'}</h2><p>Maak, deel en beheer lesmateriaal. Privélessen zijn alleen zichtbaar voor jou en via jouw deellink.</p></div><button className="soft-btn" onClick={load} disabled={loading}><RefreshCw size={15}/> {loading?'Laden…':'Vernieuwen'}</button></div>
     {canManageUsers&&<div className="admin-overview-grid">
       <article className="admin-overview-card"><span className="admin-overview-icon users"><Users size={18}/></span><div><small>Accounts</small><strong>{users.length}</strong><span>{adminCount} beheerders</span></div></article>
       <article className="admin-overview-card"><span className="admin-overview-icon lessons"><BookOpen size={18}/></span><div><small>Lesmateriaal</small><strong>{lessons.length}</strong><span>Beschikbare lessen</span></div></article>
