@@ -12,7 +12,7 @@ async function getAppVersion() {
   if (!pullRequestNumber && process.env.VERCEL_ENV === 'production') {
     try {
       const response = await fetch('https://api.github.com/repos/koen2-nl/leerkompas/pulls?state=closed&sort=created&direction=desc&per_page=100', {
-        headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'SlimLeren-version-build' }
+        headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Leervo-version-build' }
       })
       if (response.ok) {
         const pullRequests = await response.json()

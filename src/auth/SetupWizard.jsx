@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, ArrowRight, GraduationCap, School, UserRound, Target, Clock3, Check } from 'lucide-react'
+import { ArrowLeft, ArrowRight, GraduationCap, Compass, School, UserRound, Target, Clock3, Check } from 'lucide-react'
 
 const steps = [
   { title: 'Hoe mogen we je noemen?', subtitle: 'Kies een gebruikersnaam die bij jou past.', key: 'username', icon: UserRound },
@@ -34,7 +34,7 @@ export default function SetupWizard({ onComplete }) {
   }
   return <main className="setup-screen">
     <section className="setup-card">
-      <div className="setup-brand"><span><GraduationCap size={22}/></span><strong>Slim<span>Leren</span></strong></div>
+      <div className="setup-brand"><span><Compass size={22}/></span><strong>Leervo</strong></div>
       <div className="setup-progress-meta"><span>JOUW LEERPLEK INSTELLEN</span><strong>{step + 1} van 5</strong></div>
       <div className="setup-progress"><span style={{ width: ((step + 1) / 5 * 100) + '%' }}/></div>
       <div className="setup-step-icon"><Icon size={25}/></div>
@@ -48,7 +48,7 @@ export default function SetupWizard({ onComplete }) {
       </div>
       {error && <p className="setup-error" role="alert">{error}</p>}
       <div className="setup-actions">{step > 0 && <button className="setup-back" type="button" onClick={() => { setStep(value => value - 1); setError('') }}><ArrowLeft size={16}/> Vorige</button>}<button className="setup-next" type="button" onClick={next}>{step === 4 ? 'Mijn leerplek starten' : 'Volgende'} {step === 4 ? <Check size={17}/> : <ArrowRight size={17}/>}</button></div>
-      <p className="setup-footnote">Je gegevens helpen SlimLeren om lessen en aanbevelingen op jou af te stemmen.</p>
+      <p className="setup-footnote">Je gegevens helpen Leervo om lessen en aanbevelingen op jou af te stemmen.</p>
     </section>
   </main>
 }

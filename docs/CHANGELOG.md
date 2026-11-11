@@ -1,4 +1,12 @@
-# Changelog SlimLeren
+# Changelog Leervo
+
+## v0.47 beta — 11 november 2026
+- De naam SlimLeren is vervangen door Leervo in de leeromgeving, lesstudio en accountschermen.
+- Nieuw Leervo-kompasbeeldmerk en bijgewerkt favicon.
+- Paginatitel, beschrijving, canonical URL en social metadata verwijzen naar https://leervo.nl.
+- README en projectdocumentatie bijgewerkt voor de nieuwe merknaam.
+- Bestaande accounts, lessen, voortgang en lokale opslagstructuur blijven ongewijzigd.
+
 
 ## v0.46 beta — 10 november 2026
 - Bij iedere les kiezen tussen de gewone les, minigame-modus en flashcards.

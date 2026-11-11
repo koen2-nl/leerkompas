@@ -1,6 +1,8 @@
-# SlimLeren
+# Leervo
 
-**Leren op jouw manier.** Een moderne, speelse en responsive leeromgeving voor vakken, flashcards, quizzen en studieplanning.
+**Leren op jouw manier.**
+
+Website: [https://leervo.nl](https://leervo.nl) Een moderne, speelse en responsive leeromgeving voor vakken, flashcards, quizzen en studieplanning.
 
 ## Snel starten
 

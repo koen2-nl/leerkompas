@@ -814,3 +814,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .lesson-flashcard-wrap{max-width:680px;margin:22px auto}.lesson-flashcard{min-height:260px;padding:32px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:17px;text-align:center;border:1px solid #dcd5fb;border-radius:18px;background:linear-gradient(145deg,#f7f5ff,#ece9ff);color:#3e376b;box-shadow:0 12px 30px #594a9810}
 .lesson-flashcard h2{font-size:26px;line-height:1.45;margin:0;white-space:pre-wrap}.lesson-flashcard p{font-size:14px;line-height:1.65;max-width:540px}.lesson-flashcard-actions{display:flex;justify-content:center;margin-top:16px}
 @media(max-width:600px){.lesson-mode-options{grid-template-columns:1fr}.lesson-mode-option{display:grid;grid-template-columns:44px 1fr;column-gap:12px;align-items:center}.lesson-mode-option .lesson-mode-icon{grid-row:span 2}.lesson-mode-option small{min-height:0}.lesson-mode-option b{grid-column:2}.lesson-flashcard{min-height:220px;padding:25px 18px}.lesson-flashcard h2{font-size:22px}.lesson-mode-score{font-size:12px}}
+
+/* Leervo merkidentiteit */
+.brand-home>span{font-size:20px;font-weight:800;letter-spacing:-.7px;color:var(--ink)}
+.brand-mark{background:linear-gradient(145deg,#eaf1ed,#dcebe2);color:#28594f;border:1px solid #dce8df}
+.auth-brand-mark{background:#eaf1ed!important;color:#356b61!important}
+.auth-brand>span:last-child{color:#26332f}
+.setup-brand>span{background:#eaf1ed;color:#356b61}
+.footer-home{font-weight:750}
+@media(prefers-reduced-motion:reduce){.brand-home,.brand-mark{transition:none}}
