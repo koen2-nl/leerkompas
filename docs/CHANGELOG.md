@@ -1,5 +1,11 @@
 # Changelog Leervo
 
+## v0.52 beta — 13 november 2026
+- Laat sneeuwvlokken zichtbaar landen op oppervlakken zoals de zoekbalk, invoervelden, kaarten en panelen.
+- Bouw op deze elementen dunne, natuurlijke sneeuwrandjes op die je met de muis kunt wegvegen.
+- Behoud de sneeuwophoping onderaan het scherm en maak de vallende vlokken subtieler met verschillende groottes en snelheden.
+
+
 ## v0.51 beta — 13 november 2026
 - Vervang kerstemoji’s door getekende CSS-decoraties: kerstbomen, een verlicht dorpje en een slinger met zacht gloeiende lampjes.
 - Voeg subtiele beweging toe aan lichtjes, boomtakken en kerstversiering zonder de leerinhoud te hinderen.
