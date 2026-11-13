@@ -195,6 +195,7 @@ function SnowfallOverlay() {
       lastFrame = time
       context.clearRect(0, 0, width, height)
       if (time - lastSurfaceScan > 850) { scanSurfaces(); lastSurfaceScan = time }
+      surfaces.forEach(surface => { surface.rect = surface.element.getBoundingClientRect() })
       if (!reducedMotion) {
         flakes.forEach(flake => {
           const previousY = flake.y
@@ -204,8 +205,7 @@ function SnowfallOverlay() {
           if (flake.x > width + 4) flake.x = -4
           let landed = false
           for (const surface of surfaces) {
-            const rect = surface.element.getBoundingClientRect()
-            surface.rect = rect
+            const rect = surface.rect
             if (flake.x >= rect.left && flake.x <= rect.right && previousY <= rect.top + 2 && flake.y >= rect.top - 1) {
               const index = Math.max(0, Math.min(surface.pile.length - 1, Math.floor((flake.x - rect.left) / binSize)))
               surface.pile[index] = Math.min(11, surface.pile[index] + .38)
@@ -238,7 +238,7 @@ function SnowfallOverlay() {
       if (pointer.active) {
         if (pointer.y > height - 100) brushPile(floorPile, pointer.x, 68, 4.2)
         surfaces.forEach(surface => {
-          const rect = surface.element.getBoundingClientRect()
+          const rect = surface.rect
           if (pointer.x >= rect.left - 4 && pointer.x <= rect.right + 4 && pointer.y >= rect.top - 22 && pointer.y <= rect.top + 12) {
             brushPile(surface.pile, pointer.x - rect.left, 42, 2.5)
           }
