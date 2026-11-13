@@ -1,5 +1,13 @@
 # Changelog Leervo
 
+## v0.49 beta — 13 november 2026
+- Hernoem de seizoensstijl naar Kerst Edition.
+- Voeg in Instellingen een derde weergaveoptie KERST toe naast Licht en Donker, met keuze die lokaal wordt onthouden.
+- Voeg een decoratief kerstlandschap toe met bomen langs de zijkanten, een kerstdorp onderaan, een feestelijke guirlande en sneeuw op de achtergrond.
+- Behoud de bestaande lichte en donkere thema’s; kerstdecoratie verschijnt uitsluitend wanneer KERST is geselecteerd.
+- Maak de kerstdecoratie responsief, niet-interactief en toegankelijk met ondersteuning voor minder beweging.
+
+
 ## v0.48 beta — 13 november 2026
 - Tijdelijke, gezellige winter- en kerstsfeer door de hele leeromgeving met warme crème-, dennegroene, cranberry- en goudaccenten.
 - Dashboard, navigatie, formulieren, flashcards, lesmodi, kaarten en accountschermen krijgen bijpassende winterstyling.
