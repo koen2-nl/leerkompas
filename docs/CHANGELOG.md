@@ -4,6 +4,7 @@
 - Vervang kerstemoji’s door getekende CSS-decoraties: kerstbomen, een verlicht dorpje en een slinger met zacht gloeiende lampjes.
 - Voeg subtiele beweging toe aan lichtjes, boomtakken en kerstversiering zonder de leerinhoud te hinderen.
 - Behoud responsieve weergave en schakel decoratieve animaties uit bij voorkeur voor minder beweging.
+- Herstel de vaste positionering van de zijbalk in Kerst Edition, zodat de hoofdinhoud niet honderden pixels omlaag wordt geduwd.
 
 
 ## v0.50 beta — 13 november 2026
