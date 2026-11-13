@@ -823,3 +823,149 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .setup-brand>span{background:#eaf1ed;color:#356b61}
 .footer-home{font-weight:750}
 @media(prefers-reduced-motion:reduce){.brand-home,.brand-mark{transition:none}}
+
+
+/* Leervo Winter Edition — seizoensgebonden, volledig terug te draaien via .winter-theme */
+.app.winter-theme{
+  --accent:#315d4b;
+  --accent-soft:#e8efe8;
+  --ink:#30372f;
+  --muted:#77796f;
+  --line:#e9e1d5;
+  --panel:#fffdf8;
+  --surface:#f8f4eb;
+  background:#f5f0e7;
+  color:var(--ink);
+  color-scheme:light;
+}
+.app.winter-theme .sidebar,
+.app.winter-theme .topbar,
+.app.winter-theme .panel,
+.app.winter-theme .stat-card,
+.app.winter-theme .subject-card,
+.app.winter-theme .game-card,
+.app.winter-theme .profile,
+.app.winter-theme .modal,
+.app.winter-theme .dropdown-menu{
+  background:#fffdf8;
+  border-color:#e9e1d5;
+}
+.app.winter-theme .sidebar{background:#fbf8f1}
+.app.winter-theme .brand-mark{
+  background:linear-gradient(145deg,#e6eee5,#d3e2d3);
+  color:#315d4b;border-color:#d5e2d4;
+}
+.app.winter-theme .brand-home>span{color:#294a3c}
+.app.winter-theme .brand-home::after{
+  content:'✦ winter edition';
+  align-self:center;margin-left:2px;padding:4px 7px;border-radius:999px;
+  background:#f4e8d8;color:#9b6846;font-size:9px;font-weight:750;
+  letter-spacing:.04em;white-space:nowrap;
+}
+.app.winter-theme .nav-item.active{
+  color:#315d4b;background:#e8efe8;
+}
+.app.winter-theme .nav-item.active svg{color:#315d4b}
+.app.winter-theme .primary-btn{
+  background:#315d4b;color:#fffdf8;box-shadow:0 5px 14px #315d4b20;
+}
+.app.winter-theme .primary-btn:hover{background:#244a3a}
+.app.winter-theme .soft-btn,.app.winter-theme .banner-btn{
+  background:#f1e8dc;color:#704b38;border-color:#e8dac8;
+}
+.app.winter-theme .welcome-banner{
+  position:relative;overflow:hidden;
+  background:linear-gradient(118deg,#e7eee5 0%,#f1e9dc 58%,#f4e3dc 100%);
+  border:1px solid #e5dfd2;color:#344438;
+}
+.app.winter-theme .welcome-banner h2 em{color:#a34f48}
+.app.winter-theme .banner-tag{color:#6b806b}
+.app.winter-theme .book-illustration{
+  background:#fffaf0;color:#315d4b;
+  box-shadow:0 14px 34px #38563b18;
+}
+.app.winter-theme .orbit{border-color:#d3dfd1}
+.app.winter-theme .floating-note{
+  background:#fffdf8;color:#5e6e59;border:1px solid #e9e1d5;
+  box-shadow:0 7px 18px #5a4b3512;
+}
+.app.winter-theme .stat-icon,.app.winter-theme .icon-tile{
+  background:#edf1e8;color:#55734f;
+}
+.app.winter-theme .progress-track>div{background:#78936d}
+.app.winter-theme input,.app.winter-theme select,.app.winter-theme textarea{
+  background:#fffdf8;border-color:#e5ddcf;color:#30372f;
+}
+.app.winter-theme .flashcard,.app.winter-theme .flashcard.flipped{
+  background:linear-gradient(145deg,#fffaf0,#f3eadb);
+  color:#4c493e;border-color:#e7d9c5;
+}
+.app.winter-theme .lesson-flashcard{
+  background:linear-gradient(145deg,#fff9ec,#f1e8d9);
+  border-color:#e6d8c4;color:#574637;
+}
+.app.winter-theme .lesson-mode-option{
+  background:#fffdf8;border-color:#e9e1d5;
+}
+.app.winter-theme .lesson-mode-icon{
+  background:#edf1e8;color:#55734f;
+}
+.app.winter-theme .lesson-mode-icon.game{background:#f8ead8;color:#a56a35}
+.app.winter-theme .lesson-mode-icon.cards{background:#e7eee5;color:#477653}
+.app.winter-theme .lesson-mode-score{
+  background:#f7ecdc;color:#91633a;
+}
+.app.winter-theme .lesson-mode-score.flashcard-mode-label{
+  background:#e8efe8;color:#315d4b;
+}
+.app.winter-theme .streak-card{background:#f5eadb;border-color:#eadcc9}
+.app.winter-theme .streak-icon{color:#a85a43}
+.app.winter-theme .page-heading .eyebrow{color:#71836d}
+.app.winter-theme .toast{background:#315d4b}
+.app.winter-theme .modal-backdrop{background:#34372f66}
+.app.winter-theme .app-footer{color:#898477}
+
+/* Rustige sneeuwlaag: decoratief en nooit in de weg van knoppen of tekst */
+.app.winter-theme::before{
+  content:"";position:fixed;inset:-120px 0 0;z-index:40;pointer-events:none;
+  opacity:.32;
+  background-image:
+    radial-gradient(2px 2px at 18px 32px,#fff 98%,transparent),
+    radial-gradient(2px 2px at 86px 114px,#fff 98%,transparent),
+    radial-gradient(1.5px 1.5px at 142px 68px,#fff 98%,transparent),
+    radial-gradient(2px 2px at 212px 164px,#fff 98%,transparent),
+    radial-gradient(1.5px 1.5px at 268px 24px,#fff 98%,transparent);
+  background-size:290px 210px;
+  animation:leervo-snowfall 24s linear infinite;
+}
+@keyframes leervo-snowfall{from{transform:translateY(-20px)}to{transform:translateY(190px)}}
+.app.winter-theme.dark{
+  --accent:#a9c2a5;--accent-soft:#2d4035;--ink:#f1eee5;--muted:#b6b3a8;
+  --line:#41483f;--panel:#252d28;--surface:#202722;background:#1b231e;color:var(--ink);
+  color-scheme:dark;
+}
+.app.winter-theme.dark .sidebar,
+.app.winter-theme.dark .topbar,
+.app.winter-theme.dark .panel,
+.app.winter-theme.dark .stat-card,
+.app.winter-theme.dark .subject-card,
+.app.winter-theme.dark .game-card,
+.app.winter-theme.dark .profile,
+.app.winter-theme.dark .modal,
+.app.winter-theme.dark .dropdown-menu{background:#252d28;border-color:#41483f}
+.app.winter-theme.dark .brand-mark{background:#314537;color:#d9e8d4;border-color:#455b48}
+.app.winter-theme.dark .brand-home>span{color:#edf0e7}
+.app.winter-theme.dark .brand-home::after{background:#493a30;color:#e8c79d}
+.app.winter-theme.dark .welcome-banner{background:linear-gradient(120deg,#2c4034,#3d3830 70%,#463331);color:#f3eee3;border-color:#465346}
+.app.winter-theme.dark .welcome-banner h2 em{color:#e2a49a}
+.app.winter-theme.dark .book-illustration{background:#e9e2d4;color:#315d4b}
+.app.winter-theme.dark .floating-note{background:#303a31;color:#e7e9dd;border-color:#4b5949}
+.app.winter-theme.dark .nav-item.active{background:#314537;color:#e2eddd}
+.app.winter-theme.dark .primary-btn{background:#55795d;color:#fff}
+.app.winter-theme.dark input,.app.winter-theme.dark select,.app.winter-theme.dark textarea{background:#202722;color:#f1eee5;border-color:#41483f}
+.app.winter-theme.dark .flashcard,.app.winter-theme.dark .flashcard.flipped,.app.winter-theme.dark .lesson-flashcard{background:#30372f;color:#f1eee5;border-color:#4b5949}
+.app.winter-theme.dark .lesson-mode-option{background:#252d28;border-color:#41483f}
+.app.winter-theme.dark .lesson-mode-score{background:#453a2e;color:#f0cf9f}
+.app.winter-theme.dark .lesson-mode-score.flashcard-mode-label{background:#314537;color:#d9e8d4}
+@media(prefers-reduced-motion:reduce){.app.winter-theme::before{animation:none;opacity:.16}}
+@media(max-width:680px){.app.winter-theme .brand-home::after{font-size:8px;padding:3px 5px}}
