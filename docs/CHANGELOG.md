@@ -1,5 +1,11 @@
 # Changelog Leervo
 
+## v0.51 beta — 13 november 2026
+- Vervang kerstemoji’s door getekende CSS-decoraties: kerstbomen, een verlicht dorpje en een slinger met zacht gloeiende lampjes.
+- Voeg subtiele beweging toe aan lichtjes, boomtakken en kerstversiering zonder de leerinhoud te hinderen.
+- Behoud responsieve weergave en schakel decoratieve animaties uit bij voorkeur voor minder beweging.
+
+
 ## v0.50 beta — 13 november 2026
 - Maak de volledige zijbalk zelfstandig verticaal scrollbaar op desktop en mobiel wanneer de navigatie niet binnen de schermhoogte past.
 - Voorkom dat navigatiegroepen en de onderste instellingen door flex-layout worden samengedrukt.
