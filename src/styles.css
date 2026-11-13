@@ -969,3 +969,30 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .app.winter-theme.dark .lesson-mode-score.flashcard-mode-label{background:#314537;color:#d9e8d4}
 @media(prefers-reduced-motion:reduce){.app.winter-theme::before{animation:none;opacity:.16}}
 @media(max-width:680px){.app.winter-theme .brand-home::after{font-size:8px;padding:3px 5px}}
+
+/* Winterstijl voor niet-ingelogde pagina's en onboarding */
+.auth-screen,.setup-screen,.public-shared-page{
+  background:radial-gradient(ellipse at 12% 8%,#e6eee4 0,transparent 36%),linear-gradient(145deg,#f7f2e9,#f0e8dc)!important;
+  color:#30372f;
+}
+.auth-card,.setup-card,.public-shared-card{
+  background:#fffdf8!important;border:1px solid #e8dfd1!important;
+  box-shadow:0 22px 70px #4d49351a!important;color:#30372f;
+}
+.auth-brand,.setup-brand,.public-shared-page header{color:#294a3c!important}
+.auth-brand-mark,.setup-brand>span{
+  background:#e6eee5!important;color:#315d4b!important;border:1px solid #d5e2d4;
+}
+.auth-tabs{background:#f3eee5!important}
+.auth-tabs button.active{background:#fffdf8!important;color:#315d4b!important;box-shadow:0 2px 8px #493c2610}
+.auth-submit,.setup-next{background:#315d4b!important;color:#fffdf8!important}
+.auth-field input,.setup-fields input,.setup-fields select,.setup-fields textarea{
+  background:#fffdf8!important;border-color:#e5ddcf!important;color:#30372f!important;
+}
+.auth-screen::before,.setup-screen::before,.public-shared-page::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:3;opacity:.28;
+  background-image:radial-gradient(2px 2px at 24px 35px,#fff 98%,transparent),radial-gradient(1.5px 1.5px at 120px 110px,#fff 98%,transparent),radial-gradient(2px 2px at 210px 55px,#fff 98%,transparent);
+  background-size:250px 180px;animation:leervo-snowfall 28s linear infinite;
+}
+.auth-screen>* ,.setup-screen>* ,.public-shared-page>*{position:relative;z-index:4}
+@media(prefers-reduced-motion:reduce){.auth-screen::before,.setup-screen::before,.public-shared-page::before{animation:none}}
