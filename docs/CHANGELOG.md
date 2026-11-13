@@ -1,5 +1,12 @@
 # Changelog Leervo
 
+## v0.52 beta — 13 november 2026
+- Maak de volledige Leervo-interface rustiger en matter met consistente oppervlakken, randen, knoppen, invoervelden en ingetogen accentkleuren.
+- Gebruik dezelfde matte basis in Dag en Nacht, met minder schaduwen, verlopen, felle tegels en decoratieve effecten.
+- Maak Kerst een feestelijk aangeklede donkere modus met kerstbomen, verlichting en winterdecoratie in plaats van een afzonderlijk licht thema.
+- Laat de sneeuwlaag ook op zichtbare interface-elementen ophopen en maak de sneeuwranden met de muis wegveegbaar.
+
+
 ## v0.51 beta — 13 november 2026
 - Vervang kerstemoji’s door getekende CSS-decoraties: kerstbomen, een verlicht dorpje en een slinger met zacht gloeiende lampjes.
 - Voeg subtiele beweging toe aan lichtjes, boomtakken en kerstversiering zonder de leerinhoud te hinderen.
