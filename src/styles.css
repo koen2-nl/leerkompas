@@ -1115,7 +1115,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 /* Matte, compact theme control */
 .theme-switcher{display:inline-flex;align-items:center;gap:2px;padding:3px;background:#eeefed;border:1px solid #e1e3df;border-radius:8px}
-.theme-switcher button{height:28px;min-width:48px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:#737873;font:600 10px/1 inherit;cursor:pointer;transition:background-color .15s,color .15s}
+.theme-switcher button{height:28px;min-width:48px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:#737873;font-family:inherit;font-size:10px;font-weight:600;cursor:pointer;transition:background-color .15s,color .15s}
 .theme-switcher button.selected{background:#fff;color:#303b35;box-shadow:0 1px 2px #18241b12}
 .dark .theme-switcher{background:#292d2d;border-color:#393e3c}
 .dark .theme-switcher button{color:#aeb5b0}
