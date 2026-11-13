@@ -1028,6 +1028,56 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 }
 @media(prefers-reduced-motion:reduce){.app.christmas-theme::before{animation:none;opacity:.14}.theme-choice{transition:none}}
 
+/* Kerstdecoratie: getekende bomen, lichtslinger en dorpje (zonder emoji-assets) */
+.christmas-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;color:#315d4b}
+.christmas-lights{position:absolute;top:0;left:3%;right:3%;height:42px;display:flex;justify-content:space-around;align-items:flex-start;padding:0 3%;border-top:2px solid #315d4b;border-radius:0 0 50% 50%}
+.christmas-lights span{position:relative;width:9px;height:15px;margin-top:7px;border-radius:45% 45% 50% 50%;background:#d9b86f;box-shadow:0 0 9px 3px #e9c66a88;animation:leervo-bulb-glow 2.4s ease-in-out infinite}
+.christmas-lights span:nth-child(4n+1){background:#c66f68;box-shadow:0 0 10px 3px #c66f6888;animation-delay:-.4s}
+.christmas-lights span:nth-child(4n+2){background:#86a985;box-shadow:0 0 10px 3px #86a98588;animation-delay:-1.1s}
+.christmas-lights span:nth-child(4n+3){background:#e3c77c;box-shadow:0 0 10px 3px #e3c77c88;animation-delay:-1.7s}
+@keyframes leervo-bulb-glow{0%,100%{opacity:.62;filter:brightness(.8)}50%{opacity:1;filter:brightness(1.35)}}
+.christmas-forest{position:absolute;top:13%;bottom:8%;width:clamp(42px,7vw,100px);display:flex;flex-direction:column;justify-content:space-around;align-items:center;opacity:.72;filter:drop-shadow(0 3px 4px #314c3222)}
+.christmas-forest-left{left:5px}.christmas-forest-right{right:5px}
+.christmas-tree,.christmas-village-tree{position:relative;display:block;width:clamp(25px,3vw,43px);height:clamp(34px,4vw,55px);flex:none;filter:drop-shadow(0 2px 2px #203b2a22);animation:leervo-tree-sway 5s ease-in-out infinite;transform-origin:50% 100%}
+.christmas-tree:nth-child(even){animation-delay:-2.5s}
+.christmas-tree::before,.christmas-village-tree::before{content:"";position:absolute;bottom:0;left:44%;width:12%;height:18%;background:#79583e;border-radius:2px}
+.christmas-tree i,.christmas-village-tree i{position:absolute;left:50%;width:100%;height:62%;transform:translateX(-50%);background:linear-gradient(115deg,#64866a,#315d4b 62%,#244735);clip-path:polygon(50% 0,100% 100%,0 100%);border-radius:3px}
+.christmas-tree i:nth-child(1),.christmas-village-tree i:nth-child(1){top:0;width:48%}
+.christmas-tree i:nth-child(2),.christmas-village-tree i:nth-child(2){top:19%;width:76%}
+.christmas-tree i:nth-child(3),.christmas-village-tree i:nth-child(3){top:39%;width:100%}
+.christmas-tree i::after,.christmas-village-tree i::after{content:"";position:absolute;left:48%;top:56%;width:4px;height:4px;border-radius:50%;background:#e8c779;box-shadow:8px 7px 0 #c77970,-7px 12px 0 #e8c779;animation:leervo-ornament-glow 2.8s ease-in-out infinite}
+@keyframes leervo-tree-sway{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1.5deg)}}
+@keyframes leervo-ornament-glow{0%,100%{opacity:.55}50%{opacity:1;filter:drop-shadow(0 0 4px #f6d98c)}}
+.christmas-village{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(650px,68vw);height:76px;display:flex;align-items:flex-end;justify-content:center;gap:clamp(8px,2vw,22px);opacity:.64;filter:drop-shadow(0 -3px 5px #fff)}
+.christmas-house{position:relative;display:block;width:clamp(34px,4vw,52px);height:32px;background:#e8dfca;border:1px solid #a9a18d;border-radius:3px 3px 0 0;box-shadow:inset 0 -5px #c8bda6}
+.christmas-house i{position:absolute;left:-5px;top:-13px;width:calc(100% + 10px);height:17px;background:#a95f56;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.christmas-house b,.christmas-house em{position:absolute;bottom:8px;width:7px;height:9px;background:#e6c879;box-shadow:0 0 8px #f3d88c;left:8px}
+.christmas-house em{left:auto;right:8px}
+.christmas-house-tall{height:43px;width:38px;background:#e6e0d2}
+.christmas-house-wide{width:58px;background:#d9e2d4}
+.christmas-village-tree{width:28px;height:39px;animation:none}
+.christmas-village-tree::before{height:15%}
+.christmas-garland{display:none}
+.app.christmas-theme .brand-home::after{content:'✦ Kerst Edition'}
+@media(max-width:700px){
+ .christmas-lights{left:2%;right:2%;height:31px}
+ .christmas-lights span{width:7px;height:11px}
+ .christmas-forest{opacity:.45;width:28px}
+ .christmas-tree{width:23px;height:33px}
+ .christmas-village{width:96vw;height:48px;gap:5px;opacity:.48}
+ .christmas-house{width:25px;height:23px}
+ .christmas-house i{top:-9px;height:12px}
+ .christmas-house b,.christmas-house em{width:5px;height:6px;bottom:5px;left:5px}
+ .christmas-house em{left:auto;right:5px}
+ .christmas-house-tall{height:30px;width:26px}
+ .christmas-house-wide{width:32px}
+ .christmas-village-tree{width:20px;height:28px}
+}
+@media(prefers-reduced-motion:reduce){
+ .christmas-lights span,.christmas-tree,.christmas-tree i::after,.christmas-village-tree{animation:none!important}
+ .christmas-lights span{opacity:.9}
+}
+ 
 /* Sidebar blijft bruikbaar wanneer de navigatie langer is dan het scherm */
 .sidebar{
   height:100vh;height:100dvh;overflow-y:auto;overflow-x:hidden;
