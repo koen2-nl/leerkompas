@@ -1,5 +1,13 @@
 # Changelog Leervo
 
+## v0.48 beta — 13 november 2026
+- Tijdelijke, gezellige winter- en kerstsfeer door de hele leeromgeving met warme crème-, dennegroene, cranberry- en goudaccenten.
+- Dashboard, navigatie, formulieren, flashcards, lesmodi, kaarten en accountschermen krijgen bijpassende winterstyling.
+- Subtiele sneeuwanimatie met respect voor de voorkeur voor minder beweging.
+- Winterthema ondersteunt ook de donkere modus en kan na de feestdagen centraal worden uitgeschakeld.
+- Bestaande leerfuncties, accounts, instellingen en opgeslagen gegevens blijven behouden.
+
+
 ## v0.47 beta — 11 november 2026
 - De naam SlimLeren is vervangen door Leervo in de leeromgeving, lesstudio en accountschermen.
 - Nieuw Leervo-kompasbeeldmerk en bijgewerkt favicon.
