@@ -103,12 +103,35 @@ function SnowfallOverlay() {
     if (!canvas) return
     const context = canvas.getContext('2d')
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    let width = 0, height = 0, frame = 0, lastFrame = 0
+    const binSize = 4
+    let width = 0, height = 0, frame = 0, lastFrame = 0, lastSurfaceScan = 0
     let pointer = { x: -1000, y: -1000, active: false }
     let flakes = []
-    let piles = []
-    const binSize = 4
+    let floorPile = []
+    let surfaces = []
     const random = (min, max) => min + Math.random() * (max - min)
+    const surfaceSelector = '.global-search, .panel, .stat-card, .subject-card, .welcome-banner, .streak-card, .topbar, .lesson-card, .flashcard, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select'
+    const scanSurfaces = () => {
+      const elements = [...document.querySelectorAll(surfaceSelector)]
+        .filter(element => {
+          const rect = element.getBoundingClientRect()
+          const style = window.getComputedStyle(element)
+          return rect.width > 70 && rect.height > 18 && rect.bottom > 0 && rect.top < height && style.display !== 'none' && style.visibility !== 'hidden' && style.position !== 'fixed' ? true : rect.width > 70 && rect.height > 18 && rect.bottom > 0 && rect.top < height && style.display !== 'none' && style.visibility !== 'hidden'
+        })
+      const existing = new Map(surfaces.map(surface => [surface.element, surface]))
+      surfaces = elements.map(element => {
+        const rect = element.getBoundingClientRect()
+        const previous = existing.get(element)
+        const bins = Math.max(1, Math.ceil(rect.width / binSize))
+        const pile = previous?.pile || new Array(bins).fill(0)
+        if (pile.length !== bins) {
+          const resized = new Array(bins).fill(0)
+          pile.forEach((value, index) => { if (index < bins) resized[index] = value })
+          return { element, rect, pile: resized }
+        }
+        return { element, rect, pile }
+      }).sort((a, b) => a.rect.top - b.rect.top)
+    }
     const resize = () => {
       const ratio = Math.min(window.devicePixelRatio || 1, 2)
       width = window.innerWidth; height = window.innerHeight
@@ -116,55 +139,113 @@ function SnowfallOverlay() {
       canvas.style.width = width + 'px'; canvas.style.height = height + 'px'
       context.setTransform(ratio, 0, 0, ratio, 0, 0)
       const next = new Array(Math.ceil(width / binSize)).fill(0)
-      piles.forEach((value, index) => { if (index < next.length) next[index] = value })
-      piles = next
-      flakes = Array.from({ length: Math.max(65, Math.min(165, Math.round(width / 8)) ) }, () => ({ x: random(0, width), y: random(-height, height), r: random(1, 3), speed: random(.45, 1.35), drift: random(-.35, .35), phase: random(0, Math.PI * 2) }))
+      floorPile.forEach((value, index) => { if (index < next.length) next[index] = value })
+      floorPile = next
+      flakes = Array.from({ length: Math.max(55, Math.min(125, Math.round(width / 12))) }, () => ({
+        x: random(0, width), y: random(-height, height), r: random(.8, 2.3),
+        speed: random(.38, 1.05), drift: random(-.22, .22), phase: random(0, Math.PI * 2),
+        opacity: random(.48, .9), wobble: random(.4, 1.1)
+      }))
+      scanSurfaces()
     }
     const movePointer = event => { pointer = { x: event.clientX, y: event.clientY, active: true } }
     const leavePointer = () => { pointer.active = false }
-    const clearBrush = () => {
-      if (!pointer.active || pointer.y < height - 92) return
-      const radius = 64
-      const start = Math.max(0, Math.floor((pointer.x - radius) / binSize))
-      const end = Math.min(piles.length - 1, Math.ceil((pointer.x + radius) / binSize))
-      for (let i = start; i <= end; i++) {
-        const distance = Math.abs(i * binSize - pointer.x)
-        if (distance < radius) piles[i] = Math.max(0, piles[i] - (1 - distance / radius) * 3.8)
+    const smoothPile = pile => {
+      for (let i = 1; i < pile.length - 1; i++) {
+        const average = (pile[i - 1] + pile[i] + pile[i + 1]) / 3
+        pile[i] += (average - pile[i]) * .045
       }
     }
+    const brushPile = (pile, localX, radius, strength) => {
+      const start = Math.max(0, Math.floor((localX - radius) / binSize))
+      const end = Math.min(pile.length - 1, Math.ceil((localX + radius) / binSize))
+      for (let i = start; i <= end; i++) {
+        const distance = Math.abs(i * binSize - localX)
+        if (distance < radius) pile[i] = Math.max(0, pile[i] - (1 - distance / radius) * strength)
+      }
+    }
+    const drawBank = (pile, left, top, bankHeight, isFloor = false) => {
+      if (!pile.length || Math.max(...pile) < .15) return
+      smoothPile(pile)
+      context.beginPath()
+      context.moveTo(left, top)
+      pile.forEach((value, index) => context.lineTo(left + index * binSize, top - value))
+      context.lineTo(left + pile.length * binSize, top)
+      context.closePath()
+      const gradient = context.createLinearGradient(0, top - bankHeight, 0, top + 2)
+      gradient.addColorStop(0, 'rgba(250,252,251,.97)')
+      gradient.addColorStop(.65, 'rgba(239,244,243,.98)')
+      gradient.addColorStop(1, 'rgba(218,227,226,.96)')
+      context.fillStyle = gradient
+      context.shadowColor = 'rgba(76,94,91,.12)'
+      context.shadowBlur = 4
+      context.shadowOffsetY = 2
+      context.fill()
+      context.shadowBlur = 0
+      context.shadowOffsetY = 0
+      context.beginPath()
+      context.moveTo(left, top - pile[0])
+      pile.forEach((value, index) => context.lineTo(left + index * binSize, top - value))
+      context.strokeStyle = 'rgba(255,255,255,.9)'
+      context.lineWidth = 1
+      context.stroke()
+    }
     const draw = time => {
-      if (time - lastFrame < 28) { frame = requestAnimationFrame(draw); return }
+      if (time - lastFrame < 24) { frame = requestAnimationFrame(draw); return }
       lastFrame = time
       context.clearRect(0, 0, width, height)
+      if (time - lastSurfaceScan > 850) { scanSurfaces(); lastSurfaceScan = time }
+      surfaces.forEach(surface => { surface.rect = surface.element.getBoundingClientRect() })
       if (!reducedMotion) {
         flakes.forEach(flake => {
+          const previousY = flake.y
           flake.y += flake.speed
-          flake.x += flake.drift + Math.sin(time / 1100 + flake.phase) * .22
-          if (flake.y >= height - 2) {
-            const index = Math.max(0, Math.min(piles.length - 1, Math.floor(flake.x / binSize)))
-            piles[index] = Math.min(74, piles[index] + .95)
-            flake.y = random(-45, -5); flake.x = random(0, width)
+          flake.x += flake.drift + Math.sin(time / 1500 + flake.phase) * .16 * flake.wobble
+          if (flake.x < -4) flake.x = width + 4
+          if (flake.x > width + 4) flake.x = -4
+          let landed = false
+          for (const surface of surfaces) {
+            const rect = surface.rect
+            if (flake.x >= rect.left && flake.x <= rect.right && previousY <= rect.top + 2 && flake.y >= rect.top - 1) {
+              const index = Math.max(0, Math.min(surface.pile.length - 1, Math.floor((flake.x - rect.left) / binSize)))
+              surface.pile[index] = Math.min(11, surface.pile[index] + .38)
+              flake.y = random(-35, -8)
+              flake.x = random(0, width)
+              landed = true
+              break
+            }
           }
-          if (flake.x < -5) flake.x = width + 5
-          if (flake.x > width + 5) flake.x = -5
-          context.beginPath(); context.fillStyle = 'rgba(255,255,255,.9)'
-          context.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2); context.fill()
+          if (!landed && flake.y >= height - 2) {
+            const index = Math.max(0, Math.min(floorPile.length - 1, Math.floor(flake.x / binSize)))
+            floorPile[index] = Math.min(82, floorPile[index] + .75)
+            flake.y = random(-45, -8)
+            flake.x = random(0, width)
+          }
+          if (!landed) {
+            context.beginPath()
+            context.fillStyle = `rgba(255,255,255,${flake.opacity})`
+            context.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2)
+            context.fill()
+            if (flake.r > 1.75) {
+              context.beginPath()
+              context.fillStyle = `rgba(255,255,255,${flake.opacity * .28})`
+              context.arc(flake.x - .5, flake.y - .5, flake.r * 1.9, 0, Math.PI * 2)
+              context.fill()
+            }
+          }
         })
       }
-      clearBrush()
-      // Soften the pile profile so snow forms a continuous, gently uneven bank.
-      for (let i = 1; i < piles.length - 1; i++) {
-        const average = (piles[i - 1] + piles[i] + piles[i + 1]) / 3
-        piles[i] += (average - piles[i]) * .035
+      if (pointer.active) {
+        if (pointer.y > height - 100) brushPile(floorPile, pointer.x, 68, 4.2)
+        surfaces.forEach(surface => {
+          const rect = surface.rect
+          if (pointer.x >= rect.left - 4 && pointer.x <= rect.right + 4 && pointer.y >= rect.top - 22 && pointer.y <= rect.top + 12) {
+            brushPile(surface.pile, pointer.x - rect.left, 42, 2.5)
+          }
+        })
       }
-      context.beginPath(); context.moveTo(0, height)
-      piles.forEach((value, index) => context.lineTo(index * binSize, height - value))
-      context.lineTo(width, height); context.closePath()
-      const snowGradient = context.createLinearGradient(0, height - 80, 0, height)
-      snowGradient.addColorStop(0, 'rgba(244,246,245,.96)')
-      snowGradient.addColorStop(1, 'rgba(224,231,231,.98)')
-      context.fillStyle = snowGradient
-      context.fill()
+      surfaces.forEach(surface => drawBank(surface.pile, surface.rect.left, surface.rect.top + 1, 12))
+      drawBank(floorPile, 0, height, 82, true)
       frame = requestAnimationFrame(draw)
     }
     resize()
@@ -172,7 +253,12 @@ function SnowfallOverlay() {
     window.addEventListener('pointermove', movePointer, { passive: true })
     window.addEventListener('pointerleave', leavePointer)
     frame = requestAnimationFrame(draw)
-    return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', resize); window.removeEventListener('pointermove', movePointer); window.removeEventListener('pointerleave', leavePointer) }
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('resize', resize)
+      window.removeEventListener('pointermove', movePointer)
+      window.removeEventListener('pointerleave', leavePointer)
+    }
   }, [])
   return <canvas ref={canvasRef} className="christmas-snowfall" aria-hidden="true"/>
 }
@@ -270,7 +356,7 @@ function App() {
   useEffect(() => { try { saveLocal('cards', cards) } catch { notify('Opslaan lukte niet. Controleer je browserinstellingen.') } }, [cards])
   useEffect(() => { try { saveLocal('dark', dark); saveLocal('themeMode', themeMode) } catch {} }, [dark, themeMode])
   useEffect(() => { try { saveLocal('christmasSnowEnabled', snowEnabled) } catch {} }, [snowEnabled])
-  useEffect(() => { setDark(themeMode === 'dark') }, [themeMode])
+  useEffect(() => { setDark(themeMode !== 'light') }, [themeMode])
   useEffect(() => { try { saveLocal('accent', accent) } catch {} }, [accent])
   useEffect(() => { try { saveLocal('widgets', widgets) } catch {} }, [widgets])
   useEffect(() => { try { saveLocal('known', known) } catch {} }, [known])
