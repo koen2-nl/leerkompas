@@ -7,6 +7,7 @@
 - Herstel de vaste positionering van de zijbalk in Kerst Edition, zodat de hoofdinhoud niet honderden pixels omlaag wordt geduwd.
 - Voeg een instelbare sneeuwlaag toe met vallende vlokken, ophoping onderaan het scherm en wegvegen met de muis.
 - Vervang de rijen kleine bomen door één grotere kerstboom aan elke schermzijde.
+- Verplaats de sneeuwschakelaar naar de balk rechtsboven naast de dag-/nachtknop.
 
 
 ## v0.50 beta — 13 november 2026
