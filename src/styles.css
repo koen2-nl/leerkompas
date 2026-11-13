@@ -1096,3 +1096,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  .sidebar{height:100dvh;max-height:100dvh;padding-bottom:max(18px,env(safe-area-inset-bottom))}
  .sidebar.open{overflow-y:auto}
 }
+
+/* Christmas: one statement tree per side */
+.app.christmas-theme .christmas-forest{top:auto;bottom:7%;width:clamp(90px,12vw,170px);height:clamp(150px,27vh,290px);display:flex;justify-content:flex-end;align-items:center;opacity:.88}
+.app.christmas-theme .christmas-forest-left{left:12px}
+.app.christmas-theme .christmas-forest-right{right:12px}
+.app.christmas-theme .christmas-tree{width:100%;height:100%;filter:drop-shadow(0 5px 7px #203b2a30)}
+.app.christmas-theme .christmas-tree i{height:61%}
+.app.christmas-theme .christmas-tree i:nth-child(1){width:43%;top:0}
+.app.christmas-theme .christmas-tree i:nth-child(2){width:72%;top:19%}
+.app.christmas-theme .christmas-tree i:nth-child(3){width:100%;top:39%}
+.christmas-snowfall{position:fixed;inset:0;z-index:4;pointer-events:none}
+.snow-setting-row .snow-toggle{min-width:76px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;border:1px solid var(--border,#ddd);border-radius:999px;background:var(--surface,#fff);color:var(--text,#333);font:inherit;font-size:13px;cursor:pointer}
+.snow-setting-row .snow-toggle span{width:9px;height:9px;border-radius:50%;background:#aaa}
+.snow-setting-row .snow-toggle.enabled{background:#e8f0e8;border-color:#78977c;color:#315d4b}
+.snow-setting-row .snow-toggle.enabled span{background:#4d8a5a;box-shadow:0 0 0 3px #4d8a5a22}
+@media(max-width:680px){.app.christmas-theme .christmas-forest{width:54px;height:135px;bottom:5%}.app.christmas-theme .christmas-forest-left{left:2px}.app.christmas-theme .christmas-forest-right{right:2px}}

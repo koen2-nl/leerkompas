@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from './auth/AuthContext.jsx'
 import GeographyLessons from './GeographyLessons.jsx'
 import AdminPanel from './AdminPanel.jsx'
@@ -8,7 +8,7 @@ import { supabase } from './auth/supabase.js'
 import { CHANGELOG } from './changelog.js'
 const appVersionLabel = `${__APP_VERSION__}${__APP_RELEASED__ ? '' : ' beta'}`
 
-import { Activity, ArrowDownRight, ArrowRight, Award, BookOpen, Blocks, Brain, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Flame, Gamepad2, Compass, LayoutDashboard, Leaf, Menu, MessageCircle, Moon, MoreHorizontal, Plus, Search, Settings2, Sparkles, Sun, Target, Trophy, Upload, X, Zap, Globe, BookOpenCheck, ShieldCheck } from 'lucide-react'
+import { Activity, ArrowDownRight, ArrowRight, Award, BookOpen, Blocks, Brain, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Flame, Gamepad2, Compass, LayoutDashboard, Leaf, Menu, MessageCircle, Moon, MoreHorizontal, Plus, Search, Settings2, Snowflake, Sparkles, Sun, Target, Trophy, Upload, X, Zap, Globe, BookOpenCheck, ShieldCheck } from 'lucide-react'
 
 const initialSubjects = []
 const initialCards = []
@@ -95,6 +95,79 @@ function parseCsvData(text) {
   return { cards, errors }
 }
 
+
+function SnowfallOverlay() {
+  const canvasRef = useRef(null)
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const context = canvas.getContext('2d')
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let width = 0, height = 0, frame = 0, lastFrame = 0
+    let pointer = { x: -1000, y: -1000, active: false }
+    let flakes = []
+    let piles = []
+    const binSize = 4
+    const random = (min, max) => min + Math.random() * (max - min)
+    const resize = () => {
+      const ratio = Math.min(window.devicePixelRatio || 1, 2)
+      width = window.innerWidth; height = window.innerHeight
+      canvas.width = Math.round(width * ratio); canvas.height = Math.round(height * ratio)
+      canvas.style.width = width + 'px'; canvas.style.height = height + 'px'
+      context.setTransform(ratio, 0, 0, ratio, 0, 0)
+      const next = new Array(Math.ceil(width / binSize)).fill(0)
+      piles.forEach((value, index) => { if (index < next.length) next[index] = value })
+      piles = next
+      flakes = Array.from({ length: Math.max(35, Math.min(110, Math.round(width / 11)) ) }, () => ({ x: random(0, width), y: random(-height, height), r: random(1, 3), speed: random(.45, 1.35), drift: random(-.35, .35), phase: random(0, Math.PI * 2) }))
+    }
+    const movePointer = event => { pointer = { x: event.clientX, y: event.clientY, active: true } }
+    const leavePointer = () => { pointer.active = false }
+    const clearBrush = () => {
+      if (!pointer.active) return
+      const radius = 48
+      const start = Math.max(0, Math.floor((pointer.x - radius) / binSize))
+      const end = Math.min(piles.length - 1, Math.ceil((pointer.x + radius) / binSize))
+      for (let i = start; i <= end; i++) {
+        const distance = Math.abs(i * binSize - pointer.x)
+        if (distance < radius) piles[i] = Math.max(0, piles[i] - (1 - distance / radius) * 2.8)
+      }
+    }
+    const draw = time => {
+      if (time - lastFrame < 28) { frame = requestAnimationFrame(draw); return }
+      lastFrame = time
+      context.clearRect(0, 0, width, height)
+      if (!reducedMotion) {
+        flakes.forEach(flake => {
+          flake.y += flake.speed
+          flake.x += flake.drift + Math.sin(time / 1100 + flake.phase) * .22
+          if (flake.y >= height - 2) {
+            const index = Math.max(0, Math.min(piles.length - 1, Math.floor(flake.x / binSize)))
+            piles[index] = Math.min(46, piles[index] + .65)
+            flake.y = random(-45, -5); flake.x = random(0, width)
+          }
+          if (flake.x < -5) flake.x = width + 5
+          if (flake.x > width + 5) flake.x = -5
+          context.beginPath(); context.fillStyle = 'rgba(255,255,255,.9)'
+          context.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2); context.fill()
+        })
+      }
+      clearBrush()
+      context.beginPath(); context.moveTo(0, height)
+      piles.forEach((value, index) => context.lineTo(index * binSize, height - value))
+      context.lineTo(width, height); context.closePath()
+      context.fillStyle = 'rgba(255,255,255,.94)'; context.shadowColor = 'rgba(183,204,220,.45)'; context.shadowBlur = 9; context.fill(); context.shadowBlur = 0
+      frame = requestAnimationFrame(draw)
+    }
+    resize()
+    window.addEventListener('resize', resize)
+    window.addEventListener('pointermove', movePointer, { passive: true })
+    window.addEventListener('pointerleave', leavePointer)
+    frame = requestAnimationFrame(draw)
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', resize); window.removeEventListener('pointermove', movePointer); window.removeEventListener('pointerleave', leavePointer) }
+  }, [])
+  return <canvas ref={canvasRef} className="christmas-snowfall" aria-hidden="true"/>
+}
+
 function App() {
   const { user, signOut, syncStatus, isAdmin, isLessonMaker } = useAuth()
   const [profile, setProfile] = useState(() => readSaved('profile', null))
@@ -103,6 +176,7 @@ function App() {
   const [learningOpen, setLearningOpen] = useState(false)
   const [lessonActive, setLessonActive] = useState(false)
   const [themeMode, setThemeMode] = useState(() => readSaved('themeMode', readSaved('dark', false) ? 'dark' : 'light'))
+  const [snowEnabled, setSnowEnabled] = useState(() => readSaved('christmasSnowEnabled', false))
   const [dark, setDark] = useState(() => readSaved('dark', false))
   const [accent, setAccent] = useState(() => readSaved('accent', 'violet'))
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -186,6 +260,7 @@ function App() {
   useEffect(() => { try { saveLocal('subjects', subjects) } catch { notify('Opslaan lukte niet. Controleer je browserinstellingen.') } }, [subjects])
   useEffect(() => { try { saveLocal('cards', cards) } catch { notify('Opslaan lukte niet. Controleer je browserinstellingen.') } }, [cards])
   useEffect(() => { try { saveLocal('dark', dark); saveLocal('themeMode', themeMode) } catch {} }, [dark, themeMode])
+  useEffect(() => { try { saveLocal('christmasSnowEnabled', snowEnabled) } catch {} }, [snowEnabled])
   useEffect(() => { setDark(themeMode === 'dark') }, [themeMode])
   useEffect(() => { try { saveLocal('accent', accent) } catch {} }, [accent])
   useEffect(() => { try { saveLocal('widgets', widgets) } catch {} }, [widgets])
@@ -311,8 +386,8 @@ function App() {
       <div className="christmas-lights">
         <span/><span/><span/><span/><span/><span/><span/><span/><span/><span/><span/><span/>
       </div>
-      <div className="christmas-forest christmas-forest-left"><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span></div>
-      <div className="christmas-forest christmas-forest-right"><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span></div>
+      <div className="christmas-forest christmas-forest-left"><span className="christmas-tree"><i/><i/><i/></span></div>
+      <div className="christmas-forest christmas-forest-right"><span className="christmas-tree"><i/><i/><i/></span></div>
       <div className="christmas-village">
         <span className="christmas-house"><i/><b/><em/></span>
         <span className="christmas-village-tree"><i/><i/><i/></span>
@@ -322,6 +397,7 @@ function App() {
         <span className="christmas-house christmas-house-wide"><i/><b/><em/></span>
       </div>
     </div>}
+    {themeMode === 'christmas' && snowEnabled && <SnowfallOverlay/>}
     <aside className={`sidebar ${mobileOpen ? 'open' : ''}`}>
       <div className="brand"><button type="button" className="brand-home" onClick={()=>go('home')} aria-label="Leervo — terug naar overzicht"><div className="brand-mark"><Compass size={22}/></div><span>Leervo</span></button><button className="icon-btn mobile-close" onClick={()=>setMobileOpen(false)} aria-label="Menu sluiten"><X size={18}/></button></div>
       <div className="profile"><div className="avatar">K</div><div><strong>{user?.email?.split('@')[0] || 'Mijn leerplek'}</strong><small>Persoonlijke ruimte</small></div><ChevronDown size={15}/></div>
@@ -330,7 +406,7 @@ function App() {
     </aside>
     {mobileOpen&&<div className="scrim" onClick={()=>setMobileOpen(false)}/>}
     <main className="main">
-      <header className="topbar"><button className="icon-btn menu-toggle" onClick={()=>setMobileOpen(true)} aria-label="Menu openen"><Menu/></button><div className="breadcrumbs">Mijn leerplek <ChevronRight size={14}/> <strong>{title}</strong></div><form className="global-search" onSubmit={submitGlobalSearch}><Search size={16}/><input value={globalSearch} onChange={event=>setGlobalSearch(event.target.value)} placeholder="Zoek een pagina..." aria-label="Zoek een pagina"/></form><div className="top-actions"><div className="date-pill"><span className="header-date"><CalendarDays size={15}/>{headerDate}</span><span className="header-clock"><Clock3 size={15}/><time>{headerTime}</time></span></div><button className="icon-btn" onClick={()=>setDark(!dark)} aria-label="Wissel thema">{dark?<Sun size={18}/>:<Moon size={18}/>}</button><span className="sync-indicator" title={syncStatus === "saved" ? "Alles gesynchroniseerd" : "Synchroniseren"}>{syncStatus === "saving" ? "Opslaan…" : syncStatus === "saved" ? "✓ Opgeslagen" : "Verbonden"}</span><button className="avatar small" title="Uitloggen" onClick={signOut}><X size={15}/></button></div></header>
+      <header className="topbar"><button className="icon-btn menu-toggle" onClick={()=>setMobileOpen(true)} aria-label="Menu openen"><Menu/></button><div className="breadcrumbs">Mijn leerplek <ChevronRight size={14}/> <strong>{title}</strong></div><form className="global-search" onSubmit={submitGlobalSearch}><Search size={16}/><input value={globalSearch} onChange={event=>setGlobalSearch(event.target.value)} placeholder="Zoek een pagina..." aria-label="Zoek een pagina"/></form><div className="top-actions"><div className="date-pill"><span className="header-date"><CalendarDays size={15}/>{headerDate}</span><span className="header-clock"><Clock3 size={15}/><time>{headerTime}</time></span></div><button className="icon-btn" onClick={()=>setDark(!dark)} aria-label="Wissel thema">{dark?<Sun size={18}/>:<Moon size={18}/>}</button>{themeMode === 'christmas' && <button className={`icon-btn snow-top-toggle ${snowEnabled?'active':''}`} onClick={()=>setSnowEnabled(value=>!value)} aria-label={snowEnabled?'Sneeuw uitzetten':'Sneeuw aanzetten'} aria-pressed={snowEnabled} title={snowEnabled?'Sneeuw uitzetten':'Sneeuw aanzetten' }><Snowflake size={18}/></button>}<span className="sync-indicator" title={syncStatus === "saved" ? "Alles gesynchroniseerd" : "Synchroniseren"}>{syncStatus === "saving" ? "Opslaan…" : syncStatus === "saved" ? "✓ Opgeslagen" : "Verbonden"}</span><button className="avatar small" title="Uitloggen" onClick={signOut}><X size={15}/></button></div></header>
       <div className="content">
         <div className="page-heading"><div><div className="eyebrow"><Sparkles size={14}/> JOUW PERSOONLIJKE LEERPLEK</div><h1>{title}</h1><p>{page==='home'?'Klaar om vandaag iets nieuws te ontdekken?':page==='study'?'Korte herhaalmomenten helpen je kennis beter onthouden.':'Alles op één plek. Jij bepaalt je eigen tempo.'}</p></div>{page==='home'&&<button className="primary-btn" onClick={()=>go('subjects')}><Zap size={16}/> Start leersessie</button>}</div>
         {page==='home'&&<><section className="welcome-banner"><div className="welcome-copy"><span className="banner-tag"><Leaf size={13}/> KLEINE STAPPEN, GROOT RESULTAAT</span><h2>Elke dag een beetje<br/> <em>wijzer.</em></h2><p>{todayPlannedMinutes > 0 ? <>Je hebt vandaag {formatPlannedDuration(todayPlannedMinutes)} ingepland{profile?.goal ? <> om te werken aan je leerdoel: <strong>{profile.goal}</strong>.</> : ' voor je schoolwerk.'}</> : <>Je hebt vandaag nog niets ingepland{profile?.goal ? <> voor je leerdoel: <strong>{profile.goal}</strong>.</> : '. Plan een leermoment om aan de slag te gaan.'}</>}</p><button className="banner-btn" onClick={()=>go('subjects')}>Verder leren <ArrowRight size={16}/></button></div><div className="banner-art"><div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="book-illustration"><BookOpen size={76} strokeWidth={1.2}/><Sparkles className="sparkle s1"/><Sparkles className="sparkle s2"/></div><div className="floating-note note-a"><Sparkles size={13}/> Goed bezig!</div><div className="floating-note note-b">+ 20 XP</div></div></section>
