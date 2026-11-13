@@ -1136,3 +1136,46 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .app.christmas-theme .christmas-tree{filter:none}
 @media(max-width:760px){.theme-switcher button{min-width:42px;padding:0 7px;font-size:9px}.top-actions{gap:6px}}
 @media(prefers-reduced-motion:reduce){.theme-switcher button{transition:none}}
+
+
+/* Leervo matte design system */
+:root{--ink:#252b28;--muted:#747d77;--line:#e1e5e1;--panel:#fff;--surface:#f3f5f2;--accent:#527366;--accent-soft:#e8eeea}
+.app{background:#f3f5f2;color:#252b28;--ink:#252b28;--muted:#747d77;--line:#e1e5e1;--panel:#fff;--surface:#f3f5f2;--accent:#527366;--accent-soft:#e8eeea}
+.app[data-accent=blue]{--accent:#526d80;--accent-soft:#e9eef1}.app[data-accent=green]{--accent:#527366;--accent-soft:#e8eeea}.app[data-accent=coral]{--accent:#987363;--accent-soft:#f1ebe7}
+.app.dark{background:#202522;color:#e6eae6;--ink:#e6eae6;--muted:#a0aaa3;--line:#39413c;--panel:#292f2b;--surface:#303833;--accent:#9ab3a4;--accent-soft:#35443b}
+.app.dark[data-accent=blue]{--accent:#9db4c2;--accent-soft:#34434a}.app.dark[data-accent=green]{--accent:#9ab3a4;--accent-soft:#35443b}.app.dark[data-accent=coral]{--accent:#c2a18e;--accent-soft:#493b34}
+.app,.app *{box-shadow:none!important;text-shadow:none!important}
+.app .panel,.app .stat-card,.app .subject-card,.app .game-card,.app .profile,.app .modal,.app .auth-card,.app .dropdown,.app .planner-intro,.app .admin-overview-card{border-radius:9px;border-color:var(--line);box-shadow:none!important}
+.app button,.app input,.app textarea,.app select{font-family:inherit}
+.app .primary-btn,.app .auth-submit{background:var(--accent);border:1px solid var(--accent);border-radius:7px;box-shadow:none;color:#fff}
+.app .primary-btn:hover:not(:disabled),.app .auth-submit:hover{filter:brightness(.94);transform:none;box-shadow:none}
+.app .soft-btn,.app .icon-btn,.app .nav-item,.app .quiz-options button,.app .lesson-options button{border-radius:7px;box-shadow:none}
+.app .welcome-banner,.app .flashcard,.app .game-art,.app .lesson-intro,.app .lesson-create-main,.app .planner-intro{background:var(--surface)!important;color:var(--ink);border:1px solid var(--line);border-radius:9px;box-shadow:none!important}
+.app .welcome-banner h2 em,.app .welcome-banner .banner-tag,.app .welcome-banner p,.app .banner-btn{color:var(--ink)}
+.app .welcome-banner .banner-btn{background:var(--panel);border:1px solid var(--line)}
+.app .orbit,.app .sparkle,.app .floating-note{display:none!important}
+.app .book-illustration{background:var(--accent-soft);color:var(--accent);border-radius:10px;box-shadow:none;transform:none}
+.app .stat-icon,.app .icon-tile,.app .task-icon,.app .subject-emoji,.app .game-art>span,.app .orange,.app .purple,.app .violet,.app .green,.app .blue,.app .mint,.app .peach,.app .lavender{background:var(--accent-soft)!important;color:var(--accent)!important;border-radius:8px}
+.app .progress-track>div,.app .study-progress>div{background:var(--accent)}
+.app .flashcard.flipped{background:var(--accent-soft)!important;color:var(--ink);border-color:var(--line)}
+.app .game-card:hover,.app .panel:hover{transform:none;border-color:var(--line)}
+.app .streak-card{background:var(--surface);border:1px solid var(--line);border-radius:8px}.app .streak-card strong,.app .streak-card small{color:var(--muted)}.app .streak-icon{background:var(--accent-soft);color:var(--accent)}
+.app .sidebar,.app .topbar{background:var(--panel);border-color:var(--line)}.app .nav-item{color:var(--muted)}.app .nav-item.active{background:var(--accent-soft);color:var(--accent)}.app .nav-item.active svg{color:var(--accent)}
+.app input,.app textarea,.app select{background:var(--panel);color:var(--ink);border-color:var(--line);box-shadow:none}.app input:focus,.app textarea:focus,.app select:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)!important}
+.app .theme-switcher{background:var(--surface);border-color:var(--line);border-radius:7px}.app .theme-switcher button.selected{background:var(--panel);color:var(--ink);box-shadow:none!important}
+.app.dark .sidebar,.app.dark .topbar{background:var(--panel);border-color:var(--line)}
+.app.dark .welcome-banner,.app.dark .flashcard,.app.dark .game-art,.app.dark .lesson-intro,.app.dark .lesson-create-main,.app.dark .planner-intro{background:var(--surface)!important;color:var(--ink);border-color:var(--line)}
+.app.dark .welcome-banner p,.app.dark .welcome-banner h2 em,.app.dark .welcome-banner .banner-tag,.app.dark .banner-btn{color:var(--muted)}.app.dark .banner-btn{background:var(--panel);border-color:var(--line)}
+.app.dark .theme-switcher{background:#242a26;border-color:#3b453f}.app.dark .theme-switcher button{color:#aeb8b1}.app.dark .theme-switcher button.selected{background:#3a443e;color:#eef2ee}
+.app.dark .snow-top-toggle.active{background:#35443b;color:#c5d6ca;border-color:#48594e}.app.dark .auth-screen{background:#202522}
+.app.dark .auth-card,.app.dark .modal,.app.dark .dropdown{background:var(--panel);border-color:var(--line)}.app.dark .auth-card h1,.app.dark .auth-field{color:var(--ink)}
+.app.dark .auth-field input,.app.dark .google-submit,.app.dark .auth-tabs{background:var(--surface);color:var(--ink);border-color:var(--line)}.app.dark .auth-tabs button.active{background:var(--panel);color:var(--ink);border-color:var(--line)}
+/* Kerst is dezelfde donkere basis, met decoratieve kerstaccenten */
+.app.christmas-theme{background:#202522;color:#e6eae6;--ink:#e6eae6;--muted:#a0aaa3;--line:#39413c;--panel:#292f2b;--surface:#303833;--accent:#a4b9a8;--accent-soft:#35443b}
+.app.christmas-theme .sidebar,.app.christmas-theme .topbar{background:#292f2b;border-color:#39413c}
+.app.christmas-theme .theme-switcher{background:#242a26;border-color:#3b453f}.app.christmas-theme .theme-switcher button{color:#aeb8b1}.app.christmas-theme .theme-switcher button.selected{background:#3a443e;color:#eef2ee}
+.app.christmas-theme .christmas-lights span{filter:saturate(.65);opacity:.82;box-shadow:none}.app.christmas-theme .christmas-tree{filter:none;animation:none}.app.christmas-theme .christmas-tree i{background:#526f60}.app.christmas-theme .christmas-tree i::after{box-shadow:8px 7px 0 #a78e70,-7px 12px 0 #9d7770}.app.christmas-theme .christmas-village{opacity:.62;filter:saturate(.65)}.app.christmas-theme .christmas-forest{opacity:.78}
+.app.christmas-theme .welcome-banner{background:#303833!important;border-color:#424d45;color:#e6eae6}.app.christmas-theme .welcome-banner p,.app.christmas-theme .welcome-banner .banner-tag{color:#b4c1b7}.app.christmas-theme .book-illustration{background:#3a4b40;color:#c6d5ca}
+.app.christmas-theme .flashcard,.app.christmas-theme .flashcard.flipped{background:#303833!important;color:#e6eae6;border-color:#424d45}.app.christmas-theme .game-art{background:#303833!important}
+@media(max-width:760px){.app .theme-switcher button{min-width:42px;padding:0 7px;font-size:9px}}
+@media(prefers-reduced-motion:reduce){.app *{scroll-behavior:auto!important;transition:none!important}}

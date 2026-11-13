@@ -1,9 +1,10 @@
 # Changelog Leervo
 
 ## v0.52 beta — 13 november 2026
-- Laat sneeuwvlokken zichtbaar landen op oppervlakken zoals de zoekbalk, invoervelden, kaarten en panelen.
-- Bouw op deze elementen dunne, natuurlijke sneeuwrandjes op die je met de muis kunt wegvegen.
-- Behoud de sneeuwophoping onderaan het scherm en maak de vallende vlokken subtieler met verschillende groottes en snelheden.
+- Maak de volledige Leervo-interface rustiger en matter met consistente oppervlakken, randen, knoppen, invoervelden en ingetogen accentkleuren.
+- Gebruik dezelfde matte basis in Dag en Nacht, met minder schaduwen, verlopen, felle tegels en decoratieve effecten.
+- Maak Kerst een feestelijk aangeklede donkere modus met kerstbomen, verlichting en winterdecoratie in plaats van een afzonderlijk licht thema.
+- Laat de sneeuwlaag ook op zichtbare interface-elementen ophopen en maak de sneeuwranden met de muis wegveegbaar.
 
 
 ## v0.51 beta — 13 november 2026

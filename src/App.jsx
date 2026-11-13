@@ -356,7 +356,7 @@ function App() {
   useEffect(() => { try { saveLocal('cards', cards) } catch { notify('Opslaan lukte niet. Controleer je browserinstellingen.') } }, [cards])
   useEffect(() => { try { saveLocal('dark', dark); saveLocal('themeMode', themeMode) } catch {} }, [dark, themeMode])
   useEffect(() => { try { saveLocal('christmasSnowEnabled', snowEnabled) } catch {} }, [snowEnabled])
-  useEffect(() => { setDark(themeMode === 'dark') }, [themeMode])
+  useEffect(() => { setDark(themeMode !== 'light') }, [themeMode])
   useEffect(() => { try { saveLocal('accent', accent) } catch {} }, [accent])
   useEffect(() => { try { saveLocal('widgets', widgets) } catch {} }, [widgets])
   useEffect(() => { try { saveLocal('known', known) } catch {} }, [known])
