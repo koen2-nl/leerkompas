@@ -1,5 +1,13 @@
 # Changelog Leervo
 
+## v0.50 beta — 13 november 2026
+- Maak de volledige zijbalk zelfstandig verticaal scrollbaar op desktop en mobiel wanneer de navigatie niet binnen de schermhoogte past.
+- Voorkom dat navigatiegroepen en de onderste instellingen door flex-layout worden samengedrukt.
+- Vervang de teller met alle actieve dagen in de zijbalk door een echte opeenvolgende oefenstreak op basis van lokale kalenderdagen.
+- Een streak blijft geldig wanneer de laatste oefensessie vandaag of gisteren was en wordt nul zodra een volledige dag is overgeslagen.
+- Behoud de historische teller met actieve dagen op de voortgangspagina en wijzig geen bestaande sessiegegevens.
+
+
 ## v0.49 beta — 13 november 2026
 - Hernoem de seizoensstijl naar Kerst Edition.
 - Voeg in Instellingen een derde weergaveoptie KERST toe naast Licht en Donker, met keuze die lokaal wordt onthouden.
