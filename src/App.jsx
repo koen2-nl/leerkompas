@@ -307,7 +307,21 @@ function App() {
   };
   const title = ({home:profile?.username ? `${greeting}, ${profile.username}!` : `${greeting}!`,subjects:'Mijn lesbibliotheek',publicLessons:'Openbare lesbibliotheek',study:'Slim herhalen',vocabulary:'Woordenlijst maken',create:'Zelf een les maken',games:'Speel & leer',progress:'Jouw voortgang',planning:'Mijn planning',admin:'Beheer',settings:'Instellingen'})[page]
   return <div className={`app ${themeMode === 'christmas' ? 'christmas-theme winter-theme' : ''} ${dark ? 'dark' : ''}`} data-accent={accent}>
-    {themeMode === 'christmas' && <div className="christmas-scene" aria-hidden="true"><div className="christmas-forest christmas-forest-left"><span>🎄</span><span>🌲</span><span>🎄</span><span>🌲</span><span>🎄</span></div><div className="christmas-forest christmas-forest-right"><span>🌲</span><span>🎄</span><span>🌲</span><span>🎄</span><span>🌲</span></div><div className="christmas-village"><span>🏠</span><span>🎄</span><span>🏡</span><span>☃️</span><span>🏠</span><span>🎄</span></div><div className="christmas-garland">✦ ❄ ✧ 🎀 ✧ ❄ ✦</div></div>}
+    {themeMode === 'christmas' && <div className="christmas-scene" aria-hidden="true">
+      <div className="christmas-lights">
+        <span/><span/><span/><span/><span/><span/><span/><span/><span/><span/><span/><span/>
+      </div>
+      <div className="christmas-forest christmas-forest-left"><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span></div>
+      <div className="christmas-forest christmas-forest-right"><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span><span className="christmas-tree"><i/><i/><i/></span></div>
+      <div className="christmas-village">
+        <span className="christmas-house"><i/><b/><em/></span>
+        <span className="christmas-village-tree"><i/><i/><i/></span>
+        <span className="christmas-house christmas-house-tall"><i/><b/><em/></span>
+        <span className="christmas-house"><i/><b/><em/></span>
+        <span className="christmas-village-tree"><i/><i/><i/></span>
+        <span className="christmas-house christmas-house-wide"><i/><b/><em/></span>
+      </div>
+    </div>}
     <aside className={`sidebar ${mobileOpen ? 'open' : ''}`}>
       <div className="brand"><button type="button" className="brand-home" onClick={()=>go('home')} aria-label="Leervo — terug naar overzicht"><div className="brand-mark"><Compass size={22}/></div><span>Leervo</span></button><button className="icon-btn mobile-close" onClick={()=>setMobileOpen(false)} aria-label="Menu sluiten"><X size={18}/></button></div>
       <div className="profile"><div className="avatar">K</div><div><strong>{user?.email?.split('@')[0] || 'Mijn leerplek'}</strong><small>Persoonlijke ruimte</small></div><ChevronDown size={15}/></div>
