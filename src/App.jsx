@@ -38,6 +38,29 @@ function saveLocal(key, value) {
 function readSaved(key, fallback) {
   try { const value = localStorage.getItem(`leerkompas:${key}`); return value ? JSON.parse(value) : fallback } catch { return fallback }
 }
+function calculatePracticeStreak(sessions, now = new Date()) {
+  const dayKey = date => {
+    const d = new Date(date)
+    if (Number.isNaN(d.getTime())) return null
+    return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
+  }
+  const dayNumber = key => {
+    const [year, month, day] = key.split('-').map(Number)
+    return Math.floor(Date.UTC(year, month - 1, day) / 86400000)
+  }
+  const uniqueDays = [...new Set((sessions || []).map(session => dayKey(session.at)).filter(Boolean))].sort().reverse()
+  if (!uniqueDays.length) return 0
+  const today = dayKey(now)
+  const gap = dayNumber(today) - dayNumber(uniqueDays[0])
+  if (gap > 1 || gap < 0) return 0
+  let streak = 1
+  for (let i = 1; i < uniqueDays.length; i++) {
+    const difference = dayNumber(uniqueDays[i - 1]) - dayNumber(uniqueDays[i])
+    if (difference === 1) streak++
+    else if (difference > 1) break
+  }
+  return streak
+}
 function parseCsvData(text) {
   const sample = text.split(/\r?\n/).find(line => line.trim()) || ''
   const separators = [',', ';', '\t']
@@ -175,6 +198,7 @@ function App() {
   const sessionsThisWeek = studyStats.sessions.filter(session => new Date(session.at).getTime() >= weekStart)
   const weeklyGoalProgress = Math.min(100, Math.round((sessionsThisWeek.length / 6) * 100))
   const activeDays = new Set(studyStats.sessions.map(session => new Date(session.at).toLocaleDateString('nl-NL'))).size
+  const currentStreak = calculatePracticeStreak(studyStats.sessions)
   const todayDate = new Date()
   const todayKey = [todayDate.getFullYear(), String(todayDate.getMonth() + 1).padStart(2, '0'), String(todayDate.getDate()).padStart(2, '0')].join('-')
   const todayPlannedMinutes = planning.filter(item => item.date === todayKey).reduce((total, item) => total + (Number(item.minutes) || 0), 0)
@@ -288,7 +312,7 @@ function App() {
       <div className="brand"><button type="button" className="brand-home" onClick={()=>go('home')} aria-label="Leervo — terug naar overzicht"><div className="brand-mark"><Compass size={22}/></div><span>Leervo</span></button><button className="icon-btn mobile-close" onClick={()=>setMobileOpen(false)} aria-label="Menu sluiten"><X size={18}/></button></div>
       <div className="profile"><div className="avatar">K</div><div><strong>{user?.email?.split('@')[0] || 'Mijn leerplek'}</strong><small>Persoonlijke ruimte</small></div><ChevronDown size={15}/></div>
       {visibleNav.map(group=><div className="nav-group" key={group.group}><p>{group.group}</p>{group.items.map(item=>item.children?<div className="nav-dropdown" key={item.id}><button disabled={lessonActive} className={`nav-item ${item.children.some(child=>page===child.id)?'active':''}`} onClick={()=>setLearningOpen(open=>!open)}><item.icon size={18}/>{item.label}<ChevronDown className={learningOpen?'rotated':''} size={15}/></button>{learningOpen&&<div className="nav-subitems">{item.children.map(child=><button key={child.id} className={`nav-subitem ${page===child.id?'active':''}`} onClick={()=>go(child.id)}>{child.label}</button>)}</div>}</div>:<button key={item.id} disabled={lessonActive} className={`nav-item ${page===item.id?'active':''}`} onClick={()=>go(item.id)}><item.icon size={18}/>{item.label}</button>)}</div>)}
-      <div className="sidebar-bottom"><div className="streak-card"><div className="streak-icon"><Flame size={18}/></div><div><strong>{activeDays} actieve dagen</strong><small>Elke oefensessie telt mee</small></div></div><button className={`nav-item ${page==='settings'?'active':''}`} onClick={()=>go('settings')}><Settings2 size={18}/>Instellingen</button><div className="sidebar-foot"><span className="online-dot"/> Demo-omgeving <span>v{appVersionLabel}</span></div></div>
+      <div className="sidebar-bottom"><div className="streak-card"><div className="streak-icon"><Flame size={18}/></div><div><strong>{currentStreak} {currentStreak === 1 ? 'dag' : 'dagen'} streak</strong><small>{currentStreak ? 'Oefen vandaag om hem te behouden' : 'Begin vandaag aan een nieuwe streak'}</small></div></div><button className={`nav-item ${page==='settings'?'active':''}`} onClick={()=>go('settings')}><Settings2 size={18}/>Instellingen</button><div className="sidebar-foot"><span className="online-dot"/> Demo-omgeving <span>v{appVersionLabel}</span></div></div>
     </aside>
     {mobileOpen&&<div className="scrim" onClick={()=>setMobileOpen(false)}/>}
     <main className="main">

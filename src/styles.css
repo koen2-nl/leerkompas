@@ -1027,3 +1027,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  .christmas-garland{font-size:10px;padding:6px 14px;letter-spacing:3px}
 }
 @media(prefers-reduced-motion:reduce){.app.christmas-theme::before{animation:none;opacity:.14}.theme-choice{transition:none}}
+
+/* Sidebar blijft bruikbaar wanneer de navigatie langer is dan het scherm */
+.sidebar{
+  height:100vh;height:100dvh;overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior-y:contain;scrollbar-gutter:stable;
+  scrollbar-width:thin;scrollbar-color:#c9c4b8 transparent;
+}
+.sidebar>*{flex-shrink:0}
+.sidebar .nav-groups{flex-shrink:0}
+.sidebar-bottom{margin-top:auto;flex-shrink:0;padding-top:12px}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:#c9c4b8;border-radius:20px}
+.sidebar::-webkit-scrollbar-track{background:transparent}
+@media(max-width:760px){
+ .sidebar{height:100dvh;max-height:100dvh;padding-bottom:max(18px,env(safe-area-inset-bottom))}
+ .sidebar.open{overflow-y:auto}
+}
