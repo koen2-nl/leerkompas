@@ -8,6 +8,10 @@
 - Voeg een instelbare sneeuwlaag toe met vallende vlokken, ophoping onderaan het scherm en wegvegen met de muis.
 - Vervang de rijen kleine bomen door één grotere kerstboom aan elke schermzijde.
 - Verplaats de sneeuwschakelaar naar de balk rechtsboven naast de dag-/nachtknop.
+- Vervang de losse dag-/nachtknop door één compacte themakeuze rechtsboven: Dag, Nacht en Kerst.
+- Verplaats de themakeuze uit Instellingen naar de vaste bovenbalk en houd de sneeuwknop alleen zichtbaar bij Kerst.
+- Maak de Kerststijl matter en rustiger met gedempte kleuren, minder glans en minder decoratieve beweging.
+- Verbeter sneeuwophoping tot een bredere, natuurlijk gevormde sneeuwrand die je onderaan met de muis kunt wegvegen.
 
 
 ## v0.50 beta — 13 november 2026

@@ -1112,3 +1112,27 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .snow-setting-row .snow-toggle.enabled{background:#e8f0e8;border-color:#78977c;color:#315d4b}
 .snow-setting-row .snow-toggle.enabled span{background:#4d8a5a;box-shadow:0 0 0 3px #4d8a5a22}
 @media(max-width:680px){.app.christmas-theme .christmas-forest{width:54px;height:135px;bottom:5%}.app.christmas-theme .christmas-forest-left{left:2px}.app.christmas-theme .christmas-forest-right{right:2px}}
+
+/* Matte, compact theme control */
+.theme-switcher{display:inline-flex;align-items:center;gap:2px;padding:3px;background:#eeefed;border:1px solid #e1e3df;border-radius:8px}
+.theme-switcher button{height:28px;min-width:48px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:#737873;font-family:inherit;font-size:10px;font-weight:600;cursor:pointer;transition:background-color .15s,color .15s}
+.theme-switcher button.selected{background:#fff;color:#303b35;box-shadow:0 1px 2px #18241b12}
+.dark .theme-switcher{background:#292d2d;border-color:#393e3c}
+.dark .theme-switcher button{color:#aeb5b0}
+.dark .theme-switcher button.selected{background:#414845;color:#f0f2ef;box-shadow:none}
+.app.christmas-theme .theme-switcher{background:#e8e9e3;border-color:#d7dbd1}
+.app.christmas-theme .theme-switcher button.selected{background:#d5ddd1;color:#34483b;box-shadow:none}
+.snow-top-toggle{width:30px;height:30px;border:1px solid transparent;border-radius:7px}
+.snow-top-toggle.active{background:#e7ece8;color:#526d5b;border-color:#d5ded7}
+.dark .snow-top-toggle.active{background:#343d39;color:#c5d4c9;border-color:#4b5850}
+.app.christmas-theme{background:#f1f0e9;color:#303a32;--ink:#303a32;--muted:#81877f;--line:#e2e2d9;--panel:#faf9f4;--surface:#eaeae2;--accent:#58715e;--accent-soft:#e4e9df}
+.app.christmas-theme .topbar,.app.christmas-theme .sidebar{background:#f8f7f1;border-color:#e1e0d7}
+.app.christmas-theme .christmas-lights span{box-shadow:none;filter:saturate(.55);opacity:.72}
+.app.christmas-theme .christmas-tree,.app.christmas-theme .christmas-tree i::after{animation:none!important}
+.app.christmas-theme .christmas-tree i{background:#617b68}
+.app.christmas-theme .christmas-tree i::after{box-shadow:8px 7px 0 #a77d72,-7px 12px 0 #b6a16d}
+.app.christmas-theme .christmas-village{opacity:.45;filter:saturate(.55)}
+.app.christmas-theme .christmas-forest{opacity:.72;filter:none}
+.app.christmas-theme .christmas-tree{filter:none}
+@media(max-width:760px){.theme-switcher button{min-width:42px;padding:0 7px;font-size:9px}.top-actions{gap:6px}}
+@media(prefers-reduced-motion:reduce){.theme-switcher button{transition:none}}
