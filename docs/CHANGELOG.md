@@ -12,6 +12,7 @@
 - Verplaats de themakeuze uit Instellingen naar de vaste bovenbalk en houd de sneeuwknop alleen zichtbaar bij Kerst.
 - Maak de Kerststijl matter en rustiger met gedempte kleuren, minder glans en minder decoratieve beweging.
 - Verbeter sneeuwophoping tot een bredere, natuurlijk gevormde sneeuwrand die je onderaan met de muis kunt wegvegen.
+- Laat sneeuwvlokken ook landen en in dunne, wegveegbare randjes ophopen op zichtbare oppervlakken, zoals de zoekbalk, invoervelden, kaarten en panelen.
 
 
 ## v0.50 beta — 13 november 2026
