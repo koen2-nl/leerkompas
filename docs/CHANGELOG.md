@@ -8,11 +8,11 @@
 - Maak de kerstdecoratie responsief, niet-interactief en toegankelijk met ondersteuning voor minder beweging.
 
 
-## v0.48 beta — 13 november 2026
-- Tijdelijke, gezellige winter- en kerstsfeer door de hele leeromgeving met warme crème-, dennegroene, cranberry- en goudaccenten.
-- Dashboard, navigatie, formulieren, flashcards, lesmodi, kaarten en accountschermen krijgen bijpassende winterstyling.
+## v0.48 beta — 13 november 2026 · Leervo Kerst Edition
+- Tijdelijke, gezellige Kerst Edition-sfeer door de hele leeromgeving met warme crème-, dennegroene, cranberry- en goudaccenten.
+- Dashboard, navigatie, formulieren, flashcards, lesmodi, kaarten en accountschermen krijgen bijpassende Kerst Edition-styling.
 - Subtiele sneeuwanimatie met respect voor de voorkeur voor minder beweging.
-- Winterthema ondersteunt ook de donkere modus en kan na de feestdagen centraal worden uitgeschakeld.
+- Kerst Edition ondersteunt ook de donkere modus en kan na de feestdagen centraal worden uitgeschakeld.
 - Bestaande leerfuncties, accounts, instellingen en opgeslagen gegevens blijven behouden.
 
 
