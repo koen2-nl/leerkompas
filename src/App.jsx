@@ -4,15 +4,16 @@ import GeographyLessons from './GeographyLessons.jsx'
 import AdminPanel from './AdminPanel.jsx'
 import VocabularyBuilder from './VocabularyBuilder.jsx'
 import Planning from './Planning.jsx'
+import FocusBreak from './FocusBreak.jsx'
 import { supabase } from './auth/supabase.js'
 import { CHANGELOG } from './changelog.js'
 const appVersionLabel = `${__APP_VERSION__}${__APP_RELEASED__ ? '' : ' beta'}`
 
-import { Activity, ArrowDownRight, ArrowRight, Award, BookOpen, Blocks, Brain, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Flame, Gamepad2, Compass, LayoutDashboard, Leaf, Menu, MessageCircle, Moon, MoreHorizontal, Plus, Search, Settings2, Snowflake, Sparkles, Sun, Target, Trophy, Upload, X, Zap, Globe, BookOpenCheck, ShieldCheck } from 'lucide-react'
+import { Activity, ArrowDownRight, ArrowRight, Award, BookOpen, Blocks, Brain, CalendarDays, Check, Coffee, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Flame, Gamepad2, Compass, LayoutDashboard, Leaf, Menu, MessageCircle, Moon, MoreHorizontal, Plus, Search, Settings2, Snowflake, Sparkles, Sun, Target, Trophy, Upload, X, Zap, Globe, BookOpenCheck, ShieldCheck } from 'lucide-react'
 
 const initialSubjects = []
 const initialCards = []
-const pagePaths = { home: '/', subjects: '/lessen', publicLessons: '/openbare-lessen', study: '/flashcards', vocabulary: '/woordenlijsten', create: '/les-maken', games: '/minigames', quiz: '/minigames/quiz', progress: '/resultaten', planning: '/planning', admin: '/beheer', settings: '/instellingen' }
+const pagePaths = { home: '/', subjects: '/lessen', publicLessons: '/openbare-lessen', study: '/flashcards', vocabulary: '/woordenlijsten', create: '/les-maken', break: '/pauze', games: '/minigames', quiz: '/minigames/quiz', progress: '/resultaten', planning: '/planning', admin: '/beheer', settings: '/instellingen' }
 const pathPages = Object.fromEntries(Object.entries(pagePaths).map(([page, path]) => [path, page]))
 const pageFromPath = pathname => pathPages[pathname.replace(/\/+$/, '') || '/'] || 'home'
 const mergeChangelogEntries = databaseEntries => {
@@ -29,7 +30,7 @@ const formatChangelogDate = entry => entry.release_date
   ? new Date(entry.release_date + 'T12:00:00').toLocaleDateString('nl-NL')
   : entry.date
 const nav = [
-  { group: 'WERKPLEK', items: [{ id: 'home', label: 'Overzicht', icon: LayoutDashboard }, { id: 'learning', label: 'Leerstof', icon: BookOpen, children: [{ id: 'subjects', label: 'Mijn lesbibliotheek' }, { id: 'publicLessons', label: 'Openbare lesbibliotheek' }, { id: 'games', label: 'Minigames' }, { id: 'study', label: 'Flashcards' }, { id: 'vocabulary', label: 'Woordenlijst maken' }, { id: 'create', label: 'Zelf een les maken' }] }] },
+  { group: 'WERKPLEK', items: [{ id: 'home', label: 'Overzicht', icon: LayoutDashboard }, { id: 'learning', label: 'Leerstof', icon: BookOpen, children: [{ id: 'subjects', label: 'Mijn lesbibliotheek' }, { id: 'publicLessons', label: 'Openbare lesbibliotheek' }, { id: 'games', label: 'Minigames' }, { id: 'study', label: 'Flashcards' }, { id: 'vocabulary', label: 'Woordenlijst maken' }, { id: 'create', label: 'Zelf een les maken' }] }, { id: 'break', label: 'Even klaar met leren?', icon: Coffee }] },
   { group: 'INZICHT', items: [{ id: 'progress', label: 'Voortgang', icon: Activity }, { id: 'planning', label: 'Planning', icon: CalendarDays }] },
 ]
 function saveLocal(key, value) {
@@ -268,6 +269,7 @@ function App() {
   const [profile, setProfile] = useState(() => readSaved('profile', null))
   const visibleNav = isAdmin ? [...nav, { group: 'BEHEER', items: [{ id: 'admin', label: 'Beheer', icon: ShieldCheck }] }] : isLessonMaker ? [...nav, { group: 'MAKEN', items: [{ id: 'admin', label: 'Lesbeheer', icon: ShieldCheck }] }] : nav
   const [page, setPage] = useState(() => pageFromPath(window.location.pathname))
+  const lastLearningPage = useRef('home')
   const [learningOpen, setLearningOpen] = useState(false)
   const [lessonActive, setLessonActive] = useState(false)
   const [themeMode, setThemeMode] = useState(() => readSaved('themeMode', readSaved('dark', false) ? 'dark' : 'light'))
@@ -383,6 +385,7 @@ function App() {
   const filteredSubjects = useMemo(() => subjects.filter(s => s.name.toLowerCase().includes(query.toLowerCase())), [subjects, query])
   const notify = (message) => { setToast(message); window.setTimeout(() => setToast(''), 2200) }
   const go = (id) => {
+    if (id !== 'break') lastLearningPage.current = id
     const nextPath = pagePaths[id] || '/'
     if (window.location.pathname !== nextPath) window.history.pushState({}, '', nextPath)
     setPage(id); setMobileOpen(false); setFlipped(false)
@@ -396,6 +399,7 @@ function App() {
       : value.includes('result') || value.includes('voortgang') ? 'progress'
       : value.includes('instel') || value.includes('account') ? 'settings'
       : value.includes('flash') || value.includes('kaart') ? 'study'
+      : value.includes('pauze') || value.includes('klaar') ? 'break'
       : value.includes('game') || value.includes('spel') ? 'games'
       : value.includes('beheer') || value.includes('maak') ? 'create'
       : value.includes('les') || value.includes('vak') ? 'subjects' : 'home'
@@ -475,7 +479,7 @@ function App() {
     setSettingsBusy(false);
     if(error)setSettingsMessage(error.message);else{setAdminReason('');setSettingsMessage('Je aanvraag is ingediend en wacht op beoordeling.');loadAdminApplication();}
   };
-  const title = ({home:profile?.username ? `${greeting}, ${profile.username}!` : `${greeting}!`,subjects:'Mijn lesbibliotheek',publicLessons:'Openbare lesbibliotheek',study:'Slim herhalen',vocabulary:'Woordenlijst maken',create:'Zelf een les maken',games:'Speel & leer',progress:'Jouw voortgang',planning:'Mijn planning',admin:'Beheer',settings:'Instellingen'})[page]
+  const title = ({home:profile?.username ? `${greeting}, ${profile.username}!` : `${greeting}!`,subjects:'Mijn lesbibliotheek',publicLessons:'Openbare lesbibliotheek',study:'Slim herhalen',vocabulary:'Woordenlijst maken',create:'Zelf een les maken',games:'Speel & leer',progress:'Jouw voortgang',planning:'Mijn planning',admin:'Beheer',settings:'Instellingen',break:'Even klaar met leren?'})[page]
   return <div className={`app ${themeMode === 'christmas' ? 'christmas-theme winter-theme' : ''} ${dark ? 'dark' : ''}`} data-accent={accent}>
     {themeMode === 'christmas' && <div className="christmas-scene" aria-hidden="true">
       <div className="christmas-lights">
@@ -507,7 +511,8 @@ function App() {
           <button type="button" className={themeMode==='christmas'?'selected':''} aria-pressed={themeMode==='christmas'} onClick={()=>setThemeMode('christmas')}>Kerst</button>
         </div>{themeMode === 'christmas' && <button className={`icon-btn snow-top-toggle ${snowEnabled?'active':''}`} onClick={()=>setSnowEnabled(value=>!value)} aria-label={snowEnabled?'Sneeuw uitzetten':'Sneeuw aanzetten'} aria-pressed={snowEnabled} title={snowEnabled?'Sneeuw uitzetten':'Sneeuw aanzetten'}><Snowflake size={17}/></button>}<span className="sync-indicator" title={syncStatus === "saved" ? "Alles gesynchroniseerd" : "Synchroniseren"}>{syncStatus === "saving" ? "Opslaan…" : syncStatus === "saved" ? "✓ Opgeslagen" : "Verbonden"}</span><button className="avatar small" title="Uitloggen" onClick={signOut}><X size={15}/></button></div></header>
       <div className="content">
-        <div className="page-heading"><div><div className="eyebrow"><Sparkles size={14}/> JOUW PERSOONLIJKE LEERPLEK</div><h1>{title}</h1><p>{page==='home'?'Klaar om vandaag iets nieuws te ontdekken?':page==='study'?'Korte herhaalmomenten helpen je kennis beter onthouden.':'Alles op één plek. Jij bepaalt je eigen tempo.'}</p></div>{page==='home'&&<button className="primary-btn" onClick={()=>go('subjects')}><Zap size={16}/> Start leersessie</button>}</div>
+        <div className="page-heading"><div><div className="eyebrow"><Sparkles size={14}/> JOUW PERSOONLIJKE LEERPLEK</div><h1>{title}</h1><p>{page==='home'?'Klaar om vandaag iets nieuws te ontdekken?':page==='study'?'Korte herhaalmomenten helpen je kennis beter onthouden.':page==='break'?'Korte puzzels om even op te laden en daarna met frisse aandacht verder te gaan.':'Alles op één plek. Jij bepaalt je eigen tempo.'}</p></div>{page==='home'&&<button className="primary-btn" onClick={()=>go('subjects')}><Zap size={16}/> Start leersessie</button>}</div>
+        {page==='break'&&<FocusBreak key={user?.id || 'guest'} userId={user?.id} onContinueLearning={()=>go(lastLearningPage.current === 'break' ? 'home' : lastLearningPage.current)}/>}
         {page==='home'&&<><section className="welcome-banner"><div className="welcome-copy"><span className="banner-tag"><Leaf size={13}/> KLEINE STAPPEN, GROOT RESULTAAT</span><h2>Elke dag een beetje<br/> <em>wijzer.</em></h2><p>{todayPlannedMinutes > 0 ? <>Je hebt vandaag {formatPlannedDuration(todayPlannedMinutes)} ingepland{profile?.goal ? <> om te werken aan je leerdoel: <strong>{profile.goal}</strong>.</> : ' voor je schoolwerk.'}</> : <>Je hebt vandaag nog niets ingepland{profile?.goal ? <> voor je leerdoel: <strong>{profile.goal}</strong>.</> : '. Plan een leermoment om aan de slag te gaan.'}</>}</p><button className="banner-btn" onClick={()=>go('subjects')}>Verder leren <ArrowRight size={16}/></button></div><div className="banner-art"><div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="book-illustration"><BookOpen size={76} strokeWidth={1.2}/><Sparkles className="sparkle s1"/><Sparkles className="sparkle s2"/></div><div className="floating-note note-a"><Sparkles size={13}/> Goed bezig!</div><div className="floating-note note-b">+ 20 XP</div></div></section>
         <section className="stats-grid"><Stat icon={Flame} label="Actieve dagen" value={activeDays} note="Sinds je start" tone="orange"/><Stat icon={Zap} label="Verdiende XP" value={studyStats.xp} note="20 XP per afgeronde les" tone="purple"/><Stat icon={Target} label="Deze week" value={`${weeklyGoalProgress}%`} note={`${sessionsThisWeek.length} van 6 leermomenten`} tone="green"/><Stat icon={BookOpen} label="Afgeronde lessen" value={completedLessons.length} note="Lessen voltooid" tone="blue"/></section>
         <div className="section-heading"><div><h3>Jouw leerplek</h3><p>Een overzicht van waar je mee bezig bent.</p></div><div className="widget-control"><button className="soft-btn" onClick={()=>setShowWidgetMenu(!showWidgetMenu)}><Settings2 size={15}/> Aanpassen <ChevronDown size={14}/></button>{showWidgetMenu&&<div className="dropdown"><strong>Widgets tonen</strong>{[['focus','Focus van vandaag'],['subjects','Mijn vakken'],['week','Weekdoel']].map(([id,label])=><label key={id}><input type="checkbox" checked={widgets.includes(id)} onChange={()=>toggleWidget(id)}/>{label}</label>)}</div>}</div></div>
