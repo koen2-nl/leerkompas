@@ -4,8 +4,8 @@ import './focus-break.css'
 
 const DAILY_WORDS = [
   'appel', 'stoel', 'regen', 'vogel', 'water', 'brood', 'droom', 'plant',
-  'trein', 'nacht', 'leven', 'kamer', 'toren', 'feest', 'wereld', 'muziek',
-  'ruimte', 'zomer', 'lente', 'groen', 'bloem', 'sport', 'licht', 'samen',
+  'trein', 'nacht', 'leven', 'kamer', 'toren', 'feest', 'kunst', 'muziek',
+  'zomer', 'lente', 'groen', 'bloem', 'sport', 'licht', 'samen',
 ]
 
 const SUDOKU_PUZZLE = [
