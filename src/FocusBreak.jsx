@@ -4,7 +4,7 @@ import './focus-break.css'
 
 const DAILY_WORDS = [
   'appel', 'stoel', 'regen', 'vogel', 'water', 'brood', 'droom', 'plant',
-  'trein', 'nacht', 'leven', 'kamer', 'toren', 'feest', 'kunst', 'muziek',
+  'trein', 'nacht', 'leven', 'kamer', 'toren', 'feest', 'kunst', 'ritme',
   'zomer', 'lente', 'groen', 'bloem', 'sport', 'licht', 'samen',
 ]
 
