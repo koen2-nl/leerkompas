@@ -1,5 +1,12 @@
 # Changelog Leervo
 
+## v0.53 beta — 15 november 2026
+- Voeg een aparte navigatietab **Even klaar met leren?** toe, los van de bestaande leergerichte minigames.
+- Voeg drie speelbare pauzespellen toe: een dagelijks woordraadsel, sudoku en memory.
+- Beperk het woordraadsel tot één puzzel per lokale kalenderdag en bewaar de voortgang per account in de browser.
+- Toon na het afronden van een spel een keuze tussen **Verder leren** en **Verder spelen**.
+- Houd de vormgeving rustig en mat, passend bij de bestaande Leervo-thema’s.
+
 ## v0.52 beta — 13 november 2026
 - Maak de volledige Leervo-interface rustiger en matter met consistente oppervlakken, randen, knoppen, invoervelden en ingetogen accentkleuren.
 - Gebruik dezelfde matte basis in Dag en Nacht, met minder schaduwen, verlopen, felle tegels en decoratieve effecten.
