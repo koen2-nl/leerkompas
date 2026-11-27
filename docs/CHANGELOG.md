@@ -1,5 +1,10 @@
 # Changelog Leervo
 
+## v0.62 beta — 27 november 2026
+- Laat na het toevoegen en afronden van agenda-items meteen zien wat er is gebeurd.
+- Geef je de kans een verwijderd agenda-item of een verwijderde woordenlijst terug te zetten.
+- Toon een begrijpelijke melding als een woordenlijst niet kan worden opgeslagen of verwijderd.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
