@@ -1,5 +1,10 @@
 # Changelog Leervo
 
+## v0.59 beta — 27 november 2026
+- Voeg vaste CSS-schalen toe voor typografie, witruimte, randen en afgeronde hoeken.
+- Gebruik dezelfde matte kaart- en veldranden voor de belangrijkste onderdelen.
+- Maak de basis voor knoppen, kaarten en invoervelden consistenter zonder een nieuw kleurenpalet toe te voegen.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
