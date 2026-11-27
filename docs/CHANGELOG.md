@@ -1,5 +1,10 @@
 # Changelog Leervo
 
+## v0.60 beta — 27 november 2026
+- Voeg in Instellingen een schakelaar toe om bomen, lampjes en het winterdorp uit te zetten.
+- Bij uitgeschakelde versiering blijft de donkere Kerstweergave actief.
+- De sneeuwlaag en sneeuwknop verdwijnen wanneer de versiering uitstaat.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
