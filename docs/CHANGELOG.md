@@ -1,5 +1,12 @@
 # Changelog Leervo
 
+## v0.55 beta — 27 november 2026
+- De knoppen **Ik wist het al** en **Nog oefenen** bewaren nu echt hoe goed je een flashcard kent.
+- Herhaal kaarten in drie vakken. Kaarten die je goed kent komen na 1, 3 of 7 dagen terug; lastige kaarten blijven klaarstaan.
+- Na een herhaalsessie zie je je resultaat en kun je moeilijke kaarten opnieuw oefenen of naar Voortgang gaan.
+- Draai flashcards om met Enter of spatie en blader met de pijltjestoetsen.
+- De quiz heeft nu een duidelijke afsluiting met opnieuw proberen en een route naar Voortgang.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
