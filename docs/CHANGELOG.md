@@ -1,5 +1,11 @@
 # Changelog Leervo
 
+## v0.58 beta — 27 november 2026
+- Voeg een optionele timer van 5, 10 of 15 minuten toe met een rustige melding wanneer de tijd voorbij is.
+- Bewaar sudoku-invoer, notities en instellingen lokaal zodat je na herladen verder kunt.
+- Voeg sudoku-hints, notities en een in- en uitschakelbare foutmarkering toe.
+- Gebruik een ingebouwd toetsenbord voor het dagelijkse woordspel en controleer gokken tegen een lijst met veelvoorkomende Nederlandse woorden.
+- Bepaal de dagelijkse puzzelgrens op basis van de tijdzone Europe/Amsterdam.
 ## v0.57 beta — 27 november 2026
 - Voeg een lokaal Leitner-systeem met drie vakken toe voor flashcards.
 - Kaarten die lastig zijn komen later in dezelfde oefenronde nog eens terug.
