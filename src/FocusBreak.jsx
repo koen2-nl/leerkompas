@@ -128,6 +128,16 @@ export default function FocusBreak({ onContinueLearning, userId }) {
     try { window.localStorage.setItem(storageKey, JSON.stringify(dailyState)) } catch { /* De puzzel blijft speelbaar zonder opslag. */ }
   }, [dailyState, storageKey])
   useEffect(() => {
+    const refreshDailyWord = () => {
+      const today = localDateKey()
+      setDailyState(current => current.date === today
+        ? current
+        : { date: today, guesses: [], finished: false, won: false })
+    }
+    const interval = window.setInterval(refreshDailyWord, 30000)
+    return () => window.clearInterval(interval)
+  }, [])
+  useEffect(() => {
     try { window.localStorage.setItem(sudokuStorageKey, JSON.stringify({ values: sudokuValues, notes: sudokuNotes, finished: sudokuFinished })) } catch { /* De sudoku blijft speelbaar zonder opslag. */ }
   }, [sudokuValues, sudokuNotes, sudokuFinished, sudokuStorageKey])
   useEffect(() => {
