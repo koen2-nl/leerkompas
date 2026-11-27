@@ -1,5 +1,12 @@
 # Changelog Leervo
 
+## v0.58 beta — 27 november 2026
+- Laad Mammoth pas wanneer je een Word-bestand kiest en Tesseract pas wanneer je een foto kiest.
+- Toon de voortgang van tekstherkenning op foto’s terwijl die bezig is.
+- Weiger bestanden groter dan 10 MB met een duidelijke melding.
+- Geef vriendelijkere uitleg als een Word-bestand of foto niet gelezen kan worden.
+- Leg uit dat het bestand in je browser wordt verwerkt en dat alleen de opgeslagen woordenlijst lokaal wordt bewaard.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
