@@ -82,6 +82,7 @@ export default function FocusBreak({ onContinueLearning, userId }) {
   const [showCompletion, setShowCompletion] = useState(false)
   const [completion, setCompletion] = useState({ title: '', message: '' })
   const [sudokuValues, setSudokuValues] = useState(() => SUDOKU_PUZZLE.map(row => row.split('').map(value => value === '0' ? '' : value)))
+  const [selectedSudokuCell, setSelectedSudokuCell] = useState({ row: 0, column: 2 })
   const [sudokuMessage, setSudokuMessage] = useState('')
   const [sudokuFinished, setSudokuFinished] = useState(false)
 
@@ -104,12 +105,31 @@ export default function FocusBreak({ onContinueLearning, userId }) {
   }
   const resetSudoku = () => {
     setSudokuValues(SUDOKU_PUZZLE.map(row => row.split('').map(value => value === '0' ? '' : value)))
+    setSelectedSudokuCell({ row: 0, column: 2 })
     setSudokuMessage('')
     setSudokuFinished(false)
   }
   const updateSudokuCell = (rowIndex, columnIndex, value) => {
+    if (SUDOKU_PUZZLE[rowIndex][columnIndex] !== '0' || sudokuFinished) return
     const next = sudokuValues.map(row => [...row])
     next[rowIndex][columnIndex] = value.replace(/[^1-9]/g, '').slice(-1)
+    setSelectedSudokuCell({ row: rowIndex, column: columnIndex })
+    setSudokuValues(next)
+    setSudokuMessage('')
+  }
+  const enterSudokuDigit = digit => {
+    const { row, column } = selectedSudokuCell
+    if (sudokuFinished || SUDOKU_PUZZLE[row][column] !== '0') return
+    const next = sudokuValues.map(line => [...line])
+    next[row][column] = digit
+    setSudokuValues(next)
+    setSudokuMessage('')
+  }
+  const clearSudokuCell = () => {
+    const { row, column } = selectedSudokuCell
+    if (sudokuFinished || SUDOKU_PUZZLE[row][column] !== '0') return
+    const next = sudokuValues.map(line => [...line])
+    next[row][column] = ''
     setSudokuValues(next)
     setSudokuMessage('')
   }
@@ -201,12 +221,19 @@ export default function FocusBreak({ onContinueLearning, userId }) {
       </section>}
       {selectedGame === 'sudoku' && <section className="fb-game-panel">
         <div className="fb-game-heading"><div><span className="fb-kicker">LOGICA · OP JE EIGEN TEMPO</span><h2>Sudoku</h2><p>Vul de lege vakjes met cijfers van 1 tot en met 9.</p></div><button className="fb-reset-button" onClick={resetSudoku}><RotateCcw size={15}/> Opnieuw</button></div>
-        <div className="fb-sudoku-board" role="group" aria-label="Sudoku raster">
-          {sudokuValues.map((row, rowIndex) => <div className="fb-sudoku-row" key={rowIndex}>{row.map((value, columnIndex) => {
-            const fixed = SUDOKU_PUZZLE[rowIndex][columnIndex] !== '0'
-            const extraClass = (columnIndex === 2 || columnIndex === 5 ? ' fb-box-right' : '') + (rowIndex === 2 || rowIndex === 5 ? ' fb-box-bottom' : '')
-            return <input key={columnIndex} className={'fb-sudoku-cell' + (fixed ? ' fb-given' : '') + extraClass} value={value} disabled={fixed || sudokuFinished} inputMode="numeric" maxLength={1} aria-label={'Rij ' + (rowIndex + 1) + ', kolom ' + (columnIndex + 1)} onChange={event => updateSudokuCell(rowIndex, columnIndex, event.target.value)}/>
-          })}</div>)}
+        <div className="fb-sudoku-board-wrap">
+          <div className="fb-sudoku-board" role="group" aria-label="Sudoku raster">
+            {sudokuValues.map((row, rowIndex) => <div className="fb-sudoku-row" key={rowIndex}>{row.map((value, columnIndex) => {
+              const fixed = SUDOKU_PUZZLE[rowIndex][columnIndex] !== '0'
+              const selected = selectedSudokuCell.row === rowIndex && selectedSudokuCell.column === columnIndex
+              const extraClass = (columnIndex === 2 || columnIndex === 5 ? ' fb-box-right' : '') + (rowIndex === 2 || rowIndex === 5 ? ' fb-box-bottom' : '') + (selected ? ' fb-selected' : '')
+              return <input key={columnIndex} className={'fb-sudoku-cell' + (fixed ? ' fb-given' : '') + extraClass} value={value} disabled={fixed || sudokuFinished} inputMode="numeric" maxLength={1} aria-label={'Rij ' + (rowIndex + 1) + ', kolom ' + (columnIndex + 1)} onFocus={() => setSelectedSudokuCell({ row: rowIndex, column: columnIndex })} onChange={event => updateSudokuCell(rowIndex, columnIndex, event.target.value)}/>
+            })}</div>)}
+          </div>
+        </div>
+        <div className="fb-sudoku-keypad" role="group" aria-label="Cijferkeuze voor het geselecteerde sudoku-vakje">
+          {[1,2,3,4,5,6,7,8,9].map(digit=><button type="button" key={digit} disabled={sudokuFinished} onClick={()=>enterSudokuDigit(String(digit))}>{digit}</button>)}
+          <button type="button" className="fb-sudoku-clear" disabled={sudokuFinished} aria-label="Wis het geselecteerde vakje" onClick={clearSudokuCell}>⌫</button>
         </div>
         <div className="fb-sudoku-actions"><p role="status">{sudokuMessage || 'Elk cijfer mag per rij, kolom en 3 × 3-blok maar één keer voorkomen.'}</p><button onClick={checkSudoku} disabled={sudokuFinished}>Controleer sudoku <Check size={16}/></button></div>
       </section>}

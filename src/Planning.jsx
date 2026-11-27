@@ -14,7 +14,7 @@ const weekdays = ['Ma','Di','Wo','Do','Vr','Za','Zo']
 export default function Planning({ planning = [], setPlanning, subjects = [] }) {
   const [form, setForm] = useState(() => emptyForm())
   const [showForm, setShowForm] = useState(false)
-  const [view, setView] = useState('maand')
+  const [view, setView] = useState(() => typeof window !== 'undefined' && window.matchMedia?.('(max-width: 760px)').matches ? 'dag' : 'maand')
   const [selectedDate, setSelectedDate] = useState(today)
   const [visibleDate, setVisibleDate] = useState(() => dateFrom(today()))
   const [now, setNow] = useState(() => new Date())

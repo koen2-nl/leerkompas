@@ -1,5 +1,20 @@
 # Changelog Leervo
 
+## v0.57 beta — 27 november 2026
+- Voeg een lokaal Leitner-systeem met drie vakken toe voor flashcards.
+- Kaarten die lastig zijn komen later in dezelfde oefenronde nog eens terug.
+- Bekende kaarten schuiven geleidelijk door naar een langer herhaalmoment; nieuwe en lastige kaarten blijven vaker op de planning.
+- Toon hoeveel flashcards vandaag klaarstaan om te herhalen.
+- Bewaar herhaalstatus in de browser zonder wijziging aan Supabase of het databaseschema.
+
+## v0.56 beta — 27 november 2026
+- Voeg een zichtbare link toe om direct naar de hoofdinhoud te gaan en maak focusranden zichtbaar voor links, knoppen en invoervelden.
+- Pas de vier accentkleuren aan voor duidelijkere tekstcontrasten in Dag en Nacht en behoud een aparte goed leesbare accentkleur voor Kerst.
+- Schakel beweging en overgangen uit wanneer je apparaat minder beweging aangeeft.
+- Maak belangrijke knoppen en navigatie-elementen beter aanraakbaar op telefoons.
+- Open de planning op een smal scherm standaard in de dagweergave.
+- Voeg een eigen cijferpaneel toe voor sudoku op mobiele schermen.
+
 ## v0.55 beta — 27 november 2026
 - Laat na een flashcardronde zien hoeveel kaarten je als bekend en als later herhalen hebt gemarkeerd.
 - Voeg een eindscherm toe aan flashcards en quizzen met de keuzes **Nog een keer** en **Naar voortgang**.
