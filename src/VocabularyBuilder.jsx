@@ -122,7 +122,7 @@ export default function VocabularyBuilder() {
       }
       const detected = detectEntries(text, instruction)
       setEntries(detected)
-      if (!title.trim()) setTitle(file.name.replace(/\\.[^.]+$/, '').replace(/[_-]+/g, ' '))
+      if (!title.trim()) setTitle(file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' '))
       setStatus(detected.length
         ? detected.length + ' mogelijke begrippen herkend. Controleer ze hieronder.'
         : 'Geen duidelijke begrippen gevonden. Pas je opdracht aan of voeg ze zelf toe.')
