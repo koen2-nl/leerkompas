@@ -66,7 +66,7 @@ const goalMatch = (item, profile) => {
   return terms.some(term => lessonText.includes(term))
 }
 
-export default function GeographyLessons({ completedLessons = [], onComplete, onActiveChange, onCatalogLoaded, profile, libraryView = 'personal' }) {
+export default function GeographyLessons({ completedLessons = [], onComplete, onActiveChange, onCatalogLoaded, onLibraryViewChange, profile, libraryView = 'personal' }) {
   const [catalogLessons, setCatalogLessons] = useState([])
   const [personalLessons, setPersonalLessons] = useState([])
   const [savedLessonIds, setSavedLessonIds] = useState([])
@@ -260,6 +260,10 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
       <section className="lesson-intro panel">
         <div><span className="panel-kicker">{libraryView === 'public' ? 'ONTDEK NIEUWE LESSEN' : 'JOUW PERSOONLIJKE BIBLIOTHEEK'}</span><h2>{libraryView === 'public' ? 'Openbare lesbibliotheek' : 'Mijn lesbibliotheek'}</h2><p>{libraryView === 'public' ? 'Ontdek lessen die door de community zijn gepubliceerd en voeg ze toe aan je eigen bibliotheek.' : 'Hier staan je zelfgemaakte lessen en alle openbare lessen die je hebt toegevoegd.'}</p>{profile?.goal && libraryView !== 'public' && <small className="muted">Jouw leerdoel: {profile.goal}</small>}</div>
         <strong><Clock3 size={16}/> Minimaal 10 min per dag</strong>
+        <div className="lesson-library-tabs" role="group" aria-label="Kies je lesbibliotheek">
+          <button type="button" className={libraryView==='personal'?'active':''} aria-pressed={libraryView==='personal'} onClick={()=>onLibraryViewChange?.('personal')}>Mijn lesbibliotheek</button>
+          <button type="button" className={libraryView==='public'?'active':''} aria-pressed={libraryView==='public'} onClick={()=>onLibraryViewChange?.('public')}>Openbare lesbibliotheek</button>
+        </div>
       </section>
       <section className="lesson-filters panel">
         <div className="lesson-filter-heading"><div><span className="panel-kicker">{libraryView === 'public' ? 'OPENBARE LESSEN' : 'MIJN LESSEN'}</span><strong>{libraryView === 'public' ? 'Zoek openbare lessen' : 'Zoek in je bibliotheek'}</strong></div><span>{visibleLessons.length} {visibleLessons.length === 1 ? 'les gevonden' : 'lessen gevonden'}</span></div>
