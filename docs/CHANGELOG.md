@@ -1,5 +1,10 @@
 # Changelog Leervo
 
+## v0.65 beta — 27 november 2026
+- Laad de lesbibliotheek, beheeromgeving, woordenlijstbouwer, planning en pauzepagina pas wanneer je die opent.
+- Toon tijdens het laden een korte, rustige melding.
+- Houd de bestaande pagina-indeling en functies hetzelfde.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
