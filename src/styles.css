@@ -1286,3 +1286,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .christmas-scene,.christmas-scene *{animation:none!important;transition:none!important}
   .christmas-snowfall{display:none!important}
 }
+
+
+/* Planning: countdown and optional test preparation suggestions */
+.planner-countdown{padding:3px 7px;border:1px solid var(--line);border-radius:5px;color:var(--ink);font-size:9px;font-weight:750;background:var(--surface)}
+.planner-suggested-label{color:var(--muted);font-size:9px;font-style:italic}
+.planner-suggest-toggle{display:flex;align-items:flex-start;gap:9px;margin:12px 0;padding:11px 12px;border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:10px;line-height:1.5}
+.planner-suggest-toggle input{width:18px;height:18px;flex:0 0 18px;margin:0;accent-color:var(--accent)}
+.planner-feedback{margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--muted);font-size:10px;line-height:1.5}
+@media(max-width:560px){.planner-countdown{font-size:8px}}
