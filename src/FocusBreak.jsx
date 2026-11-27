@@ -29,7 +29,47 @@ const MEMORY_PAIRS = [
 ]
 
 function localDateKey(date = new Date()) {
-  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-')
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Amsterdam', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(date)
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]))
+  return [values.year, values.month, values.day].join('-')
+}
+
+const DUTCH_GUESS_WORDS = new Set([
+  ...DAILY_WORDS,
+  ...(`aarde adres apart appel arena armen avond azuur bakje basis basta bedroeg bekers beter bever bezig bijna blijk bloem bocht bodem bonus boven brand breed brief broer bruin buurt chaos claim clowns cruise dames dagen dalen daken delen denkt derde dicht diens dieren dient diner dozen draad draai droom droog drukt duurt duren dwars echtel effect eigen elders email enige ervan eten? extra feiten feest fiets flinke focus fonds fruit gaten geven geval geluid gezet gloed goden groen groep grote groter haren harde heeft horen hoger hoofd hopen hotel huidig huren ieder ideaal indruk inzet isjes jaren juist kabel kamer kanto kennis keuze klaar klant klein kleur klima kroon kunst langs later leven licht liever lopen lucht maart malen meisje melk metert middel minus modder mooie morgen motor muren nacht nadat namen nodig nodig noord nooit noten ouder paard paars partij pasta pelen plein plots poort prins prima radio ramen regen reeks recht reden regel reisje rijden ritme rivier robot ronde rozen ruste samen schaal scherp schip schuld sinds slaan slaap smaak snelst smaak somen sport steen stilte stoel storm straat strook stuk? sturen tafel talen tempo terug thuis toets tonen toren totaal trein trend trouw twaalf tussen vader vaker vallen valse varen vasten vecht veelal vader vaker veilig veiling velds verve? video vierde vlakke vlammen vlees vogel volgen vooral vorme vraagt vrede vroeg vrucht water wegen welke wereld weten wezen witte willen wijze woord werken weten zomer zonnig zorgen zwaar zwart zweer`.split(/\s+/).filter(word => word.length === 5 && /^[a-z]+$/.test(word))
+])
+
+function emptySudokuNotes() {
+  return Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => []))
+}
+
+function loadSudokuProgress(storageKey) {
+  const fresh = {
+    values: SUDOKU_PUZZLE.map(row => row.split('').map(value => value === '0' ? '' : value)),
+    notes: emptySudokuNotes(),
+    finished: false,
+    selected: { row: 0, column: 2 },
+    hintsUsed: 0,
+    showErrors: false
+  }
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(storageKey) || 'null')
+    if (!saved || !Array.isArray(saved.values) || saved.values.length !== 9 ||
+        saved.values.some(row => !Array.isArray(row) || row.length !== 9)) return fresh
+    return {
+      ...fresh,
+      values: saved.values.map(row => row.map(value => String(value || '').replace(/[^1-9]/g, '').slice(-1))),
+      notes: Array.isArray(saved.notes) && saved.notes.length === 9 ? saved.notes : fresh.notes,
+      finished: Boolean(saved.finished),
+      selected: saved.selected || fresh.selected,
+      hintsUsed: Math.max(0, Number(saved.hintsUsed) || 0),
+      showErrors: Boolean(saved.showErrors)
+    }
+  } catch {
+    return fresh
+  }
 }
 
 function dailyWordFor(dateKey) {
@@ -75,20 +115,64 @@ function createMemoryDeck() {
 
 export default function FocusBreak({ onContinueLearning, userId }) {
   const storageKey = 'leerkompas:daily-word:' + (userId || 'guest')
+  const sudokuStorageKey = 'leerkompas:sudoku-progress:' + (userId || 'guest')
+  const initialSudokuProgress = loadSudokuProgress(sudokuStorageKey)
   const [selectedGame, setSelectedGame] = useState(null)
   const [dailyState, setDailyState] = useState(() => loadDailyProgress(storageKey))
   const [wordInput, setWordInput] = useState('')
   const [wordMessage, setWordMessage] = useState('')
   const [showCompletion, setShowCompletion] = useState(false)
   const [completion, setCompletion] = useState({ title: '', message: '' })
-  const [sudokuValues, setSudokuValues] = useState(() => SUDOKU_PUZZLE.map(row => row.split('').map(value => value === '0' ? '' : value)))
-  const [selectedSudokuCell, setSelectedSudokuCell] = useState({ row: 0, column: 2 })
+  const [sudokuValues, setSudokuValues] = useState(() => initialSudokuProgress.values)
+  const [sudokuNotes, setSudokuNotes] = useState(() => initialSudokuProgress.notes)
+  const [selectedSudokuCell, setSelectedSudokuCell] = useState(() => initialSudokuProgress.selected)
+  const [sudokuHintsUsed, setSudokuHintsUsed] = useState(() => initialSudokuProgress.hintsUsed)
+  const [showSudokuErrors, setShowSudokuErrors] = useState(() => initialSudokuProgress.showErrors)
+  const [notesMode, setNotesMode] = useState(false)
   const [sudokuMessage, setSudokuMessage] = useState('')
-  const [sudokuFinished, setSudokuFinished] = useState(false)
+  const [sudokuFinished, setSudokuFinished] = useState(() => initialSudokuProgress.finished)
+  const [pauseMinutes, setPauseMinutes] = useState(5)
+  const [timerEndsAt, setTimerEndsAt] = useState(null)
+  const [timerRemaining, setTimerRemaining] = useState(0)
+  const [timerDone, setTimerDone] = useState(false)
 
   useEffect(() => {
     try { window.localStorage.setItem(storageKey, JSON.stringify(dailyState)) } catch { /* De puzzel blijft speelbaar zonder opslag. */ }
   }, [dailyState, storageKey])
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(sudokuStorageKey, JSON.stringify({
+        values: sudokuValues, notes: sudokuNotes, selected: selectedSudokuCell,
+        hintsUsed: sudokuHintsUsed, showErrors: showSudokuErrors, finished: sudokuFinished
+      }))
+    } catch { /* De sudoku blijft speelbaar als lokale opslag niet beschikbaar is. */ }
+  }, [sudokuStorageKey, sudokuValues, sudokuNotes, selectedSudokuCell, sudokuHintsUsed, showSudokuErrors, sudokuFinished])
+
+  useEffect(() => {
+    if (!timerEndsAt) return
+    const updateRemaining = () => {
+      const remaining = Math.max(0, Math.ceil((timerEndsAt - Date.now()) / 1000))
+      setTimerRemaining(remaining)
+      if (remaining === 0) {
+        setTimerEndsAt(null)
+        setTimerDone(true)
+      }
+    }
+    updateRemaining()
+    const interval = window.setInterval(updateRemaining, 1000)
+    return () => window.clearInterval(interval)
+  }, [timerEndsAt])
+
+  useEffect(() => {
+    const updateDailyPuzzle = () => setDailyState(current => current.date === localDateKey() ? current : loadDailyProgress(storageKey))
+    window.addEventListener('focus', updateDailyPuzzle)
+    const interval = window.setInterval(updateDailyPuzzle, 60000)
+    return () => {
+      window.removeEventListener('focus', updateDailyPuzzle)
+      window.clearInterval(interval)
+    }
+  }, [storageKey])
 
   const targetWord = dailyWordFor(dailyState.date)
   const guessStatuses = dailyState.guesses.map(guess => evaluateGuess(guess, targetWord))
@@ -105,7 +189,11 @@ export default function FocusBreak({ onContinueLearning, userId }) {
   }
   const resetSudoku = () => {
     setSudokuValues(SUDOKU_PUZZLE.map(row => row.split('').map(value => value === '0' ? '' : value)))
+    setSudokuNotes(emptySudokuNotes())
     setSelectedSudokuCell({ row: 0, column: 2 })
+    setSudokuHintsUsed(0)
+    setShowSudokuErrors(false)
+    setNotesMode(false)
     setSudokuMessage('')
     setSudokuFinished(false)
   }
@@ -120,9 +208,21 @@ export default function FocusBreak({ onContinueLearning, userId }) {
   const enterSudokuDigit = digit => {
     const { row, column } = selectedSudokuCell
     if (sudokuFinished || SUDOKU_PUZZLE[row][column] !== '0') return
-    const next = sudokuValues.map(line => [...line])
-    next[row][column] = digit
-    setSudokuValues(next)
+    if (notesMode) {
+      setSudokuNotes(previous => {
+        const next = previous.map(line => line.map(cell => [...cell]))
+        const current = next[row][column]
+        next[row][column] = current.includes(Number(digit))
+          ? current.filter(value => value !== Number(digit))
+          : [...current, Number(digit)].sort((a, b) => a - b)
+        return next
+      })
+    } else {
+      const next = sudokuValues.map(line => [...line])
+      next[row][column] = digit
+      setSudokuValues(next)
+      setSudokuNotes(previous => previous.map((line, r) => line.map((cell, c) => r === row && c === column ? [] : cell)))
+    }
     setSudokuMessage('')
   }
   const clearSudokuCell = () => {
@@ -131,8 +231,40 @@ export default function FocusBreak({ onContinueLearning, userId }) {
     const next = sudokuValues.map(line => [...line])
     next[row][column] = ''
     setSudokuValues(next)
+    setSudokuNotes(previous => previous.map((line, r) => line.map((cell, c) => r === row && c === column ? [] : cell)))
     setSudokuMessage('')
   }
+  const giveSudokuHint = () => {
+    if (sudokuFinished) return
+    for (let row = 0; row < 9; row++) {
+      for (let column = 0; column < 9; column++) {
+        if (SUDOKU_PUZZLE[row][column] === '0' && sudokuValues[row][column] !== SUDOKU_SOLUTION[row][column]) {
+          const next = sudokuValues.map(line => [...line])
+          next[row][column] = SUDOKU_SOLUTION[row][column]
+          setSudokuValues(next)
+          setSudokuNotes(previous => previous.map((line, r) => line.map((cell, c) => r === row && c === column ? [] : cell)))
+          setSelectedSudokuCell({ row, column })
+          setSudokuHintsUsed(count => count + 1)
+          setSudokuMessage('Hint gebruikt: één vakje is ingevuld.')
+          return
+        }
+      }
+    }
+    setSudokuMessage('Er is geen leeg vakje meer voor een hint.')
+  }
+  const sudokuErrorCount = sudokuValues.reduce((total, row, rowIndex) =>
+    total + row.reduce((rowTotal, value, columnIndex) =>
+      rowTotal + (value && value !== SUDOKU_SOLUTION[rowIndex][columnIndex] ? 1 : 0), 0), 0)
+  const startPauseTimer = () => {
+    setTimerDone(false)
+    setTimerEndsAt(Date.now() + pauseMinutes * 60000)
+  }
+  const stopPauseTimer = () => {
+    setTimerEndsAt(null)
+    setTimerRemaining(0)
+    setTimerDone(false)
+  }
+  const formatTimer = seconds => String(Math.floor(seconds / 60)).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0')
   const checkSudoku = () => {
     const allFilled = sudokuValues.every(row => row.every(value => value !== ''))
     if (!allFilled) {
@@ -148,12 +280,15 @@ export default function FocusBreak({ onContinueLearning, userId }) {
     setSudokuMessage('')
     finish('Sudoku opgelost!', 'Netjes gedaan. Je hebt de hele puzzel goed ingevuld.')
   }
-  const submitWord = event => {
-    event.preventDefault()
+  const submitWord = () => {
     if (dailyState.finished) return
     const guess = wordInput.toLowerCase().replace(/[^a-z]/g, '')
     if (guess.length !== 5) {
       setWordMessage('Vul precies vijf letters in.')
+      return
+    }
+    if (!DUTCH_GUESS_WORDS.has(guess)) {
+      setWordMessage('Dat woord staat niet in de Nederlandse woordenlijst. Probeer een ander woord.')
       return
     }
     const nextGuesses = [...dailyState.guesses, guess]
@@ -166,6 +301,15 @@ export default function FocusBreak({ onContinueLearning, userId }) {
       ? 'Je hebt het woord van vandaag gevonden. Morgen staat er een nieuwe klaar.'
       : 'Het woord van vandaag was ' + targetWord.toUpperCase() + '. Morgen kun je een nieuwe proberen.')
   }
+  const pressWordKey = key => {
+    if (dailyState.finished) return
+    if (key === 'ENTER') { submitWord(); return }
+    if (key === '⌫') { setWordInput(value => value.slice(0, -1)); setWordMessage(''); return }
+    if (/^[A-Z]$/.test(key) && wordInput.length < 5) {
+      setWordInput(value => value + key.toLowerCase())
+      setWordMessage('')
+    }
+  }
 
   return <section className="focus-break">
     {!selectedGame ? <>
@@ -177,6 +321,10 @@ export default function FocusBreak({ onContinueLearning, userId }) {
         </div>
         <div className="fb-time-pill"><Clock3 size={17}/> 2–5 minuten per spel</div>
       </div>
+      <section className="fb-pause-timer" aria-label="Pauzetimer">
+        <div><span className="fb-kicker"><Clock3 size={14}/> PAUZETIMER</span><p>{timerEndsAt ? 'Je pauzetijd loopt.' : timerDone ? 'Je pauzetijd is voorbij. Ga rustig verder wanneer je er klaar voor bent.' : 'Kies een rustige duur voor je pauze.'}</p></div>
+        {timerEndsAt ? <div className="fb-timer-controls"><strong role="timer" aria-live="off">{formatTimer(timerRemaining)}</strong><button type="button" className="fb-timer-stop" onClick={stopPauseTimer}>Stop timer</button></div> : <div className="fb-timer-controls"><select aria-label="Duur van de pauze" value={pauseMinutes} onChange={event => setPauseMinutes(Number(event.target.value))}><option value={5}>5 minuten</option><option value={10}>10 minuten</option><option value={15}>15 minuten</option></select><button type="button" className="fb-timer-start" onClick={startPauseTimer}>Start timer</button></div>}
+      </section>
       <div className="fb-game-grid">
         <button className="fb-game-card" onClick={() => openGame('word')}>
           <div className="fb-game-art fb-word-art"><span>W</span><span>O</span><span>O</span><span>R</span><span>D</span></div>
@@ -213,11 +361,15 @@ export default function FocusBreak({ onContinueLearning, userId }) {
           })}
         </div>
         <div className="fb-word-legend"><span><i className="fb-legend-correct"/> Goede plek</span><span><i className="fb-legend-present"/> Wel in het woord</span><span><i className="fb-legend-absent"/> Niet in het woord</span></div>
-        {!dailyState.finished ? <form className="fb-word-form" onSubmit={submitWord}>
+        {!dailyState.finished ? <><form className="fb-word-form" onSubmit={event => { event.preventDefault(); submitWord() }}>
           <label htmlFor="fb-word-input">Jouw gok</label>
           <div><input id="fb-word-input" value={wordInput} onChange={event => setWordInput(event.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 5))} maxLength={5} autoComplete="off" autoCapitalize="none" placeholder="Vijf letters" aria-describedby="fb-word-message"/><button type="submit" disabled={wordInput.length !== 5}>Controleer <ArrowRight size={16}/></button></div>
           <p id="fb-word-message" role="status">{wordMessage || (6 - dailyState.guesses.length) + ' pogingen over.'}</p>
-        </form> : <div className="fb-finished-note"><Check size={17}/><span>{dailyState.won ? 'Je hebt de puzzel van vandaag opgelost.' : 'De puzzel van vandaag is afgerond.'} Morgen is er een nieuw woord.</span></div>}
+        </form><div className="fb-word-keyboard" role="group" aria-label="Toetsenbord voor het woordspel">
+          {'QWERTYUIOPASDFGHJKLZXCVBNM'.split('').map(letter=><button type="button" key={letter} onClick={()=>pressWordKey(letter)}>{letter}</button>)}
+          <button type="button" className="fb-key-wide" onClick={()=>pressWordKey('⌫')} aria-label="Laatste letter verwijderen">⌫</button>
+          <button type="button" className="fb-key-wide" onClick={()=>pressWordKey('ENTER')}>Enter</button>
+        </div></> : <div className="fb-finished-note"><Check size={17}/><span>{dailyState.won ? 'Je hebt de puzzel van vandaag opgelost.' : 'De puzzel van vandaag is afgerond.'} Morgen is er een nieuw woord.</span></div>}
       </section>}
       {selectedGame === 'sudoku' && <section className="fb-game-panel">
         <div className="fb-game-heading"><div><span className="fb-kicker">LOGICA · OP JE EIGEN TEMPO</span><h2>Sudoku</h2><p>Vul de lege vakjes met cijfers van 1 tot en met 9.</p></div><button className="fb-reset-button" onClick={resetSudoku}><RotateCcw size={15}/> Opnieuw</button></div>
@@ -226,18 +378,25 @@ export default function FocusBreak({ onContinueLearning, userId }) {
             {sudokuValues.map((row, rowIndex) => <div className="fb-sudoku-row" key={rowIndex}>{row.map((value, columnIndex) => {
               const fixed = SUDOKU_PUZZLE[rowIndex][columnIndex] !== '0'
               const selected = selectedSudokuCell.row === rowIndex && selectedSudokuCell.column === columnIndex
-              const extraClass = (columnIndex === 2 || columnIndex === 5 ? ' fb-box-right' : '') + (rowIndex === 2 || rowIndex === 5 ? ' fb-box-bottom' : '') + (selected ? ' fb-selected' : '')
-              return <input key={columnIndex} className={'fb-sudoku-cell' + (fixed ? ' fb-given' : '') + extraClass} value={value} disabled={fixed || sudokuFinished} inputMode="numeric" maxLength={1} aria-label={'Rij ' + (rowIndex + 1) + ', kolom ' + (columnIndex + 1)} onFocus={() => setSelectedSudokuCell({ row: rowIndex, column: columnIndex })} onChange={event => updateSudokuCell(rowIndex, columnIndex, event.target.value)}/>
+              const errorsVisible = showSudokuErrors && value && value !== SUDOKU_SOLUTION[rowIndex][columnIndex]
+              const extraClass = (columnIndex === 2 || columnIndex === 5 ? ' fb-box-right' : '') + (rowIndex === 2 || rowIndex === 5 ? ' fb-box-bottom' : '') + (selected ? ' fb-selected' : '') + (errorsVisible ? ' fb-error' : '')
+              return <div key={columnIndex} className="fb-sudoku-cell-wrap"><input className={'fb-sudoku-cell' + (fixed ? ' fb-given' : '') + extraClass} value={value} disabled={fixed || sudokuFinished} inputMode="numeric" maxLength={1} aria-label={'Rij ' + (rowIndex + 1) + ', kolom ' + (columnIndex + 1) + (errorsVisible ? ', mogelijk fout' : '')} onFocus={() => setSelectedSudokuCell({ row: rowIndex, column: columnIndex })} onChange={event => updateSudokuCell(rowIndex, columnIndex, event.target.value)}/>{sudokuNotes[rowIndex][columnIndex].length>0 && <small className="fb-sudoku-notes">{sudokuNotes[rowIndex][columnIndex].join(' ')}</small>}</div>
             })}</div>)}
           </div>
         </div>
-        <div className="fb-sudoku-keypad" role="group" aria-label="Cijferkeuze voor het geselecteerde sudoku-vakje">
+        <div className="fb-sudoku-controls">
+          <button type="button" className={notesMode?'is-active':''} aria-pressed={notesMode} disabled={sudokuFinished} onClick={()=>setNotesMode(value=>!value)}>Notities {notesMode?'aan':'uit'}</button>
+          <button type="button" disabled={sudokuFinished} onClick={giveSudokuHint}>Hint gebruiken</button>
+          <button type="button" className={showSudokuErrors?'is-active':''} aria-pressed={showSudokuErrors} onClick={()=>setShowSudokuErrors(value=>!value)}>Foutmarkering {showSudokuErrors?'aan':'uit'}</button>
+        </div>
+        <div className="fb-sudoku-keypad" role="group" aria-label={notesMode?'Kies een notitie voor het geselecteerde vakje':'Cijferkeuze voor het geselecteerde sudoku-vakje'}>
           {[1,2,3,4,5,6,7,8,9].map(digit=><button type="button" key={digit} disabled={sudokuFinished} onClick={()=>enterSudokuDigit(String(digit))}>{digit}</button>)}
           <button type="button" className="fb-sudoku-clear" disabled={sudokuFinished} aria-label="Wis het geselecteerde vakje" onClick={clearSudokuCell}>⌫</button>
         </div>
-        <div className="fb-sudoku-actions"><p role="status">{sudokuMessage || 'Elk cijfer mag per rij, kolom en 3 × 3-blok maar één keer voorkomen.'}</p><button onClick={checkSudoku} disabled={sudokuFinished}>Controleer sudoku <Check size={16}/></button></div>
+        <div className="fb-sudoku-actions"><p role="status">{sudokuMessage || (showSudokuErrors ? sudokuErrorCount + ' mogelijke fouten gemarkeerd. ' : '') + 'Elk cijfer mag per rij, kolom en 3 × 3-blok maar één keer voorkomen.' + (sudokuHintsUsed ? ' Hints gebruikt: ' + sudokuHintsUsed + '.' : '')}</p><button onClick={checkSudoku} disabled={sudokuFinished}>Controleer sudoku <Check size={16}/></button></div>
       </section>}
       {selectedGame === 'memory' && <MemoryBoard onComplete={() => finish('Alle paren gevonden!', 'Je hebt alle zes paren gevonden. Goed gespeeld!')}/>}
+      {timerEndsAt && <div className="fb-timer-live" role="status">Pauzetijd over: {formatTimer(timerRemaining)}</div>}
     </>}
     {showCompletion && <div className="fb-result-backdrop"><section className="fb-result-modal" role="dialog" aria-modal="true" aria-labelledby="fb-result-title">
       <div className="fb-result-icon"><Trophy size={25}/></div>
