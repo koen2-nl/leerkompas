@@ -1214,3 +1214,25 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .mobile-bottom-nav{padding-left:4px;padding-right:4px}
   .mobile-bottom-nav button{font-size:8px}
 }
+
+
+/* End-of-session feedback: clear results and next steps */
+.flashcard-complete,.quiz-complete{max-width:620px;margin:0 auto;text-align:center;padding:30px}
+.flashcard-complete .complete-icon,.quiz-complete .complete-icon{display:grid;place-items:center;width:54px;height:54px;margin:0 auto 13px;border:1px solid var(--line);border-radius:15px;background:var(--surface);color:var(--accent)}
+.flashcard-complete>.panel-kicker,.quiz-complete>.panel-kicker{display:block;margin:0 0 7px}
+.flashcard-complete h2,.quiz-complete h2{margin:0 0 7px;font-size:23px}
+.flashcard-complete>p,.quiz-complete>p{margin:0 auto 18px;max-width:450px;color:var(--muted);font-size:11px;line-height:1.6}
+.flashcard-result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:320px;margin:0 auto 20px}
+.flashcard-result-grid>div{display:grid;gap:4px;padding:13px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.flashcard-result-grid strong{font-size:19px;color:var(--ink)}
+.flashcard-result-grid span{font-size:9px;color:var(--muted)}
+.flashcard-complete-actions,.lesson-complete-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin-top:18px}
+.flashcard-complete-actions button,.lesson-complete-actions button{min-height:42px}
+.lesson-complete-actions .primary-btn,.lesson-complete-actions .soft-btn{min-width:170px;justify-content:center}
+.lesson-complete>.text-btn{margin:13px auto 0}
+.flashcard-complete-actions .primary-btn,.flashcard-complete-actions .soft-btn{min-width:170px;justify-content:center}
+@media(max-width:560px){
+  .flashcard-complete,.quiz-complete{padding:21px}
+  .flashcard-complete-actions,.lesson-complete-actions{display:grid;grid-template-columns:1fr}
+  .flashcard-complete-actions button,.lesson-complete-actions button{width:100%;justify-content:center}
+}
