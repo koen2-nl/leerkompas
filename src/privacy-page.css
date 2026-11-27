@@ -1,0 +1,19 @@
+.privacy-page{min-height:100vh;padding:32px 18px 60px;display:grid;place-items:start center;background:#f6f7f4;color:#282e2b}
+.privacy-page-card{width:min(100%,760px);padding:clamp(20px,4vw,36px);border:1px solid #e3e7e2;border-radius:16px;background:#fff}
+.privacy-back-link{display:inline-flex;align-items:center;gap:7px;margin-bottom:26px;color:#5f7065;font-size:11px;font-weight:650;text-decoration:none}
+.privacy-brand{display:flex;align-items:center;gap:9px;margin-bottom:22px;font-size:19px;font-weight:800;letter-spacing:-.4px}
+.privacy-brand-mark{width:36px;height:36px;display:grid;place-items:center;border:1px solid #dfe7df;border-radius:10px;background:#eef3ed;color:#3f7158}
+.privacy-page .panel-kicker{display:block;margin:0 0 7px;color:#687b6d}
+.privacy-page h1{font-size:clamp(24px,4vw,34px);line-height:1.15;letter-spacing:-.8px;margin:0 0 12px}
+.privacy-intro{max-width:620px;color:#68736b;font-size:13px;line-height:1.7;margin:0 0 28px}
+.privacy-section{display:grid;grid-template-columns:38px minmax(0,1fr);gap:13px;padding:20px 0;border-top:1px solid #e8ebe7}
+.privacy-section-icon{width:36px;height:36px;display:grid;place-items:center;border:1px solid #e1e8e1;border-radius:9px;background:#f4f7f3;color:#4d765d}
+.privacy-section h2{font-size:15px;margin:1px 0 8px}
+.privacy-section p{color:#5f6b62;font-size:12px;line-height:1.7;margin:0 0 8px}
+.privacy-section p:last-child{margin-bottom:0}
+.privacy-section code{font-size:11px;padding:1px 4px;border-radius:4px;background:#f1f3f0;color:#3a5142}
+.privacy-legal-note{margin-top:16px;padding:16px;border:1px solid #e4e6df;border-radius:10px;background:#f7f7f2}
+.privacy-legal-note strong{font-size:11px;color:#394b3e}
+.privacy-legal-note p{font-size:10px;line-height:1.65;color:#667067;margin:7px 0 0}
+.privacy-updated{margin:18px 0 0;color:#8a928b;font-size:9px}
+@media(max-width:520px){.privacy-page{padding:14px 10px 32px}.privacy-page-card{padding:20px 16px}.privacy-section{grid-template-columns:30px minmax(0,1fr);gap:10px}.privacy-section-icon{width:30px;height:30px}.privacy-section h2{font-size:14px}}
