@@ -7,13 +7,14 @@ const today = () => {
 }
 const dateFrom = value => new Date(value + 'T12:00:00')
 const dateKey = date => [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-')
-const emptyForm = date => ({ title: '', subject: '', kind: 'Toets', date: date || today(), time: '09:00', minutes: '30' })
+const emptyForm = date => ({ title: '', subject: '', kind: 'Toets', date: date || today(), time: '09:00', minutes: '30', suggestSessions: true })
 const monthNames = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december']
 const weekdays = ['Ma','Di','Wo','Do','Vr','Za','Zo']
 
 export default function Planning({ planning = [], setPlanning, subjects = [] }) {
   const [form, setForm] = useState(() => emptyForm())
   const [showForm, setShowForm] = useState(false)
+  const [feedback, setFeedback] = useState('')
   const [view, setView] = useState(() => typeof window !== 'undefined' && window.matchMedia?.('(max-width: 760px)').matches ? 'dag' : 'maand')
   const [selectedDate, setSelectedDate] = useState(today)
   const [visibleDate, setVisibleDate] = useState(() => dateFrom(today()))
@@ -48,7 +49,40 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
   const addItem = event => {
     event.preventDefault()
     if (!form.title.trim() || !form.subject.trim() || !form.date) return
-    setPlanning(items => [...items, { ...form, id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), title: form.title.trim(), subject: form.subject.trim(), minutes: Math.max(5,Math.min(600,Number(form.minutes)||30)), done:false, createdAt:new Date().toISOString() }])
+    const testTitle = form.title.trim()
+    const baseTime = new Date().toISOString()
+    const newItem = { ...form, id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), title: testTitle, subject: form.subject.trim(), minutes: Math.max(5,Math.min(600,Number(form.minutes)||30)), done:false, createdAt:baseTime }
+    const suggestedSessions = form.kind === 'Toets' && form.suggestSessions
+      ? [7, 4, 1].map(offset => {
+          const day = dateFrom(form.date)
+          day.setDate(day.getDate() - offset)
+          return dateKey(day)
+        }).filter((date, index, dates) => date >= today() && dates.indexOf(date) === index)
+          .map(date => ({
+            id: 'suggested-' + Date.now().toString(36) + '-' + date,
+            title: 'Voorbereiden op: ' + testTitle,
+            subject: form.subject.trim(),
+            kind: 'Leermoment',
+            date,
+            time: '16:00',
+            minutes: 30,
+            done: false,
+            suggested: true,
+            createdAt: baseTime
+          }))
+      : []
+    setPlanning(items => {
+      const uniqueSuggestions = suggestedSessions.filter(suggestion => !items.some(item =>
+        item.date === suggestion.date && item.subject === suggestion.subject &&
+        item.kind === 'Leermoment' && item.title === suggestion.title
+      ))
+      return [...items, newItem, ...uniqueSuggestions]
+    })
+    setFeedback(suggestedSessions.length
+      ? suggestedSessions.length + ' leermomenten toegevoegd vóór je toets.'
+      : form.kind === 'Toets' && form.suggestSessions
+        ? 'Er zijn geen dagen meer beschikbaar om leermomenten vóór deze toets voor te stellen.'
+        : 'Je agendapunt is toegevoegd.')
     setSelectedDate(form.date)
     setVisibleDate(dateFrom(form.date))
     setForm(emptyForm(form.date))
@@ -77,9 +111,17 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
     ? `${days[0].getDate()} – ${days[6].getDate()} ${monthNames[days[6].getMonth()]} ${days[6].getFullYear()}`
     : `${monthNames[visibleDate.getMonth()]} ${visibleDate.getFullYear()}`
   const formatDate = value => dateFrom(value).toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'})
+  const countdownLabel = item => {
+    if (!['Toets', 'Opdracht'].includes(item.kind)) return ''
+    const days = Math.round((dateFrom(item.date).getTime() - dateFrom(today()).getTime()) / 86400000)
+    if (days < 0) return 'Datum voorbij'
+    if (days === 0) return 'Vandaag'
+    if (days === 1) return 'Nog 1 dag'
+    return 'Nog ' + days + ' dagen'
+  }
   const renderItem = item => <article className={'planner-item'+(item.done?' is-done':'')} key={item.id}>
     <button className="planner-check" type="button" onClick={()=>toggle(item.id)} aria-label={item.done?'Markeer als niet afgerond':'Markeer als afgerond'}>{item.done&&<Check size={15}/>}</button>
-    <div className="planner-item-main"><div className="planner-item-meta"><span className={'planner-kind kind-'+item.kind.toLowerCase()}>{item.kind}</span><span>{item.time || 'Hele dag'} · {item.minutes} min</span></div><strong>{item.title}</strong><small>{item.subject}</small></div>
+    <div className="planner-item-main"><div className="planner-item-meta"><span className={'planner-kind kind-'+item.kind.toLowerCase()}>{item.kind}</span><span>{item.time || 'Hele dag'} · {item.minutes} min</span>{countdownLabel(item)&&<span className="planner-countdown">{countdownLabel(item)}</span>}</div><strong>{item.title}</strong><small>{item.subject}</small>{item.suggested&&<small className="planner-suggested-label">Voorgesteld leermoment</small>}</div>
     <button className="planner-delete" type="button" onClick={()=>remove(item.id)} aria-label="Verwijder agendapunt"><Trash2 size={16}/></button>
   </article>
   return <div className="planner-page">
@@ -113,7 +155,8 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
       <div className="planner-legend"><span><i className="kind-toets"/> Toets</span><span><i className="kind-opdracht"/> Opdracht</span><span><i className="kind-leermoment"/> Leermoment</span></div>
     </section>}
     <div className="planner-toolbar"><div><h3>{formatDate(selectedDate)}</h3><p>{selectedItems.length ? selectedItems.length+' agendapunt'+(selectedItems.length===1?'':'en') : 'Nog niets gepland op deze dag.'}</p></div><button className="primary-btn" type="button" onClick={()=>{setForm(emptyForm(selectedDate));setShowForm(value=>!value)}}><Plus size={16}/>{showForm?'Sluiten':'Toevoegen'}</button></div>
-    {showForm&&<form className="panel planner-form" onSubmit={addItem}><h3>Nieuw agendapunt</h3><label className="field-label">Wat staat er gepland?<input autoFocus maxLength={100} required placeholder="Bijv. Toets hoofdstuk 3" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/></label><div className="planner-form-grid"><label className="field-label">Vak<input list="planner-subjects" maxLength={50} required placeholder="Bijv. Biologie" value={form.subject} onChange={e=>setForm({...form,subject:e.target.value})}/><datalist id="planner-subjects">{subjects.map(subject=><option key={subject.name} value={subject.name}/>)}</datalist></label><label className="field-label">Soort<select value={form.kind} onChange={e=>setForm({...form,kind:e.target.value})}><option>Toets</option><option>Opdracht</option><option>Leermoment</option></select></label><label className="field-label">Datum<input type="date" required value={form.date} onChange={e=>setForm({...form,date:e.target.value})}/></label><label className="field-label">Tijd (24 uur)<input type="text" inputMode="numeric" autoComplete="off" maxLength={5} pattern="(?:[01][0-9]|2[0-3]):[0-5][0-9]" title="Vul een tijd in als 14:30 (24-uursnotatie)." placeholder="14:30" required value={form.time} onChange={e=>setForm({...form,time:e.target.value})}/></label><label className="field-label">Duur (minuten)<input type="number" min="5" max="600" step="5" value={form.minutes} onChange={e=>setForm({...form,minutes:e.target.value})}/></label></div><div className="planner-form-actions"><button className="primary-btn" type="submit"><Plus size={15}/> Opslaan</button><button className="soft-btn" type="button" onClick={()=>{setShowForm(false);setForm(emptyForm(selectedDate))}}>Annuleren</button></div></form>}
+    {feedback&&<p className="planner-feedback" role="status">{feedback}</p>}
+    {showForm&&<form className="panel planner-form" onSubmit={addItem}><h3>Nieuw agendapunt</h3><label className="field-label">Wat staat er gepland?<input autoFocus maxLength={100} required placeholder="Bijv. Toets hoofdstuk 3" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/></label><div className="planner-form-grid"><label className="field-label">Vak<input list="planner-subjects" maxLength={50} required placeholder="Bijv. Biologie" value={form.subject} onChange={e=>setForm({...form,subject:e.target.value})}/><datalist id="planner-subjects">{subjects.map(subject=><option key={subject.name} value={subject.name}/>)}</datalist></label><label className="field-label">Soort<select value={form.kind} onChange={e=>setForm({...form,kind:e.target.value})}><option>Toets</option><option>Opdracht</option><option>Leermoment</option></select></label><label className="field-label">Datum<input type="date" required value={form.date} onChange={e=>setForm({...form,date:e.target.value})}/></label><label className="field-label">Tijd (24 uur)<input type="text" inputMode="numeric" autoComplete="off" maxLength={5} pattern="(?:[01][0-9]|2[0-3]):[0-5][0-9]" title="Vul een tijd in als 14:30 (24-uursnotatie)." placeholder="14:30" required value={form.time} onChange={e=>setForm({...form,time:e.target.value})}/></label><label className="field-label">Duur (minuten)<input type="number" min="5" max="600" step="5" value={form.minutes} onChange={e=>setForm({...form,minutes:e.target.value})}/></label></div>{form.kind==='Toets'&&<label className="planner-suggest-toggle"><input type="checkbox" checked={form.suggestSessions} onChange={e=>setForm({...form,suggestSessions:e.target.checked})}/> Stel drie leermomenten voor in de zeven dagen vóór deze toets</label>}<div className="planner-form-actions"><button className="primary-btn" type="submit"><Plus size={15}/> Opslaan</button><button className="soft-btn" type="button" onClick={()=>{setShowForm(false);setForm(emptyForm(selectedDate))}}>Annuleren</button></div></form>}
     <section className="panel planner-list"><div className="panel-head"><div><span className="panel-kicker">Geselecteerde dag</span><h3><CalendarDays size={16}/> Agenda-items</h3></div><span className="planner-count">{selectedItems.length} items</span></div>{selectedItems.length?selectedItems.map(renderItem):<div className="planner-empty"><CalendarDays size={25}/><strong>Deze dag is nog leeg</strong><span>Klik op ‘Toevoegen’ om iets in te plannen.</span></div>}</section>
     {completed.length>0&&<section className="panel planner-list"><div className="panel-head"><div><span className="panel-kicker">AFGEROND</span><h3><Check size={16}/> Afgeronde agendapunten</h3></div><span className="planner-count">{completed.length} items</span></div>{completed.map(renderItem)}</section>}
   </div>
