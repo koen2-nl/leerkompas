@@ -50,6 +50,7 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
   const dayHours = Array.from({ length: 17 }, (_, index) => index + 6)
   const todayKey = today()
   const countdownLabel = date => {
+    if (!date || !/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) return 'Datum onbekend'
     const difference = daysBetween(todayKey, date)
     return difference < 0 ? 'Voorbij' : difference === 0 ? 'Vandaag' : difference === 1 ? 'Morgen' : 'Nog ' + difference + ' dagen'
   }
