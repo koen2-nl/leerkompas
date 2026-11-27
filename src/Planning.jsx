@@ -69,18 +69,20 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
     .slice(0, 5)
   const [suggestionMessage, setSuggestionMessage] = useState('')
   const addSuggestedSession = suggestion => {
-    if (existingSessions.has(suggestion.subject + '|' + suggestion.date)) return
-    setPlanning(items => [...items, {
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-      title: suggestion.title,
-      subject: suggestion.subject,
-      kind: 'Leermoment',
-      date: suggestion.date,
-      time: '16:00',
-      minutes: 30,
-      done: false,
-      createdAt: new Date().toISOString()
-    }])
+    setPlanning(items => {
+      if (items.some(item => item.kind === 'Leermoment' && item.subject === suggestion.subject && item.date === suggestion.date)) return items
+      return [...items, {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+        title: suggestion.title,
+        subject: suggestion.subject,
+        kind: 'Leermoment',
+        date: suggestion.date,
+        time: '16:00',
+        minutes: 30,
+        done: false,
+        createdAt: new Date().toISOString()
+      }]
+    })
     setSuggestionMessage('Leermoment toegevoegd aan je planning.')
   }
   const isTodaySelected = selectedDate === today()
