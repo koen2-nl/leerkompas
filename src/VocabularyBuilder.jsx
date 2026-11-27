@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { FileText, LoaderCircle, Plus, Save, Trash2, Upload, X } from 'lucide-react'
-import mammoth from 'mammoth'
-import { recognize } from 'tesseract.js'
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
 const STORAGE_KEY = 'leerkompas:vocabularyLists'
 const readLists = () => {
@@ -69,25 +68,72 @@ export default function VocabularyBuilder() {
 
   const processFile = async file => {
     if (!file) return
-    setBusy(true); setError(''); setStatus('Bestand wordt gelezen…'); setSourceName(file.name)
+    const name = file.name.toLowerCase()
+    const isDocx = name.endsWith('.docx')
+    const isSupportedImage = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type)
+    if (!isDocx && !isSupportedImage) {
+      setError('Kies een .docx-bestand of een JPG-, PNG- of WEBP-foto.')
+      setStatus('')
+      return
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setError('Dit bestand is groter dan 10 MB. Kies een kleiner bestand.')
+      setStatus('')
+      return
+    }
+    if (!file.size) {
+      setError('Dit bestand lijkt leeg. Kies een ander bestand.')
+      setStatus('')
+      return
+    }
+
+    setBusy(true)
+    setError('')
+    setStatus('Bestand voorbereiden…')
+    setSourceName(file.name)
     try {
       let text = ''
-      if (file.name.toLowerCase().endsWith('.docx')) {
+      if (isDocx) {
+        setStatus('Word-bestand inlezen…')
+        const mammothModule = await import('mammoth')
+        const mammoth = mammothModule.default || mammothModule
         const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() })
         text = result.value
-      } else if (file.type.startsWith('image/')) {
-        setStatus('Tekst op de foto herkennen…')
-        const result = await recognize(file, 'nld+eng')
-        text = result.data.text
-      } else throw new Error('Kies een .docx-bestand of een foto (JPG, PNG of WEBP).')
+      } else {
+        const { createWorker } = await import('tesseract.js')
+        setStatus('Tekstherkenning starten…')
+        const worker = await createWorker('nld+eng', 1, {
+          logger: message => {
+            if (message.status === 'recognizing text') {
+              setStatus('Tekst op de foto herkennen… ' + Math.round((message.progress || 0) * 100) + '%')
+            } else if (message.status === 'loading language traineddata') {
+              setStatus('Nederlandse en Engelse herkenning laden…')
+            } else if (message.status === 'loading tesseract core') {
+              setStatus('Tekstherkenning voorbereiden…')
+            }
+          }
+        })
+        try {
+          const result = await worker.recognize(file)
+          text = result.data.text
+        } finally {
+          await worker.terminate()
+        }
+      }
       const detected = detectEntries(text, instruction)
       setEntries(detected)
-      if (!title.trim()) setTitle(file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' '))
-      setStatus(detected.length ? detected.length + ' mogelijke begrippen met betekenis herkend. Controleer ze hieronder.' : 'Geen duidelijke begrippen gevonden. Pas je opdracht aan of voeg ze zelf toe.')
-    } catch (e) {
-      setError(e?.message || 'Het bestand kon niet worden gelezen.')
+      if (!title.trim()) setTitle(file.name.replace(/\\.[^.]+$/, '').replace(/[_-]+/g, ' '))
+      setStatus(detected.length
+        ? detected.length + ' mogelijke begrippen herkend. Controleer ze hieronder.'
+        : 'Geen duidelijke begrippen gevonden. Pas je opdracht aan of voeg ze zelf toe.')
+    } catch {
+      setError(isDocx
+        ? 'Dit Word-bestand kon niet goed worden gelezen. Controleer of het een geldig .docx-bestand is.'
+        : 'De tekst op deze foto kon niet goed worden herkend. Gebruik een scherpe, goed belichte foto en probeer het opnieuw.')
       setStatus('')
-    } finally { setBusy(false) }
+    } finally {
+      setBusy(false)
+    }
   }
   const updateEntry = (index, key, value) => setEntries(current => current.map((entry, i) => i === index ? { ...entry, [key]: value } : entry))
   const addEntry = () => setEntries(current => [...current, { term: '', meaning: '', section: '' }])
@@ -115,7 +161,7 @@ export default function VocabularyBuilder() {
     <section className="panel vocabulary-upload">
       <div className="vocabulary-upload-icon"><Upload size={22}/></div>
       <h3>Upload een Word-bestand of foto</h3>
-      <p>Ondersteund: DOCX, JPG, PNG en WEBP. Taalnamen en hoofdstukkoppen worden zo veel mogelijk overgeslagen.</p>
+      <p>Ondersteund: DOCX, JPG, PNG en WEBP tot 10 MB. Je bestand wordt in deze browser verwerkt; alleen de woordenlijst die je opslaat blijft op dit apparaat bewaard.</p>
       <label className="vocabulary-title-field">Extra opdracht (optioneel)<input value={instruction} onChange={e=>setInstruction(e.target.value)} placeholder="Bijv. doe alleen de woorden van Lektion 2"/></label>
       <label className="primary-btn vocabulary-file-button"><Upload size={16}/> Bestand kiezen<input type="file" accept=".docx,image/jpeg,image/png,image/webp" disabled={busy} onChange={e => processFile(e.target.files?.[0])}/></label>
       {busy&&<p className="vocabulary-status"><LoaderCircle className="spin" size={16}/>{status}</p>}
