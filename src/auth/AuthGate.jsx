@@ -38,6 +38,7 @@ export default function AuthGate() {
   const [isLessonMaker, setIsLessonMaker] = useState(false)
   const [profileReady, setProfileReady] = useState(false)
   const [profileLoaded, setProfileLoaded] = useState(false)
+  const [showAuthAfterPublicInfo, setShowAuthAfterPublicInfo] = useState(false)
   useEffect(() => {
     if (!supabase) { setLoading(false); return }
     let alive = true
@@ -142,6 +143,8 @@ export default function AuthGate() {
   if (!isSupabaseConfigured) return <div className="auth-screen"><div className="auth-card auth-setup"><div className="auth-brand"><span className="auth-brand-mark"><Compass/></span><span>Leervo</span></div><h1>Bijna klaar voor jouw leerplek</h1><p>De accountfunctie is voorbereid. Vul eerst de Supabase-omgevingsvariabelen in om registratie en inloggen te activeren.</p><p><strong>Benodigd:</strong> <code>VITE_SUPABASE_URL</code> en <code>VITE_SUPABASE_ANON_KEY</code>. Volg de installatiehandleiding in <code>docs/PROJECT.md</code>.</p></div></div>
   const sharedToken = new URLSearchParams(window.location.search).get('share')
   if (!session && sharedToken) return <PublicSharedLesson token={sharedToken}/>
+  const publicLibraryRoute = window.location.pathname.replace(/\\/+$/, '') === '/openbare-lessen'
+  if (!session && publicLibraryRoute && !showAuthAfterPublicInfo) return <PublicLibraryGuest onLogin={() => setShowAuthAfterPublicInfo(true)}/>
   if (!session) return <AuthScreen />
   if (!syncReady) return <div className="auth-screen"><div className="auth-card">Je persoonlijke leerplek veilig laden…</div></div>
   if (!profileLoaded) return <div className="auth-screen"><div className="auth-card">Je profiel laden…</div></div>
@@ -163,6 +166,19 @@ export default function AuthGate() {
     setProfileReady(true)
   }} />
   return <AuthContext.Provider value={value}><App /></AuthContext.Provider>
+}
+
+
+function PublicLibraryGuest({ onLogin }) {
+  return <main className="auth-screen public-library-guest">
+    <section className="auth-card">
+      <div className="auth-brand"><span className="auth-brand-mark"><Compass/></span><span>Leervo</span></div>
+      <span className="panel-kicker">OPENBARE LESSEN</span>
+      <h1>Ontdek lessen van anderen</h1>
+      <p>Log in of maak een gratis account om openbare lessen te bekijken en aan je eigen lesbibliotheek toe te voegen. Je voortgang wordt dan aan je account gekoppeld.</p>
+      <button type="button" className="auth-submit" onClick={onLogin}>Inloggen of account maken</button>
+    </section>
+  </main>
 }
 
 function AuthScreen() {
