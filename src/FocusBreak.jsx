@@ -397,7 +397,7 @@ export default function FocusBreak({ onContinueLearning, userId }) {
         <div className="fb-sudoku-actions"><p role="status">{sudokuMessage || (showSudokuErrors ? sudokuErrorCount + ' mogelijke fouten gemarkeerd. ' : '') + 'Elk cijfer mag per rij, kolom en 3 × 3-blok maar één keer voorkomen.' + (sudokuHintsUsed ? ' Hints gebruikt: ' + sudokuHintsUsed + '.' : '')}</p><button onClick={checkSudoku} disabled={sudokuFinished}>Controleer sudoku <Check size={16}/></button></div>
       </section>}
       {selectedGame === 'memory' && <MemoryBoard onComplete={() => finish('Alle paren gevonden!', 'Je hebt alle zes paren gevonden. Goed gespeeld!')}/>}
-      {timerEndsAt && <div className="fb-timer-live" role="status">Pauzetijd over: {formatTimer(timerRemaining)}</div>}
+      {(timerEndsAt || timerDone) && <div className="fb-timer-live" role="status">{timerEndsAt ? 'Pauzetijd over: ' + formatTimer(timerRemaining) : 'Je pauzetijd is voorbij. Ga rustig verder wanneer je er klaar voor bent.'}</div>}
     </>}
     {showCompletion && <div className="fb-result-backdrop"><section className="fb-result-modal" role="dialog" aria-modal="true" aria-labelledby="fb-result-title">
       <div className="fb-result-icon"><Trophy size={25}/></div>
