@@ -1,5 +1,11 @@
 # Changelog Leervo
 
+## v0.56 beta — 27 november 2026
+- Voeg een skip-link toe zodat je met het toetsenbord direct naar de hoofdinhoud kunt springen.
+- Maak belangrijke knoppen en iconen minimaal 44 pixels hoog of breed waar dat past.
+- Geef de vier accentkleuren duidelijkere tekst- en knopcontrasten in Dag en Nacht; Kerst gebruikt een passende contrastrijke groene accentkleur.
+- Behoud de bestaande toetsenbordfocus-randen en algemene ondersteuning voor minder beweging.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
