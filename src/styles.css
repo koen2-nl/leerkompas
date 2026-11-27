@@ -1214,3 +1214,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .mobile-bottom-nav{padding-left:4px;padding-right:4px}
   .mobile-bottom-nav button{font-size:8px}
 }
+
+/* Heldere uitleg voor bezoekers van de openbare lesbibliotheek */
+.public-library-guest .auth-card{border-radius:14px;box-shadow:none}
+.public-library-guest .auth-brand-mark{background:var(--accent-soft,#f0edff);color:var(--accent,#6552b8)}
+.public-library-guest .auth-card .panel-kicker{margin:0 0 8px}
+.lesson-filter-controls{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
