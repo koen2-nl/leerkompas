@@ -1,5 +1,11 @@
 # Changelog Leervo
 
+## v0.55 beta — 27 november 2026
+- Laat na een flashcardronde zien hoeveel kaarten je als bekend en als later herhalen hebt gemarkeerd.
+- Voeg een eindscherm toe aan flashcards en quizzen met de keuzes **Nog een keer** en **Naar voortgang**.
+- Voeg bij afgeronde lessen de vervolgstappen **Nog een keer oefenen**, **Naar voortgang** en **Terug naar lessen** toe.
+- Ondersteun pijltjestoetsen om bij flashcards naar de vorige of volgende kaart te gaan.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
