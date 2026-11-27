@@ -1214,3 +1214,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .mobile-bottom-nav{padding-left:4px;padding-right:4px}
   .mobile-bottom-nav button{font-size:8px}
 }
+
+/* Instellingen: 'Wat is nieuw' als rustige, begrijpelijke sectie */
+.settings-whats-new-intro{margin:0 0 16px}
+.settings-whats-new-intro p{margin:4px 0 0;color:var(--muted);font-size:10px;line-height:1.6}
+.settings-roles h3+h3{margin-top:22px}
