@@ -1,5 +1,11 @@
 # Changelog Leervo
 
+## v0.60 beta — 27 november 2026
+- Toon bij toetsen en opdrachten hoeveel dagen er nog over zijn.
+- Stel bij het toevoegen van een toets optioneel drie leermomenten voor, op 7, 4 en 1 dag vóór de toets.
+- Voeg voorgestelde leermomenten alleen toe als je de optie aan laat staan.
+- Toon duidelijk dat voorgestelde leermomenten bij de bijbehorende toets horen.
+
 ## v0.57 beta — 27 november 2026
 - Voeg een lokaal Leitner-systeem met drie vakken toe voor flashcards.
 - Kaarten die lastig zijn komen later in dezelfde oefenronde nog eens terug.
