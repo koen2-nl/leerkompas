@@ -1179,3 +1179,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .app.christmas-theme .flashcard,.app.christmas-theme .flashcard.flipped{background:#303833!important;color:#e6eae6;border-color:#424d45}.app.christmas-theme .game-art{background:#303833!important}
 @media(max-width:760px){.app .theme-switcher button{min-width:42px;padding:0 7px;font-size:9px}}
 @media(prefers-reduced-motion:reduce){.app *{scroll-behavior:auto!important;transition:none!important}}
+
+
+/* Public no-login review preview */
+.review-demo-badge{position:fixed;right:18px;top:82px;z-index:20;padding:7px 10px;border:1px solid var(--line,#dedede);border-radius:8px;background:var(--panel,#fff);color:var(--muted,#777);font-size:8px;font-weight:800;letter-spacing:1px;pointer-events:none;box-shadow:none}
+@media(max-width:700px){.review-demo-badge{top:78px;right:10px;font-size:7px;padding:6px 8px}}
