@@ -1,5 +1,12 @@
 # Changelog Leervo
 
+## v0.57 beta — 27 november 2026
+- Voeg een optionele timer van 5, 10 of 15 minuten toe met een rustige melding als de tijd om is.
+- Bewaar je Sudoku-cijfers en notities lokaal, zodat je na verversen verder kunt gaan.
+- Voeg een eigen cijfertoetsenbord, notitiemodus, foutmarkering en hints toe aan Sudoku.
+- Laat het Woord van de dag wisselen op middernacht in de tijdzone Europe/Amsterdam.
+- Controleer gokken tegen een ingebouwde lijst met Nederlandse vijfletterwoorden.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
