@@ -17,3 +17,6 @@
 .privacy-legal-note p{font-size:10px;line-height:1.65;color:#667067;margin:7px 0 0}
 .privacy-updated{margin:18px 0 0;color:#8a928b;font-size:9px}
 @media(max-width:520px){.privacy-page{padding:14px 10px 32px}.privacy-page-card{padding:20px 16px}.privacy-section{grid-template-columns:30px minmax(0,1fr);gap:10px}.privacy-section-icon{width:30px;height:30px}.privacy-section h2{font-size:14px}}
+
+.auth-privacy-link{color:inherit;text-decoration:underline;text-underline-offset:2px;font-weight:650}
+.auth-privacy-link:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:2px}
