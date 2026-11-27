@@ -1,5 +1,13 @@
 # Changelog Leervo
 
+## v0.54 beta — 27 november 2026
+- Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
+- Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
+- Groepeer de navigatie in **Leren**, **Plannen**, **Ontspannen** en **Account**.
+- Voeg op mobiel een vaste onderbalk toe met de vijf belangrijkste bestemmingen en **Meer** voor de overige pagina’s.
+- Maak Mijn lesbibliotheek en Openbare lesbibliotheek tabs binnen één Lessen-pagina en behoud de bestaande routes.
+- Maak duidelijk dat Minigames bedoeld zijn om leerstof te oefenen en de pauzepagina bedoeld is voor ontspannen puzzels.
+
 ## v0.53 beta — 15 november 2026
 - Voeg een aparte navigatietab **Even klaar met leren?** toe, los van de bestaande leergerichte minigames.
 - Voeg drie speelbare pauzespellen toe: een dagelijks woordraadsel, sudoku en memory.
