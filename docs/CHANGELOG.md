@@ -1,6 +1,12 @@
 # Changelog Leervo
 
 ## v0.54 beta — 27 november 2026
+- Houd één duidelijke hoofdactie **Begin met leren** bovenaan het overzicht.
+- Maak de knop bij **Jouw volgende stap** rustiger, zodat die de hoofdactie niet verdringt.
+- Behoud de bestaande lege toestanden voor nieuwe vakken en flashcards.
+- Verduidelijk het onderscheid: de lesbibliotheek bevat eigen en openbare lessen; Woordenlijsten herkent begrippen uit bestanden; Les maken bouwt complete lessen en leerspelletjes.
+
+## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
 - Groepeer de navigatie in **Leren**, **Plannen**, **Ontspannen** en **Account**.
