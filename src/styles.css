@@ -1214,3 +1214,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .mobile-bottom-nav{padding-left:4px;padding-right:4px}
   .mobile-bottom-nav button{font-size:8px}
 }
+
+/* Duidelijke actiefeedback en herstellen van lokale verwijderacties */
+.planner-action-notice,.vocabulary-undo-note{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--muted);font-size:10px;line-height:1.5}
+.planner-action-notice .soft-btn,.vocabulary-undo-note .soft-btn{min-height:40px;white-space:nowrap}
+.vocabulary-undo-note{margin-bottom:12px}
+@media(max-width:560px){
+  .planner-action-notice,.vocabulary-undo-note{align-items:flex-start;flex-direction:column}
+  .planner-action-notice .soft-btn,.vocabulary-undo-note .soft-btn{width:100%;justify-content:center}
+}
