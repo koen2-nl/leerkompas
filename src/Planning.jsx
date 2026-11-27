@@ -16,6 +16,8 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
   const [showForm, setShowForm] = useState(false)
   const [view, setView] = useState('maand')
   const [selectedDate, setSelectedDate] = useState(today)
+  const [actionMessage, setActionMessage] = useState('')
+  const [deletedItem, setDeletedItem] = useState(null)
   const [visibleDate, setVisibleDate] = useState(() => dateFrom(today()))
   const [now, setNow] = useState(() => new Date())
   const previousToday = useRef(today())
@@ -53,9 +55,28 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
     setVisibleDate(dateFrom(form.date))
     setForm(emptyForm(form.date))
     setShowForm(false)
+    setDeletedItem(null)
+    setActionMessage('Agendapunt toegevoegd aan je planning.')
   }
-  const toggle = id => setPlanning(items => items.map(item => item.id === id ? {...item,done:!item.done} : item))
-  const remove = id => setPlanning(items => items.filter(item => item.id !== id))
+  const toggle = id => {
+    const item = sorted.find(entry => entry.id === id)
+    setPlanning(items => items.map(entry => entry.id === id ? {...entry,done:!entry.done} : entry))
+    setActionMessage(item?.done ? 'Agendapunt weer opengezet.' : 'Agendapunt afgerond.')
+    setDeletedItem(null)
+  }
+  const remove = id => {
+    const item = sorted.find(entry => entry.id === id)
+    if (!item) return
+    setPlanning(items => items.filter(entry => entry.id !== id))
+    setDeletedItem(item)
+    setActionMessage('Agendapunt verwijderd.')
+  }
+  const undoRemove = () => {
+    if (!deletedItem) return
+    setPlanning(items => items.some(item => item.id === deletedItem.id) ? items : [...items, deletedItem])
+    setDeletedItem(null)
+    setActionMessage('Verwijderen ongedaan gemaakt.')
+  }
   const shift = amount => {
     const next = new Date(visibleDate)
     if (view === 'week') next.setDate(next.getDate() + amount * 7)
@@ -113,6 +134,7 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
       <div className="planner-legend"><span><i className="kind-toets"/> Toets</span><span><i className="kind-opdracht"/> Opdracht</span><span><i className="kind-leermoment"/> Leermoment</span></div>
     </section>}
     <div className="planner-toolbar"><div><h3>{formatDate(selectedDate)}</h3><p>{selectedItems.length ? selectedItems.length+' agendapunt'+(selectedItems.length===1?'':'en') : 'Nog niets gepland op deze dag.'}</p></div><button className="primary-btn" type="button" onClick={()=>{setForm(emptyForm(selectedDate));setShowForm(value=>!value)}}><Plus size={16}/>{showForm?'Sluiten':'Toevoegen'}</button></div>
+    {actionMessage&&<div className="planner-action-notice" role="status"><span>{actionMessage}</span>{deletedItem&&<button type="button" className="soft-btn" onClick={undoRemove}>Ongedaan maken</button>}</div>}
     {showForm&&<form className="panel planner-form" onSubmit={addItem}><h3>Nieuw agendapunt</h3><label className="field-label">Wat staat er gepland?<input autoFocus maxLength={100} required placeholder="Bijv. Toets hoofdstuk 3" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/></label><div className="planner-form-grid"><label className="field-label">Vak<input list="planner-subjects" maxLength={50} required placeholder="Bijv. Biologie" value={form.subject} onChange={e=>setForm({...form,subject:e.target.value})}/><datalist id="planner-subjects">{subjects.map(subject=><option key={subject.name} value={subject.name}/>)}</datalist></label><label className="field-label">Soort<select value={form.kind} onChange={e=>setForm({...form,kind:e.target.value})}><option>Toets</option><option>Opdracht</option><option>Leermoment</option></select></label><label className="field-label">Datum<input type="date" required value={form.date} onChange={e=>setForm({...form,date:e.target.value})}/></label><label className="field-label">Tijd (24 uur)<input type="text" inputMode="numeric" autoComplete="off" maxLength={5} pattern="(?:[01][0-9]|2[0-3]):[0-5][0-9]" title="Vul een tijd in als 14:30 (24-uursnotatie)." placeholder="14:30" required value={form.time} onChange={e=>setForm({...form,time:e.target.value})}/></label><label className="field-label">Duur (minuten)<input type="number" min="5" max="600" step="5" value={form.minutes} onChange={e=>setForm({...form,minutes:e.target.value})}/></label></div><div className="planner-form-actions"><button className="primary-btn" type="submit"><Plus size={15}/> Opslaan</button><button className="soft-btn" type="button" onClick={()=>{setShowForm(false);setForm(emptyForm(selectedDate))}}>Annuleren</button></div></form>}
     <section className="panel planner-list"><div className="panel-head"><div><span className="panel-kicker">Geselecteerde dag</span><h3><CalendarDays size={16}/> Agenda-items</h3></div><span className="planner-count">{selectedItems.length} items</span></div>{selectedItems.length?selectedItems.map(renderItem):<div className="planner-empty"><CalendarDays size={25}/><strong>Deze dag is nog leeg</strong><span>Klik op ‘Toevoegen’ om iets in te plannen.</span></div>}</section>
     {completed.length>0&&<section className="panel planner-list"><div className="panel-head"><div><span className="panel-kicker">AFGEROND</span><h3><Check size={16}/> Afgeronde agendapunten</h3></div><span className="planner-count">{completed.length} items</span></div>{completed.map(renderItem)}</section>}
