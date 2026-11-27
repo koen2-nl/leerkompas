@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 import { FileText, LoaderCircle, Plus, Save, Trash2, Upload, X } from 'lucide-react'
-import mammoth from 'mammoth'
-import { recognize } from 'tesseract.js'
 
 const STORAGE_KEY = 'leerkompas:vocabularyLists'
 const readLists = () => {
@@ -69,23 +67,52 @@ export default function VocabularyBuilder() {
 
   const processFile = async file => {
     if (!file) return
-    setBusy(true); setError(''); setStatus('Bestand wordt gelezen…'); setSourceName(file.name)
+    setError(''); setStatus(''); setSourceName(file.name)
+    const isDocx = file.name.toLowerCase().endsWith('.docx')
+    const isImage = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type)
+    if (!isDocx && !isImage) {
+      setError('Kies een .docx-bestand of een foto als JPG, PNG of WEBP.')
+      return
+    }
+    const maxFileSize = 10 * 1024 * 1024
+    if (file.size > maxFileSize) {
+      setError('Dit bestand is groter dan 10 MB. Kies een kleiner bestand of maak de foto kleiner.')
+      return
+    }
+    if (!file.size) {
+      setError('Dit bestand lijkt leeg. Kies een ander bestand.')
+      return
+    }
+    setBusy(true)
     try {
       let text = ''
-      if (file.name.toLowerCase().endsWith('.docx')) {
+      if (isDocx) {
+        setStatus('Word-bestand openen…')
+        const { default: mammoth } = await import('mammoth')
         const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() })
         text = result.value
-      } else if (file.type.startsWith('image/')) {
-        setStatus('Tekst op de foto herkennen…')
-        const result = await recognize(file, 'nld+eng')
+      } else {
+        setStatus('Herkenningsmodule laden…')
+        const { recognize } = await import('tesseract.js')
+        const result = await recognize(file, 'nld+eng', {
+          logger: message => {
+            if (message.status === 'recognizing text') {
+              setStatus('Tekst herkennen… ' + Math.round((message.progress || 0) * 100) + '%')
+            } else if (message.status === 'loading language traineddata') {
+              setStatus('Nederlandse en Engelse taalgegevens laden…')
+            } else if (message.status === 'loading tesseract core') {
+              setStatus('Tekstherkenning starten…')
+            }
+          }
+        })
         text = result.data.text
-      } else throw new Error('Kies een .docx-bestand of een foto (JPG, PNG of WEBP).')
+      }
       const detected = detectEntries(text, instruction)
       setEntries(detected)
       if (!title.trim()) setTitle(file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' '))
-      setStatus(detected.length ? detected.length + ' mogelijke begrippen met betekenis herkend. Controleer ze hieronder.' : 'Geen duidelijke begrippen gevonden. Pas je opdracht aan of voeg ze zelf toe.')
-    } catch (e) {
-      setError(e?.message || 'Het bestand kon niet worden gelezen.')
+      setStatus(detected.length ? detected.length + ' mogelijke begrippen herkend. Controleer de regels en vul ontbrekende betekenissen aan.' : 'Geen duidelijke begrippen gevonden. Pas je opdracht aan of voeg ze zelf toe.')
+    } catch {
+      setError('Het bestand kon niet worden gelezen. Controleer of het een geldige Word-foto of afbeelding is en probeer het opnieuw.')
       setStatus('')
     } finally { setBusy(false) }
   }
@@ -115,10 +142,10 @@ export default function VocabularyBuilder() {
     <section className="panel vocabulary-upload">
       <div className="vocabulary-upload-icon"><Upload size={22}/></div>
       <h3>Upload een Word-bestand of foto</h3>
-      <p>Ondersteund: DOCX, JPG, PNG en WEBP. Taalnamen en hoofdstukkoppen worden zo veel mogelijk overgeslagen.</p>
+      <p>Ondersteund: DOCX, JPG, PNG en WEBP (maximaal 10 MB). Je bestand wordt in je browser verwerkt en niet naar Leervo geüpload. Taalnamen en hoofdstukkoppen worden zo veel mogelijk overgeslagen.</p>
       <label className="vocabulary-title-field">Extra opdracht (optioneel)<input value={instruction} onChange={e=>setInstruction(e.target.value)} placeholder="Bijv. doe alleen de woorden van Lektion 2"/></label>
       <label className="primary-btn vocabulary-file-button"><Upload size={16}/> Bestand kiezen<input type="file" accept=".docx,image/jpeg,image/png,image/webp" disabled={busy} onChange={e => processFile(e.target.files?.[0])}/></label>
-      {busy&&<p className="vocabulary-status"><LoaderCircle className="spin" size={16}/>{status}</p>}
+      {busy&&<p className="vocabulary-status" role="status" aria-live="polite"><LoaderCircle className="spin" size={16}/>{status}</p>}
       {!busy&&status&&<p className="vocabulary-status">{status}</p>}
       {error&&<p className="admin-error">{error}</p>}
     </section>
