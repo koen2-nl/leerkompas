@@ -262,6 +262,14 @@ export default function FocusBreak({ onContinueLearning, userId }) {
   }
 
   return <section className="focus-break">
+    <div className="fb-pause-timer" aria-label="Pauzetimer">
+      <div className="fb-pause-timer-copy">
+        <span className="fb-kicker"><Clock3 size={13}/> PAUZETIMER</span>
+        <strong>{timerEndAt ? timerLabel : 'Kies een rustige pauze'}</strong>
+      </div>
+      {timerEndAt ? <button type="button" className="fb-timer-stop" onClick={stopPauseTimer}>Stop timer</button> : <div className="fb-timer-choices">{[5, 10, 15].map(minutes => <button type="button" key={minutes} onClick={() => startPauseTimer(minutes)}>{minutes} min</button>)}</div>}
+      {timerMessage && <p role="status" aria-live="polite">{timerMessage}</p>}
+    </div>
     {!selectedGame ? <>
       <div className="fb-intro">
         <div>
@@ -315,14 +323,33 @@ export default function FocusBreak({ onContinueLearning, userId }) {
       </section>}
       {selectedGame === 'sudoku' && <section className="fb-game-panel">
         <div className="fb-game-heading"><div><span className="fb-kicker">LOGICA · OP JE EIGEN TEMPO</span><h2>Sudoku</h2><p>Vul de lege vakjes met cijfers van 1 tot en met 9.</p></div><button className="fb-reset-button" onClick={resetSudoku}><RotateCcw size={15}/> Opnieuw</button></div>
-        <div className="fb-sudoku-board" role="group" aria-label="Sudoku raster">
-          {sudokuValues.map((row, rowIndex) => <div className="fb-sudoku-row" key={rowIndex}>{row.map((value, columnIndex) => {
+        <div className="fb-sudoku-board" role="grid" aria-label="Sudoku raster">
+          {sudokuValues.map((row, rowIndex) => <div className="fb-sudoku-row" role="row" key={rowIndex}>{row.map((value, columnIndex) => {
             const fixed = SUDOKU_PUZZLE[rowIndex][columnIndex] !== '0'
+            const cellKey = rowIndex + '-' + columnIndex
+            const incorrect = showSudokuErrors && Boolean(value) && value !== SUDOKU_SOLUTION[rowIndex][columnIndex]
+            const selected = selectedSudokuCell[0] === rowIndex && selectedSudokuCell[1] === columnIndex
             const extraClass = (columnIndex === 2 || columnIndex === 5 ? ' fb-box-right' : '') + (rowIndex === 2 || rowIndex === 5 ? ' fb-box-bottom' : '')
-            return <input key={columnIndex} className={'fb-sudoku-cell' + (fixed ? ' fb-given' : '') + extraClass} value={value} disabled={fixed || sudokuFinished} inputMode="numeric" maxLength={1} aria-label={'Rij ' + (rowIndex + 1) + ', kolom ' + (columnIndex + 1)} onChange={event => updateSudokuCell(rowIndex, columnIndex, event.target.value)}/>
+            return <div key={columnIndex} className={'fb-sudoku-cell-wrap' + (selected ? ' is-selected' : '') + extraClass}>
+              <input className={'fb-sudoku-cell' + (fixed ? ' fb-given' : '') + (incorrect ? ' fb-has-error' : '')} value={value} disabled={fixed || sudokuFinished} inputMode="none" autoComplete="off" maxLength={1} aria-label={'Rij ' + (rowIndex + 1) + ', kolom ' + (columnIndex + 1) + (incorrect ? ', fout ingevuld' : '')} aria-invalid={Boolean(incorrect)} onFocus={() => setSelectedSudokuCell([rowIndex, columnIndex])} onClick={() => setSelectedSudokuCell([rowIndex, columnIndex])} onChange={event => updateSudokuCell(rowIndex, columnIndex, event.target.value)}/>
+              {sudokuNotes[cellKey] && !value && <small className="fb-sudoku-notes" aria-label={'Notities ' + sudokuNotes[cellKey].split('').join(', ')}>{sudokuNotes[cellKey].split('').join(' ')}</small>}
+              {incorrect && <span className="fb-sudoku-error-mark" aria-label="Fout ingevuld">!</span>}
+            </div>
           })}</div>)}
         </div>
-        <div className="fb-sudoku-actions"><p role="status">{sudokuMessage || 'Elk cijfer mag per rij, kolom en 3 × 3-blok maar één keer voorkomen.'}</p><button onClick={checkSudoku} disabled={sudokuFinished}>Controleer sudoku <Check size={16}/></button></div>
+        <div className="fb-sudoku-tools">
+          <div className="fb-sudoku-mode-buttons">
+            <button type="button" className={sudokuNotesMode ? 'is-active' : ''} aria-pressed={sudokuNotesMode} onClick={() => setSudokuNotesMode(value => !value)}>Notities {sudokuNotesMode ? 'aan' : 'uit'}</button>
+            <button type="button" aria-pressed={showSudokuErrors} onClick={() => setShowSudokuErrors(value => !value)}>Fouten {showSudokuErrors ? 'tonen' : 'verbergen'}</button>
+            <button type="button" onClick={revealSudokuHint}><Lightbulb size={14}/> Hint</button>
+          </div>
+          <div className="fb-sudoku-keypad" aria-label="Cijferknoppen">
+            {Array.from({ length: 9 }, (_, index) => <button type="button" key={index + 1} disabled={sudokuFinished} onClick={() => handleSudokuDigit(String(index + 1))}>{index + 1}</button>)}
+            <button type="button" className="fb-sudoku-clear" disabled={sudokuFinished} onClick={() => handleSudokuDigit('')}>Wis</button>
+          </div>
+          <p className="fb-sudoku-selected">Geselecteerd: rij {selectedSudokuCell[0] + 1}, kolom {selectedSudokuCell[1] + 1}. {sudokuNotesMode ? 'Kies cijfers om notities toe te voegen.' : 'Kies een cijfer om het vakje in te vullen.'}</p>
+        </div>
+        <div className="fb-sudoku-actions"><p role="status" aria-live="polite">{sudokuMessage || 'Elk cijfer mag per rij, kolom en 3 × 3-blok maar één keer voorkomen.'}</p><button type="button" onClick={checkSudoku} disabled={sudokuFinished}>Controleer sudoku <Check size={16}/></button></div>
       </section>}
       {selectedGame === 'memory' && <MemoryBoard onComplete={() => finish('Alle paren gevonden!', 'Je hebt alle zes paren gevonden. Goed gespeeld!')}/>}
     </>}
