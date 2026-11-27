@@ -6,6 +6,12 @@
 - Voeg sudoku-hints, notities en een in- en uitschakelbare foutmarkering toe.
 - Gebruik een ingebouwd toetsenbord voor het dagelijkse woordspel en controleer gokken tegen een lijst met veelvoorkomende Nederlandse woorden.
 - Bepaal de dagelijkse puzzelgrens op basis van de tijdzone Europe/Amsterdam.
+## v0.57 beta — 27 november 2026
+- Voeg een lokaal Leitner-systeem met drie vakken toe voor flashcards.
+- Kaarten die lastig zijn komen later in dezelfde oefenronde nog eens terug.
+- Bekende kaarten schuiven geleidelijk door naar een langer herhaalmoment; nieuwe en lastige kaarten blijven vaker op de planning.
+- Toon hoeveel flashcards vandaag klaarstaan om te herhalen.
+- Bewaar herhaalstatus in de browser zonder wijziging aan Supabase of het databaseschema.
 
 ## v0.56 beta — 27 november 2026
 - Voeg een zichtbare link toe om direct naar de hoofdinhoud te gaan en maak focusranden zichtbaar voor links, knoppen en invoervelden.
