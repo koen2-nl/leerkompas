@@ -61,7 +61,7 @@ function loadSudokuProgress(storageKey) {
     return {
       ...fresh,
       values: saved.values.map(row => row.map(value => String(value || '').replace(/[^1-9]/g, '').slice(-1))),
-      notes: Array.isArray(saved.notes) && saved.notes.length === 9 ? saved.notes : fresh.notes,
+      notes: Array.isArray(saved.notes) && saved.notes.length === 9 && saved.notes.every(row => Array.isArray(row) && row.length === 9) ? saved.notes.map(row => row.map(cell => Array.isArray(cell) ? cell.filter(value => Number.isInteger(value) && value >= 1 && value <= 9) : [])) : fresh.notes,
       finished: Boolean(saved.finished),
       selected: saved.selected || fresh.selected,
       hintsUsed: Math.max(0, Number(saved.hintsUsed) || 0),
@@ -203,6 +203,7 @@ export default function FocusBreak({ onContinueLearning, userId }) {
     next[rowIndex][columnIndex] = value.replace(/[^1-9]/g, '').slice(-1)
     setSelectedSudokuCell({ row: rowIndex, column: columnIndex })
     setSudokuValues(next)
+    setSudokuNotes(previous => previous.map((line, r) => line.map((cell, c) => r === rowIndex && c === columnIndex ? [] : cell)))
     setSudokuMessage('')
   }
   const enterSudokuDigit = digit => {
@@ -288,7 +289,7 @@ export default function FocusBreak({ onContinueLearning, userId }) {
       return
     }
     if (!DUTCH_GUESS_WORDS.has(guess)) {
-      setWordMessage('Dat woord staat niet in de Nederlandse woordenlijst. Probeer een ander woord.')
+      setWordMessage('Dat woord staat niet in de ingebouwde woordenlijst met veelgebruikte Nederlandse woorden. Probeer een ander woord.')
       return
     }
     const nextGuesses = [...dailyState.guesses, guess]
