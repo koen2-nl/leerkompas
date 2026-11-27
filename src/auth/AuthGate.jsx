@@ -143,7 +143,7 @@ export default function AuthGate() {
   if (!isSupabaseConfigured) return <div className="auth-screen"><div className="auth-card auth-setup"><div className="auth-brand"><span className="auth-brand-mark"><Compass/></span><span>Leervo</span></div><h1>Bijna klaar voor jouw leerplek</h1><p>De accountfunctie is voorbereid. Vul eerst de Supabase-omgevingsvariabelen in om registratie en inloggen te activeren.</p><p><strong>Benodigd:</strong> <code>VITE_SUPABASE_URL</code> en <code>VITE_SUPABASE_ANON_KEY</code>. Volg de installatiehandleiding in <code>docs/PROJECT.md</code>.</p></div></div>
   const sharedToken = new URLSearchParams(window.location.search).get('share')
   if (!session && sharedToken) return <PublicSharedLesson token={sharedToken}/>
-  const publicLibraryRoute = window.location.pathname.replace(/\\/+$/, '') === '/openbare-lessen'
+  const publicLibraryRoute = window.location.pathname === '/openbare-lessen' || window.location.pathname === '/openbare-lessen/'
   if (!session && publicLibraryRoute && !showAuthAfterPublicInfo) return <PublicLibraryGuest onLogin={() => setShowAuthAfterPublicInfo(true)}/>
   if (!session) return <AuthScreen />
   if (!syncReady) return <div className="auth-screen"><div className="auth-card">Je persoonlijke leerplek veilig laden…</div></div>
