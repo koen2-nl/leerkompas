@@ -1214,3 +1214,75 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .mobile-bottom-nav{padding-left:4px;padding-right:4px}
   .mobile-bottom-nav button{font-size:8px}
 }
+
+
+/* Leervo design tokens: vaste basis voor ruimte, tekst en componenten */
+:root{
+  --leervo-space-1:4px;
+  --leervo-space-2:8px;
+  --leervo-space-3:12px;
+  --leervo-space-4:16px;
+  --leervo-space-5:20px;
+  --leervo-space-6:24px;
+  --leervo-text-xs:10px;
+  --leervo-text-sm:11px;
+  --leervo-text-md:13px;
+  --leervo-text-lg:17px;
+  --leervo-text-xl:22px;
+  --leervo-text-2xl:28px;
+  --leervo-radius-control:8px;
+  --leervo-radius-card:12px;
+  --leervo-radius-panel:14px;
+  --leervo-border-width:1px;
+}
+.app{
+  --leervo-control-border:var(--line);
+  --leervo-card-border:var(--line);
+}
+.app .panel,
+.app .stat-card,
+.app .subject-card,
+.app .game-card,
+.app .planner-calendar,
+.app .planner-day-view,
+.app .study-card-panel,
+.app .study-side{
+  border-radius:var(--leervo-radius-panel);
+  border-width:var(--leervo-border-width);
+  border-color:var(--leervo-card-border);
+}
+.app .primary-btn,
+.app .soft-btn,
+.app .danger-btn,
+.app .banner-btn,
+.app .text-btn{
+  border-radius:var(--leervo-radius-control);
+  font-size:var(--leervo-text-sm);
+  box-shadow:none;
+}
+.app input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.fb-sudoku-cell),
+.app select,
+.app textarea{
+  border-radius:var(--leervo-radius-control);
+  border-color:var(--leervo-control-border);
+}
+.app .page-heading h1{
+  font-size:var(--leervo-text-2xl);
+}
+.app .panel h3{
+  font-size:var(--leervo-text-md);
+}
+.app .panel p{
+  line-height:1.6;
+}
+.app .games-grid,
+.app .fb-game-grid{
+  gap:var(--leervo-space-3);
+}
+.app .dashboard-grid,
+.app .stats-grid{
+  gap:var(--leervo-space-3);
+}
+@media(max-width:760px){
+  .app .page-heading h1{font-size:var(--leervo-text-xl)}
+}
