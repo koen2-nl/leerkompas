@@ -1214,3 +1214,76 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .mobile-bottom-nav{padding-left:4px;padding-right:4px}
   .mobile-bottom-nav button{font-size:8px}
 }
+
+
+/* Toegankelijkheid: contrastvaste accenten, zichtbare focus en aanraakdoelen */
+.app { --accent:#6552b8; --accent-button:#6552b8; --accent-soft:#f0edff; }
+.app[data-accent=blue] { --accent:#2f6da8; --accent-button:#2f6da8; --accent-soft:#eaf4ff; }
+.app[data-accent=green] { --accent:#26775c; --accent-button:#26775c; --accent-soft:#e8f7f1; }
+.app[data-accent=coral] { --accent:#a84b3c; --accent-button:#a84b3c; --accent-soft:#fff0eb; }
+.app.dark { --accent:#b4a9ff; --accent-button:#6655c3; --accent-soft:#37304f; }
+.app.dark[data-accent=blue] { --accent:#87c4f4; --accent-button:#2f6da8; --accent-soft:#37304f; }
+.app.dark[data-accent=green] { --accent:#79d3b1; --accent-button:#26775c; --accent-soft:#37304f; }
+.app.dark[data-accent=coral] { --accent:#ffab98; --accent-button:#a84b3c; --accent-soft:#37304f; }
+.app.christmas-theme.dark { --accent:#a9cdb5; --accent-button:#315d4b; --accent-soft:#35463b; }
+
+.app .primary-btn,
+.app .banner-btn,
+.app .lesson-create-main-icon,
+.app .fb-word-form button,
+.app .fb-sudoku-actions button,
+.app .fb-learn-button,
+.app .flashcard-rating-known,
+.app .flashcard-result-primary {
+  background:var(--accent-button,var(--accent));
+  border-color:var(--accent-button,var(--accent));
+}
+.app .switch.on { background:var(--accent-button,var(--accent)); }
+.app .primary-btn:focus-visible,
+.app .banner-btn:focus-visible,
+.app .fb-word-form button:focus-visible,
+.app .fb-sudoku-actions button:focus-visible {
+  outline:3px solid var(--accent);
+  outline-offset:3px;
+}
+.skip-link {
+  position:fixed;
+  top:10px;
+  left:10px;
+  z-index:10000;
+  transform:translateY(-160%);
+  padding:11px 15px;
+  border:2px solid var(--accent);
+  border-radius:8px;
+  background:var(--panel);
+  color:var(--ink);
+  font-size:12px;
+  font-weight:750;
+  text-decoration:none;
+  transition:transform .15s ease;
+}
+.skip-link:focus { transform:translateY(0); }
+#main-content:focus { outline:none; }
+
+.app .icon-btn,
+.app .avatar.small {
+  width:44px;
+  min-width:44px;
+  height:44px;
+  min-height:44px;
+}
+.app .nav-item { height:auto; min-height:44px; }
+.app .primary-btn,
+.app .soft-btn,
+.app .danger-btn,
+.app .banner-btn,
+.app .text-btn { min-height:44px; }
+.app .theme-switcher button { min-height:44px; }
+.app .planner-arrow,
+.app .planner-check,
+.app .planner-delete { min-width:44px; min-height:44px; }
+.app .mobile-bottom-nav button { min-height:48px; }
+.app .fb-back-button,
+.app .fb-reset-button,
+.app .fb-memory-card,
+.app .fb-sudoku-actions button { min-height:44px; }
