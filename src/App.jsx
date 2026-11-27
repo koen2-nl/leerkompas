@@ -300,15 +300,16 @@ function App() {
   const [cards, setCards] = useState(() => readSaved('cards', initialCards).filter(c => !['Wat is fotosynthese?','Wat betekent industrialisatie?','Wat is de richtingscoëfficiënt?'].includes(c.q)))
   const [cardLeitner, setCardLeitner] = useState(() => readSaved('cardLeitner', {}))
   const [flashcardQueue, setFlashcardQueue] = useState(() => {
-    const saved = readSaved('cardLeitner', {})
     const now = Date.now()
-    const due = readSaved('cards', initialCards).filter(card => {
-      const key = (card.subject || 'Algemeen') + '::' + card.q
-      return !saved[key] || !saved[key].nextReviewAt || saved[key].nextReviewAt <= now
-    })
-    return due.map(card => ({ ...card, _leitnerKey: (card.subject || 'Algemeen') + '::' + card.q, _attempt: 0 }))
+    return cards.filter(card => {
+      const progress = cardLeitner[(card.subject || 'Algemeen') + '::' + card.q]
+      return !progress?.nextReviewAt || progress.nextReviewAt <= now
+    }).map(card => ({ ...card, _leitnerKey: (card.subject || 'Algemeen') + '::' + card.q, _attempt: 0 }))
   })
-  const [flashcardNoDue, setFlashcardNoDue] = useState(false)
+  const [flashcardNoDue, setFlashcardNoDue] = useState(() => cards.length > 0 && !cards.some(card => {
+    const progress = cardLeitner[(card.subject || 'Algemeen') + '::' + card.q]
+    return !progress?.nextReviewAt || progress.nextReviewAt <= Date.now()
+  }))
   const [cardIndex, setCardIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [known, setKnown] = useState(() => readSaved('known', []))
