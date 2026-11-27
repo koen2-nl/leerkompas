@@ -30,8 +30,25 @@ const formatChangelogDate = entry => entry.release_date
   ? new Date(entry.release_date + 'T12:00:00').toLocaleDateString('nl-NL')
   : entry.date
 const nav = [
-  { group: 'WERKPLEK', items: [{ id: 'home', label: 'Overzicht', icon: LayoutDashboard }, { id: 'learning', label: 'Leerstof', icon: BookOpen, children: [{ id: 'subjects', label: 'Mijn lesbibliotheek' }, { id: 'publicLessons', label: 'Openbare lesbibliotheek' }, { id: 'games', label: 'Minigames' }, { id: 'study', label: 'Flashcards' }, { id: 'vocabulary', label: 'Woordenlijst maken' }, { id: 'create', label: 'Zelf een les maken' }] }, { id: 'break', label: 'Even klaar met leren?', icon: Coffee }] },
-  { group: 'INZICHT', items: [{ id: 'progress', label: 'Voortgang', icon: Activity }, { id: 'planning', label: 'Planning', icon: CalendarDays }] },
+  { group: 'LEREN', items: [
+    { id: 'home', label: 'Overzicht', icon: LayoutDashboard },
+    { id: 'subjects', label: 'Lessen', icon: BookOpen },
+    { id: 'study', label: 'Flashcards', icon: BookOpenCheck },
+    { id: 'vocabulary', label: 'Woordenlijsten', icon: Globe },
+    { id: 'quiz', label: 'Quiz', icon: Zap },
+    { id: 'create', label: 'Les maken', icon: Plus },
+  ] },
+  { group: 'PLANNEN', items: [
+    { id: 'planning', label: 'Planning', icon: CalendarDays },
+    { id: 'progress', label: 'Voortgang', icon: Activity },
+  ] },
+  { group: 'ONTSPANNEN', items: [
+    { id: 'break', label: 'Even klaar met leren?', icon: Coffee },
+    { id: 'games', label: 'Minigames', icon: Gamepad2 },
+  ] },
+  { group: 'ACCOUNT', items: [
+    { id: 'settings', label: 'Instellingen', icon: Settings2 },
+  ] },
 ]
 function saveLocal(key, value) {
   try { localStorage.setItem(`leerkompas:${key}`, JSON.stringify(value)); window.dispatchEvent(new CustomEvent('leerkompas:data-changed')) } catch { /* opslagmelding volgt in de interface */ }
@@ -267,10 +284,11 @@ function SnowfallOverlay() {
 function App() {
   const { user, signOut, syncStatus, isAdmin, isLessonMaker } = useAuth()
   const [profile, setProfile] = useState(() => readSaved('profile', null))
-  const visibleNav = isAdmin ? [...nav, { group: 'BEHEER', items: [{ id: 'admin', label: 'Beheer', icon: ShieldCheck }] }] : isLessonMaker ? [...nav, { group: 'MAKEN', items: [{ id: 'admin', label: 'Lesbeheer', icon: ShieldCheck }] }] : nav
+  const visibleNav = nav.map(group => group.group === 'ACCOUNT'
+    ? { ...group, items: [...group.items, ...(isAdmin ? [{ id: 'admin', label: 'Beheer', icon: ShieldCheck }] : isLessonMaker ? [{ id: 'admin', label: 'Lesbeheer', icon: ShieldCheck }] : [])] }
+    : group)
   const [page, setPage] = useState(() => pageFromPath(window.location.pathname))
   const lastLearningPage = useRef('home')
-  const [learningOpen, setLearningOpen] = useState(false)
   const [lessonActive, setLessonActive] = useState(false)
   const [themeMode, setThemeMode] = useState(() => readSaved('themeMode', readSaved('dark', false) ? 'dark' : 'light'))
   const [snowEnabled, setSnowEnabled] = useState(() => readSaved('christmasSnowEnabled', false))
@@ -374,6 +392,12 @@ function App() {
   const todayDate = new Date()
   const todayKey = [todayDate.getFullYear(), String(todayDate.getMonth() + 1).padStart(2, '0'), String(todayDate.getDate()).padStart(2, '0')].join('-')
   const todayPlannedMinutes = planning.filter(item => item.date === todayKey).reduce((total, item) => total + (Number(item.minutes) || 0), 0)
+  const nextPlannedItem = [...planning]
+    .filter(item => !item.done && item.date && item.date >= todayKey)
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || ''))[0] || null
+  const nextPlannedDateLabel = nextPlannedItem?.date
+    ? new Date(nextPlannedItem.date + 'T12:00:00').toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })
+    : ''
   const formatPlannedDuration = minutes => {
     const hours = Math.floor(minutes / 60)
     const remainder = minutes % 60
@@ -406,6 +430,41 @@ function App() {
     go(target); setGlobalSearch('')
   }
   const addSubject = (e) => { e.preventDefault(); const name = subjectName.trim(); if (!name || subjects.some(s => s.name.toLowerCase() === name.toLowerCase())) return; setSubjects([...subjects, { name, detail: 'Nieuw onderwerp', progress: 0, color: 'blue', icon: 'book', due: 0 }]); setSubjectName(''); setShowAddSubject(false); notify('Je vak is toegevoegd en opgeslagen!') }
+  const startFirstFlashcard = () => {
+    setCardSubject(subjects[0]?.name || '')
+    setShowAddCard(true)
+  }
+  const nextStepTitle = !subjects.length
+    ? 'Maak je eerste vak aan'
+    : !cards.length
+      ? 'Maak je eerste flashcard'
+      : nextPlannedItem
+        ? nextPlannedItem.title
+        : 'Herhaal je flashcards'
+  const nextStepDescription = !subjects.length
+    ? 'Begin met een vak. Daarna kun je lessen en flashcards toevoegen.'
+    : !cards.length
+      ? 'Je vak staat klaar. Voeg een eerste begrip met antwoord toe om te kunnen herhalen.'
+      : nextPlannedItem
+        ? (nextPlannedItem.kind || 'Leermoment') + ' · ' + nextPlannedDateLabel + (nextPlannedItem.time ? ' om ' + nextPlannedItem.time : '')
+        : 'Je hebt ' + cards.length + ' flashcards klaarstaan om te oefenen.'
+  const nextStepActionLabel = !subjects.length
+    ? 'Eerste vak toevoegen'
+    : !cards.length
+      ? 'Eerste flashcard maken'
+      : nextPlannedItem
+        ? 'Bekijk je planning'
+        : 'Begin met herhalen'
+  const openNextStep = () => {
+    if (!subjects.length) { setShowAddSubject(true); return }
+    if (!cards.length) { startFirstFlashcard(); return }
+    if (nextPlannedItem) { go('planning'); return }
+    go('study')
+  }
+  const beginLearning = () => {
+    if (!subjects.length) setShowAddSubject(true)
+    else go('subjects')
+  }
   const addCard = (e) => { e.preventDefault(); if (!cardQuestion.trim() || !cardAnswer.trim() || !cardSubject) return; setCards([...cards, { q: cardQuestion.trim(), a: cardAnswer.trim(), subject: cardSubject }]); setSubjects(subjects.map(s => s.name === cardSubject ? { ...s, due: (s.due || 0) + 1 } : s)); setCardQuestion(''); setCardAnswer(''); setCardSubject(''); setShowAddCard(false); notify('Je flashcard is toegevoegd en opgeslagen!') }
   const importCards = (e) => {
     e.preventDefault()
@@ -479,7 +538,7 @@ function App() {
     setSettingsBusy(false);
     if(error)setSettingsMessage(error.message);else{setAdminReason('');setSettingsMessage('Je aanvraag is ingediend en wacht op beoordeling.');loadAdminApplication();}
   };
-  const title = ({home:profile?.username ? `${greeting}, ${profile.username}!` : `${greeting}!`,subjects:'Mijn lesbibliotheek',publicLessons:'Openbare lesbibliotheek',study:'Slim herhalen',vocabulary:'Woordenlijst maken',create:'Zelf een les maken',games:'Speel & leer',progress:'Jouw voortgang',planning:'Mijn planning',admin:'Beheer',settings:'Instellingen',break:'Even klaar met leren?'})[page]
+  const title = ({home:profile?.username ? `${greeting}, ${profile.username}!` : `${greeting}!`,subjects:'Lessen',publicLessons:'Lessen',study:'Flashcards',vocabulary:'Woordenlijsten',create:'Les maken',games:'Minigames',quiz:'Quiz',progress:'Jouw voortgang',planning:'Mijn planning',admin:'Beheer',settings:'Instellingen',break:'Even klaar met leren?'})[page]
   return <div className={`app ${themeMode === 'christmas' ? 'christmas-theme winter-theme' : ''} ${dark ? 'dark' : ''}`} data-accent={accent}>
     {themeMode === 'christmas' && <div className="christmas-scene" aria-hidden="true">
       <div className="christmas-lights">
@@ -500,9 +559,16 @@ function App() {
     <aside className={`sidebar ${mobileOpen ? 'open' : ''}`}>
       <div className="brand"><button type="button" className="brand-home" onClick={()=>go('home')} aria-label="Leervo — terug naar overzicht"><div className="brand-mark"><Compass size={22}/></div><span>Leervo</span></button><button className="icon-btn mobile-close" onClick={()=>setMobileOpen(false)} aria-label="Menu sluiten"><X size={18}/></button></div>
       <div className="profile"><div className="avatar">K</div><div><strong>{user?.email?.split('@')[0] || 'Mijn leerplek'}</strong><small>Persoonlijke ruimte</small></div><ChevronDown size={15}/></div>
-      {visibleNav.map(group=><div className="nav-group" key={group.group}><p>{group.group}</p>{group.items.map(item=>item.children?<div className="nav-dropdown" key={item.id}><button disabled={lessonActive} className={`nav-item ${item.children.some(child=>page===child.id)?'active':''}`} onClick={()=>setLearningOpen(open=>!open)}><item.icon size={18}/>{item.label}<ChevronDown className={learningOpen?'rotated':''} size={15}/></button>{learningOpen&&<div className="nav-subitems">{item.children.map(child=><button key={child.id} className={`nav-subitem ${page===child.id?'active':''}`} onClick={()=>go(child.id)}>{child.label}</button>)}</div>}</div>:<button key={item.id} disabled={lessonActive} className={`nav-item ${page===item.id?'active':''}`} onClick={()=>go(item.id)}><item.icon size={18}/>{item.label}</button>)}</div>)}
+      {visibleNav.map(group=><div className="nav-group" key={group.group}><p>{group.group}</p>{group.items.map(item=><button key={item.id} type="button" disabled={lessonActive} className={`nav-item ${(page===item.id || item.id==='subjects'&&page==='publicLessons')?'active':''}`} aria-current={(page===item.id || item.id==='subjects'&&page==='publicLessons')?'page':undefined} onClick={()=>go(item.id)}><item.icon size={18}/><span>{item.label}</span></button>)}</div>)}
       <div className="sidebar-bottom"><div className="streak-card"><div className="streak-icon"><Flame size={18}/></div><div><strong>{currentStreak} {currentStreak === 1 ? 'dag' : 'dagen'} streak</strong><small>{currentStreak ? 'Oefen vandaag om hem te behouden' : 'Begin vandaag aan een nieuwe streak'}</small></div></div><button className={`nav-item ${page==='settings'?'active':''}`} onClick={()=>go('settings')}><Settings2 size={18}/>Instellingen</button><div className="sidebar-foot"><span className="online-dot"/> Demo-omgeving <span>v{appVersionLabel}</span></div></div>
     </aside>
+    <nav className="mobile-bottom-nav" aria-label="Snelle navigatie">
+      <button type="button" className={page==='home'?'active':''} aria-current={page==='home'?'page':undefined} onClick={()=>go('home')}><LayoutDashboard size={18}/><span>Overzicht</span></button>
+      <button type="button" className={(page==='subjects'||page==='publicLessons')?'active':''} aria-current={(page==='subjects'||page==='publicLessons')?'page':undefined} onClick={()=>go('subjects')}><BookOpen size={18}/><span>Lessen</span></button>
+      <button type="button" className={page==='planning'?'active':''} aria-current={page==='planning'?'page':undefined} onClick={()=>go('planning')}><CalendarDays size={18}/><span>Planning</span></button>
+      <button type="button" className={page==='break'?'active':''} aria-current={page==='break'?'page':undefined} onClick={()=>go('break')}><Coffee size={18}/><span>Pauze</span></button>
+      <button type="button" className={mobileOpen?'active':''} aria-expanded={mobileOpen} onClick={()=>setMobileOpen(true)}><MoreHorizontal size={18}/><span>Meer</span></button>
+    </nav>
     {mobileOpen&&<div className="scrim" onClick={()=>setMobileOpen(false)}/>}
     <main className="main">
       <header className="topbar"><button className="icon-btn menu-toggle" onClick={()=>setMobileOpen(true)} aria-label="Menu openen"><Menu/></button><div className="breadcrumbs">Mijn leerplek <ChevronRight size={14}/> <strong>{title}</strong></div><form className="global-search" onSubmit={submitGlobalSearch}><Search size={16}/><input value={globalSearch} onChange={event=>setGlobalSearch(event.target.value)} placeholder="Zoek een pagina..." aria-label="Zoek een pagina"/></form><div className="top-actions"><div className="date-pill"><span className="header-date"><CalendarDays size={15}/>{headerDate}</span><span className="header-clock"><Clock3 size={15}/><time>{headerTime}</time></span></div><div className="theme-switcher" role="group" aria-label="Kies weergave">
@@ -511,22 +577,31 @@ function App() {
           <button type="button" className={themeMode==='christmas'?'selected':''} aria-pressed={themeMode==='christmas'} onClick={()=>setThemeMode('christmas')}>Kerst</button>
         </div>{themeMode === 'christmas' && <button className={`icon-btn snow-top-toggle ${snowEnabled?'active':''}`} onClick={()=>setSnowEnabled(value=>!value)} aria-label={snowEnabled?'Sneeuw uitzetten':'Sneeuw aanzetten'} aria-pressed={snowEnabled} title={snowEnabled?'Sneeuw uitzetten':'Sneeuw aanzetten'}><Snowflake size={17}/></button>}<span className="sync-indicator" title={syncStatus === "saved" ? "Alles gesynchroniseerd" : "Synchroniseren"}>{syncStatus === "saving" ? "Opslaan…" : syncStatus === "saved" ? "✓ Opgeslagen" : "Verbonden"}</span><button className="avatar small" title="Uitloggen" onClick={signOut}><X size={15}/></button></div></header>
       <div className="content">
-        <div className="page-heading"><div><div className="eyebrow"><Sparkles size={14}/> JOUW PERSOONLIJKE LEERPLEK</div><h1>{title}</h1><p>{page==='home'?'Klaar om vandaag iets nieuws te ontdekken?':page==='study'?'Korte herhaalmomenten helpen je kennis beter onthouden.':page==='break'?'Korte puzzels om even op te laden en daarna met frisse aandacht verder te gaan.':'Alles op één plek. Jij bepaalt je eigen tempo.'}</p></div>{page==='home'&&<button className="primary-btn" onClick={()=>go('subjects')}><Zap size={16}/> Start leersessie</button>}</div>
+        <div className="page-heading"><div><div className="eyebrow"><Sparkles size={14}/> JOUW PERSOONLIJKE LEERPLEK</div><h1>{title}</h1><p>{page==='home'?'Klaar om vandaag iets nieuws te ontdekken?':page==='study'?'Korte herhaalmomenten helpen je kennis beter onthouden.':page==='break'?'Korte puzzels om even op te laden en daarna met frisse aandacht verder te gaan.':page==='games'?'Oefen je leerstof met korte, leergerichte spelletjes. Voor ontspannende puzzels kies je Even klaar met leren?.':page==='vocabulary'?'Maak en beheer woordenlijsten om begrippen te onthouden.':page==='create'?'Bouw een eigen les op met uitleg en oefenvragen.':'Alles op één plek. Jij bepaalt je eigen tempo.'}</p></div>{page==='home'&&<button className="primary-btn" onClick={beginLearning}><Zap size={16}/> Begin met leren</button>}</div>
         {page==='break'&&<FocusBreak key={user?.id || 'guest'} userId={user?.id} onContinueLearning={()=>go(lastLearningPage.current === 'break' ? 'home' : lastLearningPage.current)}/>}
-        {page==='home'&&<><section className="welcome-banner"><div className="welcome-copy"><span className="banner-tag"><Leaf size={13}/> KLEINE STAPPEN, GROOT RESULTAAT</span><h2>Elke dag een beetje<br/> <em>wijzer.</em></h2><p>{todayPlannedMinutes > 0 ? <>Je hebt vandaag {formatPlannedDuration(todayPlannedMinutes)} ingepland{profile?.goal ? <> om te werken aan je leerdoel: <strong>{profile.goal}</strong>.</> : ' voor je schoolwerk.'}</> : <>Je hebt vandaag nog niets ingepland{profile?.goal ? <> voor je leerdoel: <strong>{profile.goal}</strong>.</> : '. Plan een leermoment om aan de slag te gaan.'}</>}</p><button className="banner-btn" onClick={()=>go('subjects')}>Verder leren <ArrowRight size={16}/></button></div><div className="banner-art"><div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="book-illustration"><BookOpen size={76} strokeWidth={1.2}/><Sparkles className="sparkle s1"/><Sparkles className="sparkle s2"/></div><div className="floating-note note-a"><Sparkles size={13}/> Goed bezig!</div><div className="floating-note note-b">+ 20 XP</div></div></section>
+        {page==='home'&&<><section className="welcome-banner"><div className="welcome-copy"><span className="banner-tag"><Leaf size={13}/> KLEINE STAPPEN, GROOT RESULTAAT</span><h2>Elke dag een beetje<br/> <em>wijzer.</em></h2><p>{todayPlannedMinutes > 0 ? <>Je hebt vandaag {formatPlannedDuration(todayPlannedMinutes)} ingepland{profile?.goal ? <> om te werken aan je leerdoel: <strong>{profile.goal}</strong>.</> : ' voor je schoolwerk.'}</> : <>Je hebt vandaag nog niets ingepland{profile?.goal ? <> voor je leerdoel: <strong>{profile.goal}</strong>.</> : '. Plan een leermoment om aan de slag te gaan.'}</>}</p><button className="banner-btn" onClick={beginLearning}>Begin met leren <ArrowRight size={16}/></button></div><div className="banner-art"><div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="book-illustration"><BookOpen size={76} strokeWidth={1.2}/><Sparkles className="sparkle s1"/><Sparkles className="sparkle s2"/></div><div className="floating-note note-a"><Sparkles size={13}/> Goed bezig!</div><div className="floating-note note-b">+ 20 XP</div></div></section>
+        <section className="panel dashboard-next-step" aria-labelledby="dashboard-next-step-title">
+          <div className="dashboard-next-step-icon"><Target size={19}/></div>
+          <div className="dashboard-next-step-copy">
+            <span className="panel-kicker">JOUW VOLGENDE STAP</span>
+            <h3 id="dashboard-next-step-title">{nextStepTitle}</h3>
+            <p>{nextStepDescription}</p>
+          </div>
+          <button className="primary-btn" onClick={openNextStep}>{nextStepActionLabel} <ArrowRight size={15}/></button>
+        </section>
         <section className="stats-grid"><Stat icon={Flame} label="Actieve dagen" value={activeDays} note="Sinds je start" tone="orange"/><Stat icon={Zap} label="Verdiende XP" value={studyStats.xp} note="20 XP per afgeronde les" tone="purple"/><Stat icon={Target} label="Deze week" value={`${weeklyGoalProgress}%`} note={`${sessionsThisWeek.length} van 6 leermomenten`} tone="green"/><Stat icon={BookOpen} label="Afgeronde lessen" value={completedLessons.length} note="Lessen voltooid" tone="blue"/></section>
         <div className="section-heading"><div><h3>Jouw leerplek</h3><p>Een overzicht van waar je mee bezig bent.</p></div><div className="widget-control"><button className="soft-btn" onClick={()=>setShowWidgetMenu(!showWidgetMenu)}><Settings2 size={15}/> Aanpassen <ChevronDown size={14}/></button>{showWidgetMenu&&<div className="dropdown"><strong>Widgets tonen</strong>{[['focus','Focus van vandaag'],['subjects','Mijn vakken'],['week','Weekdoel']].map(([id,label])=><label key={id}><input type="checkbox" checked={widgets.includes(id)} onChange={()=>toggleWidget(id)}/>{label}</label>)}</div>}</div></div>
         <div className="dashboard-grid">
-        {widgets.includes('subjects')&&<section className="panel subjects-panel"><div className="panel-head"><div><span className="panel-kicker">BLIJF IN BEWEGING</span><h3>Verder met je vakken</h3></div><button className="text-btn" onClick={()=>go('subjects')}>Alles bekijken <ArrowRight size={14}/></button></div>{subjects.slice(0,3).map(s=><SubjectRow key={s.name} subject={s}/>)}</section>}
-        {widgets.includes('week')&&<section className="panel week-panel"><div className="panel-head"><div><span className="panel-kicker">JOUW DOEL</span><h3>Week in beeld</h3></div><span className="icon-tile green"><Trophy size={18}/></span></div><div className="week-number">{weeklyGoalProgress}<span>%</span></div><p className="muted">Je weekdoel is 6 leermomenten.</p><div className="progress-track"><div style={{width:weeklyGoalProgress+'%'}}/></div><div className="week-foot"><span>{sessionsThisWeek.length} van 6 leermomenten</span><strong>{Math.max(0, 6-sessionsThisWeek.length)} te gaan</strong></div><div className="week-days">{['M','D','W','D','V','Z','Z'].map((d,i)=><div key={i} className={i<4?'day done':'day'}><span>{d}</span><b>{i<4?<Check size={13}/>:i===4?'•':'·'}</b></div>)}</div></section>}</div>
+        {widgets.includes('subjects')&&<section className="panel subjects-panel"><div className="panel-head"><div><span className="panel-kicker">BLIJF IN BEWEGING</span><h3>Verder met je vakken</h3></div><button className="text-btn" onClick={()=>go('subjects')}>Alles bekijken <ArrowRight size={14}/></button></div>{subjects.length ? subjects.slice(0,3).map(s=><SubjectRow key={s.name} subject={s}/>) : <div className="dashboard-empty-state"><p>Je hebt nog geen vakken toegevoegd.</p><button className="soft-btn" onClick={()=>setShowAddSubject(true)}>Voeg je eerste vak toe <ArrowRight size={14}/></button></div>}</section>}
+        {widgets.includes('week')&&<section className="panel week-panel"><div className="panel-head"><div><span className="panel-kicker">JOUW DOEL</span><h3>Week in beeld</h3></div><span className="icon-tile green"><Trophy size={18}/></span></div><div className="week-number">{weeklyGoalProgress}<span>%</span></div><p className="muted">Een rustig richtpunt voor je week: 6 leermomenten.</p><div className="progress-track"><div style={{width:weeklyGoalProgress+'%'}}/></div><div className="week-foot"><span>{sessionsThisWeek.length} van 6 leermomenten</span><strong>{Math.max(0, 6-sessionsThisWeek.length)} te gaan</strong></div><div className="week-days">{['M','D','W','D','V','Z','Z'].map((d,i)=><div key={i} className={i<4?'day done':'day'}><span>{d}</span><b>{i<4?<Check size={13}/>:i===4?'•':'·'}</b></div>)}</div></section>}</div>
         </>}
-        {(page==='subjects'||page==='publicLessons')&&<GeographyLessons libraryView={page==='publicLessons'?'public':'personal'} completedLessons={completedLessons} onComplete={completeLesson} onActiveChange={setLessonActive} onCatalogLoaded={lessonIds=>setCompletedLessons(previous=>previous.filter(id=>lessonIds.includes(id)))} profile={profile}/>}
+        {(page==='subjects'||page==='publicLessons')&&<GeographyLessons libraryView={page==='publicLessons'?'public':'personal'} onLibraryViewChange={view=>go(view==='public'?'publicLessons':'subjects')} completedLessons={completedLessons} onComplete={completeLesson} onActiveChange={setLessonActive} onCatalogLoaded={lessonIds=>setCompletedLessons(previous=>previous.filter(id=>lessonIds.includes(id)))} profile={profile}/>}
         {page==='admin'&&(isAdmin||isLessonMaker)&&<AdminPanel canManageUsers={isAdmin} canReviewLessons={true}/>}
         {page==='create'&&<AdminPanel canManageUsers={false} canReviewLessons={false}/>}
         {page==='vocabulary'&&<VocabularyBuilder/>}
         {false&&page==='subjects'&&<><div className="toolbar"><div className="search-box"><Search size={17}/><input placeholder="Zoek een vak..." value={query} onChange={e=>setQuery(e.target.value)}/></div><div className="toolbar-actions"><button className="soft-btn" onClick={()=>setShowImport(true)}><Upload size={15}/> Importeer CSV</button><button className="soft-btn" onClick={()=>setShowAddCard(true)}><Plus size={16}/> Begrip toevoegen</button><button className="primary-btn" onClick={()=>setShowAddSubject(true)}><Plus size={16}/> Vak toevoegen</button></div></div><div className="subject-grid">{filteredSubjects.map(s=><div className="subject-card" key={s.name}><div className="subject-card-top"><div className={`subject-emoji ${s.color}`}>{s.icon}</div><button className="icon-btn"><MoreHorizontal size={18}/></button></div><h3>{s.name}</h3><p>{s.detail}</p><div className="subject-progress-label"><span>Beheersing</span><strong>{s.progress}%</strong></div><div className="progress-track"><div style={{width:s.progress+'%'}}/></div><div className="subject-card-foot"><span><BookOpen size={14}/> {s.due} begrippen</span><button onClick={()=>go('subjects')}>Oefenen <ArrowRight size={14}/></button></div></div>)}</div>{filteredSubjects.length===0&&<div className="empty-state">Geen vakken gevonden. Probeer een andere zoekterm.</div>}<section className="panel material-panel"><div className="panel-head"><div><span className="panel-kicker">JOUW EIGEN MATERIAAL</span><h3>Mijn begrippen ({cards.length})</h3></div><button className="text-btn" onClick={()=>setShowAddCard(true)}><Plus size={14}/> Nieuw begrip</button></div>{cards.length===0?<p className="muted">Je hebt nog geen begrippen. Voeg je eerste flashcard toe.</p>:<div className="material-list">{cards.map((card,i)=><div className="material-row" key={`${card.subject}-${i}`}><div><strong>{card.q}</strong><small>{card.subject} · {card.a}</small></div><button className="icon-btn" onClick={()=>removeCard(i)} aria-label="Begrip verwijderen"><X size={16}/></button></div>)}</div>}</section></>}
         {page==='study'&&(cards.length===0?<section className="panel empty-study"><h3>Nog geen flashcards</h3><p>Voeg eerst een begrip toe bij Mijn leerstof.</p><button className="primary-btn" onClick={()=>go('subjects')}>Naar mijn leerstof <ArrowRight size={16}/></button></section>:<div className="study-layout"><section className="panel study-card-panel"><div className="study-top"><span className="panel-kicker">FLASHCARDS · {current.subject.toUpperCase()}</span><span className="card-count">{cardIndex+1} / {cards.length}</span></div><div className="study-progress"><div style={{width:((cardIndex+1)/cards.length*100)+'%'}}/></div><button className={`flashcard ${flipped?'flipped':''}`} onClick={()=>setFlipped(!flipped)}><span className="flip-hint">{flipped?'ANTWOORD':'BEGRIP'} · KLIK OM TE DRAAIEN</span><strong>{flipped?current.a:current.q}</strong><span className="flip-bottom">{flipped?'Goed onthouden?':'Weet jij het antwoord?'} <ArrowDownRight size={17}/></span></button><div className="study-actions"><button className="soft-btn" onClick={()=>nextCard(false)}><ChevronLeft size={16}/> Later opnieuw</button><button className="primary-btn" onClick={()=>nextCard(true)}><Check size={16}/> Ik wist het</button></div><p className="study-footnote"><CircleHelp size={14}/> Je flashcards en voortgang worden veilig met je account gesynchroniseerd.</p></section><aside className="panel study-side"><span className="panel-kicker">JOUW SESSIE</span><h3>Rustig opbouwen</h3><p>Herhaal begrippen in korte rondes. Zo ontdek je wat je al goed kent.</p><div className="session-stat"><span>Bekend in deze sessie</span><strong>{known.length}</strong></div><div className="session-stat"><span>Nog te oefenen</span><strong>{cards.length-known.length}</strong></div><div className="tip-box"><Sparkles size={17}/><p><strong>Leertip</strong><br/>Probeer eerst zelf het antwoord te bedenken voordat je de kaart omdraait.</p></div></aside></div>)}
-        {page==='games'&&<><div className="games-intro"><div><h2>Leren mag leuk zijn.</h2><p>Even iets anders? Daag jezelf uit met een korte leergame.</p></div><div className="game-xp"><Trophy size={18}/> <strong>{gameScore*10} XP</strong><span>demo-score</span></div></div><div className="games-grid"><GameCard icon={Brain} title="Memory Match" desc="Vind de paren en train je geheugen." tag="GEHEUGEN" onClick={()=>notify('Memory Match komt in een volgende versie!')}/><GameCard icon={Zap} title="Quiz Rush" desc="Beantwoord vragen en blijf in je flow." tag="SNELHEID" onClick={()=>go('quiz')}/><GameCard icon={Blocks} title="Knowledge Blocks" desc="Bouw je kennis blokje voor blokje op." tag="KENNIS" onClick={()=>notify('Knowledge Blocks komt in een volgende versie!')}/><GameCard icon={Search} title="Waar of niet waar" desc="Test hoe goed je feiten kunt herkennen." tag="INZICHT" onClick={()=>notify('Deze game komt in een volgende versie!')}/><GameCard icon={MessageCircle} title="Woordensprint" desc="Oefen begrippen in een vlot tempo." tag="TAAL" onClick={()=>go('subjects')}/><GameCard icon={Trophy} title="Boss Battle" desc="Een grotere uitdaging voor je kennis." tag="UITDAGING" onClick={()=>notify('Boss Battle komt in een volgende versie!')}/></div></>}
+        {page==='games'&&<><div className="games-intro"><div><h2>Oefen met je leerstof.</h2><p>Minigames zijn leerspelletjes. Voor een korte, ontspannen puzzelpauze ga je naar Even klaar met leren?.</p></div><div className="game-xp"><Trophy size={18}/> <strong>{gameScore*10} XP</strong><span>demo-score</span></div></div><div className="games-grid"><GameCard icon={Brain} title="Memory Match" desc="Vind de paren en train je geheugen." tag="GEHEUGEN" onClick={()=>notify('Memory Match komt in een volgende versie!')}/><GameCard icon={Zap} title="Quiz Rush" desc="Beantwoord vragen en blijf in je flow." tag="SNELHEID" onClick={()=>go('quiz')}/><GameCard icon={Blocks} title="Knowledge Blocks" desc="Bouw je kennis blokje voor blokje op." tag="KENNIS" onClick={()=>notify('Knowledge Blocks komt in een volgende versie!')}/><GameCard icon={Search} title="Waar of niet waar" desc="Test hoe goed je feiten kunt herkennen." tag="INZICHT" onClick={()=>notify('Deze game komt in een volgende versie!')}/><GameCard icon={MessageCircle} title="Woordensprint" desc="Oefen begrippen in een vlot tempo." tag="TAAL" onClick={()=>go('subjects')}/><GameCard icon={Trophy} title="Boss Battle" desc="Een grotere uitdaging voor je kennis." tag="UITDAGING" onClick={()=>notify('Boss Battle komt in een volgende versie!')}/></div></>}
         {page==='quiz'&&<section className="panel quiz-panel"><button className="text-btn" onClick={()=>go('games')}><ChevronLeft size={15}/> Terug naar games</button><span className="panel-kicker">QUIZ RUSH · AARDRIJKSKUNDE</span><h2>Hoe heet gesmolten gesteente onder de grond?</h2><div className="quiz-options">{['Lava','Magma','As','Graniet'].map(a=><button key={a} className={quizAnswer===a?'selected':''} onClick={()=>{setQuizAnswer(a);setQuizDone(false)}}>{a}{quizDone&&a==='Magma'&&<Check size={16}/>}</button>)}</div>{quizDone&&<div className="quiz-feedback">{quizAnswer==='Magma'?'Helemaal goed! Onder de grond heet gesmolten gesteente magma.':'Nog niet helemaal. Het juiste antwoord is magma.'}</div>}<button className="primary-btn" disabled={!quizAnswer} onClick={()=>{setQuizDone(true);if(quizAnswer==='De celkern')setGameScore(gameScore+1)}}>Controleer antwoord <ArrowRight size={16}/></button></section>}
         {page==='progress'&&<><section className="stats-grid"><Stat icon={Zap} label="Totaal XP" value={studyStats.xp} note="20 XP per afgeronde les" tone="purple"/><Stat icon={BookOpen} label="Afgeronde lessen" value={completedLessons.length} note="Alle sessies" tone="green"/><Stat icon={Flame} label="Actieve dagen" value={activeDays} note="Sinds je start" tone="orange"/><Stat icon={Award} label="Leermomenten" value={studyStats.sessions.length} note="Totaal" tone="blue"/></section><section className="panel progress-panel"><h3>Voortgang per vak</h3>{subjects.map(s=><SubjectRow key={s.name} subject={s}/>)}</section></>}
         {page==='planning'&&<Planning planning={planning} setPlanning={setPlanning} subjects={subjects}/>}
