@@ -61,6 +61,7 @@ export default function VocabularyBuilder() {
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
   const [sourceName, setSourceName] = useState('')
+  const [deletedList, setDeletedList] = useState(null)
   useEffect(() => {
     const refresh = () => setSavedLists(readLists())
     window.addEventListener('leerkompas:data-changed', refresh)
@@ -98,15 +99,45 @@ export default function VocabularyBuilder() {
     if (!unique.length) { setError('Voeg eerst minimaal één begrip toe.'); return }
     const list = { id: crypto.randomUUID(), title: title.trim() || 'Mijn woordenlijst', entries: unique, terms: unique.map(entry=>entry.term), createdAt: new Date().toISOString() }
     const next = [list, ...readLists()]
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    } catch {
+      setError('Je woordenlijst kan niet worden opgeslagen. Maak wat ruimte vrij in je browser en probeer het opnieuw.')
+      return
+    }
     window.dispatchEvent(new CustomEvent('leerkompas:data-changed'))
-    setSavedLists(next); setEntries([]); setTitle(''); setSourceName(''); setStatus('Woordenlijst opgeslagen in je leeromgeving.'); setError('')
+    setSavedLists(next); setEntries([]); setTitle(''); setSourceName(''); setStatus('Woordenlijst opgeslagen in je leeromgeving.'); setError(''); setDeletedList(null)
   }
   const deleteList = id => {
+    const removed = savedLists.find(list => list.id === id)
+    if (!removed) return
     const next = savedLists.filter(list => list.id !== id)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    } catch {
+      setError('De woordenlijst kon niet worden verwijderd. Probeer het opnieuw.')
+      return
+    }
     window.dispatchEvent(new CustomEvent('leerkompas:data-changed'))
     setSavedLists(next)
+    setDeletedList(removed)
+    setStatus('Woordenlijst verwijderd.')
+    setError('')
+  }
+  const undoDeleteList = () => {
+    if (!deletedList) return
+    const next = [deletedList, ...readLists().filter(list => list.id !== deletedList.id)]
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    } catch {
+      setError('Herstellen lukte niet. Probeer het opnieuw.')
+      return
+    }
+    window.dispatchEvent(new CustomEvent('leerkompas:data-changed'))
+    setSavedLists(next)
+    setDeletedList(null)
+    setStatus('Verwijderen ongedaan gemaakt.')
+    setError('')
   }
   const listEntries = list => list.entries || (list.terms || []).map(term => typeof term === 'string' ? {term,meaning:''} : term)
 
@@ -131,6 +162,7 @@ export default function VocabularyBuilder() {
     </section>}
     <section className="panel vocabulary-saved">
       <div className="panel-head"><div><span className="panel-kicker">OPGESLAGEN</span><h3>Mijn woordenlijsten</h3></div><span className="vocabulary-count">{savedLists.length}</span></div>
+      {deletedList&&<div className="vocabulary-undo-note" role="status"><span>‘{deletedList.title}’ verwijderd.</span><button type="button" className="soft-btn" onClick={undoDeleteList}>Ongedaan maken</button></div>}
       {savedLists.length===0?<p className="muted">Je hebt nog geen woordenlijsten opgeslagen.</p>:savedLists.map(list=><details className="vocabulary-saved-item" key={list.id}><summary><span><strong>{list.title}</strong><small>{listEntries(list).length} begrippen</small></span><button type="button" className="icon-btn" onClick={e=>{e.preventDefault();deleteList(list.id)}} aria-label={'Verwijder '+list.title}><Trash2 size={16}/></button></summary><ul>{listEntries(list).map((entry,index)=><>{(index===0||listEntries(list)[index-1].section!==entry.section||listEntries(list)[index-1].category!==entry.category||listEntries(list)[index-1].language!==entry.language)&&<li className="vocabulary-saved-group">{[entry.language,entry.section,entry.category].filter(Boolean).join(' · ')||'Overige begrippen'}</li>}<li key={index}><strong>{entry.term}</strong>{entry.meaning?' — '+entry.meaning:''}</li></>)}</ul></details>)}
     </section>
   </div>
