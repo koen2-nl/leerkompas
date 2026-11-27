@@ -83,3 +83,18 @@
 .fb-play-button{border:1px solid var(--line);background:var(--panel);color:var(--ink)}
 @media(max-width:900px){.fb-game-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fb-intro{align-items:flex-start;flex-direction:column}.fb-game-art{height:125px}}
 @media(max-width:560px){.fb-game-grid{grid-template-columns:1fr}.fb-game-card{padding:13px}.fb-game-art{height:115px}.fb-game-heading{flex-direction:column}.fb-game-panel{padding:15px}.fb-word-row{grid-template-columns:repeat(5,39px);gap:5px}.fb-word-tile{width:39px;height:39px}.fb-sudoku-actions{align-items:stretch;flex-direction:column}.fb-sudoku-actions button{width:100%}.fb-memory-grid{gap:7px}.fb-memory-card small{font-size:8px}.fb-result-modal{padding:23px 18px}}
+
+
+/* Mobiele sudoku-bediening */
+.fb-sudoku-board-wrap{width:100%;max-width:486px;margin:0 auto;overflow-x:auto;overscroll-behavior-x:contain}
+.fb-sudoku-board{width:100%;min-width:396px;max-width:486px;margin:0}
+.fb-sudoku-cell{min-width:44px;height:44px;font-size:18px}
+.fb-sudoku-cell.fb-selected{outline:2px solid var(--accent);outline-offset:-3px;background:var(--accent-soft)}
+.fb-sudoku-keypad{display:none}
+@media(max-width:560px){
+  .fb-sudoku-board-wrap{scrollbar-width:thin}
+  .fb-sudoku-keypad{display:grid;grid-template-columns:repeat(5,minmax(44px,1fr));gap:7px;max-width:486px;margin:14px auto 0}
+  .fb-sudoku-keypad button{min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font-size:15px;font-weight:750;cursor:pointer}
+  .fb-sudoku-keypad button:disabled{opacity:.45}
+  .fb-sudoku-keypad .fb-sudoku-clear{font-size:22px}
+}
