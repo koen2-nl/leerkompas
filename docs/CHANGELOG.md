@@ -1,5 +1,11 @@
 # Changelog Leervo
 
+## v0.66 beta — 27 november 2026
+- Voeg een openbare privacyuitleg toe met de gegevens die Leervo volgens de code gebruikt.
+- Leg het verschil uit tussen gegevens die met je account synchroniseren en gegevens die alleen in je browser staan.
+- Leg uit hoe de woordenlijstbouwer bestanden in de browser verwerkt.
+- Benoem eerlijk dat wachtwoordherstel en zelf je account verwijderen nog niet beschikbaar zijn.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
