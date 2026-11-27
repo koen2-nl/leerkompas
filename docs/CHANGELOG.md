@@ -1,5 +1,12 @@
 # Changelog Leervo
 
+## v0.61 beta — 27 november 2026
+- Toon bij toetsen en opdrachten hoeveel dagen er nog zijn.
+- Stel in de laatste zeven dagen enkele korte leermomenten voor op basis van een toets- of opdrachtendatum. Je kiest zelf of je ze toevoegt.
+- Laat je zelf kiezen hoeveel leermomenten je als weekdoel wilt halen.
+- Laat de weekweergave zien op welke dagen je daadwerkelijk hebt geoefend.
+- Leg bij Voortgang uit wat XP betekent en gebruik een vriendelijkere tekst als je na een pauze terugkomt.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.

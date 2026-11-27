@@ -7,6 +7,15 @@ const today = () => {
 }
 const dateFrom = value => new Date(value + 'T12:00:00')
 const dateKey = date => [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-')
+const shiftDateKey = (value, offset) => {
+  const [year, month, day] = value.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day + offset)).toISOString().slice(0, 10)
+}
+const daysBetween = (from, to) => {
+  const [fy, fm, fd] = from.split('-').map(Number)
+  const [ty, tm, td] = to.split('-').map(Number)
+  return Math.round((Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86400000)
+}
 const emptyForm = date => ({ title: '', subject: '', kind: 'Toets', date: date || today(), time: '09:00', minutes: '30' })
 const monthNames = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december']
 const weekdays = ['Ma','Di','Wo','Do','Vr','Za','Zo']
@@ -14,7 +23,7 @@ const weekdays = ['Ma','Di','Wo','Do','Vr','Za','Zo']
 export default function Planning({ planning = [], setPlanning, subjects = [] }) {
   const [form, setForm] = useState(() => emptyForm())
   const [showForm, setShowForm] = useState(false)
-  const [view, setView] = useState('maand')
+  const [view, setView] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 760 ? 'dag' : 'maand')
   const [selectedDate, setSelectedDate] = useState(today)
   const [visibleDate, setVisibleDate] = useState(() => dateFrom(today()))
   const [now, setNow] = useState(() => new Date())
@@ -39,6 +48,44 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
   const completed = sorted.filter(item => item.done)
   const selectedItems = sorted.filter(item => item.date === selectedDate)
   const dayHours = Array.from({ length: 17 }, (_, index) => index + 6)
+  const todayKey = today()
+  const countdownLabel = date => {
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return 'Datum onbekend'
+    const difference = daysBetween(todayKey, date)
+    return difference < 0 ? 'Voorbij' : difference === 0 ? 'Vandaag' : difference === 1 ? 'Morgen' : 'Nog ' + difference + ' dagen'
+  }
+  const existingSessions = new Set(sorted.filter(item => item.kind === 'Leermoment').map(item => item.subject + '|' + item.date))
+  const seenSuggestions = new Set()
+  const suggestedSessions = openItems
+    .filter(item => ['Toets', 'Opdracht'].includes(item.kind) && item.date && item.date >= todayKey)
+    .flatMap(item => [7, 5, 3, 1].map(offset => {
+      const date = shiftDateKey(item.date, -offset)
+      const key = item.subject + '|' + date
+      if (date < todayKey || date >= item.date || existingSessions.has(key) || seenSuggestions.has(key)) return null
+      seenSuggestions.add(key)
+      return { id: item.id + '-' + date, title: 'Voorbereiden op ' + item.title, subject: item.subject, date, targetDate: item.date, targetKind: item.kind }
+    }))
+    .filter(Boolean)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, 5)
+  const [suggestionMessage, setSuggestionMessage] = useState('')
+  const addSuggestedSession = suggestion => {
+    setPlanning(items => {
+      if (items.some(item => item.kind === 'Leermoment' && item.subject === suggestion.subject && item.date === suggestion.date)) return items
+      return [...items, {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+        title: suggestion.title,
+        subject: suggestion.subject,
+        kind: 'Leermoment',
+        date: suggestion.date,
+        time: '16:00',
+        minutes: 30,
+        done: false,
+        createdAt: new Date().toISOString()
+      }]
+    })
+    setSuggestionMessage('Leermoment toegevoegd aan je planning.')
+  }
   const isTodaySelected = selectedDate === today()
   const currentHour = now.getHours()
   const currentMinute = now.getMinutes()
@@ -79,11 +126,19 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
   const formatDate = value => dateFrom(value).toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'})
   const renderItem = item => <article className={'planner-item'+(item.done?' is-done':'')} key={item.id}>
     <button className="planner-check" type="button" onClick={()=>toggle(item.id)} aria-label={item.done?'Markeer als niet afgerond':'Markeer als afgerond'}>{item.done&&<Check size={15}/>}</button>
-    <div className="planner-item-main"><div className="planner-item-meta"><span className={'planner-kind kind-'+item.kind.toLowerCase()}>{item.kind}</span><span>{item.time || 'Hele dag'} · {item.minutes} min</span></div><strong>{item.title}</strong><small>{item.subject}</small></div>
+    <div className="planner-item-main"><div className="planner-item-meta"><span className={'planner-kind kind-'+item.kind.toLowerCase()}>{item.kind}</span><span>{item.time || 'Hele dag'} · {item.minutes} min</span>{['Toets','Opdracht'].includes(item.kind) && !item.done && <span className="planner-countdown">{countdownLabel(item.date)}</span>}</div><strong>{item.title}</strong><small>{item.subject}</small></div>
     <button className="planner-delete" type="button" onClick={()=>remove(item.id)} aria-label="Verwijder agendapunt"><Trash2 size={16}/></button>
   </article>
   return <div className="planner-page">
     <section className="planner-intro panel"><div><span className="panel-kicker">JOUW SCHOOLAGENDA</span><h2>Alles op één plek</h2><p>Plan toetsen, opdrachten en leermomenten. Kies een dag in de agenda om te zien wat er gepland staat of voeg meteen iets toe.</p></div><div className="planner-summary"><strong>{openItems.length}</strong><span>open agendapunten</span><small>{completed.length} afgerond</small></div></section>
+    {suggestedSessions.length > 0 && <section className="panel planner-suggestions">
+      <div className="planner-suggestions-heading"><div><span className="panel-kicker">VOORBEREIDEN</span><h3>Voorstellen voor leermomenten</h3><p>Je hebt binnenkort een toets of opdracht. Plan in de laatste week een paar korte herhaalmomenten.</p></div></div>
+      <div className="planner-suggestion-list">{suggestedSessions.map(suggestion=><article className="planner-suggestion-row" key={suggestion.id}>
+        <div><strong>{suggestion.title}</strong><small>{suggestion.subject} · {formatDate(suggestion.date)} · {suggestion.targetKind.toLowerCase()} op {formatDate(suggestion.targetDate)}</small></div>
+        <button type="button" className="soft-btn" onClick={()=>addSuggestedSession(suggestion)}><Plus size={14}/> Toevoegen</button>
+      </article>)}</div>
+      {suggestionMessage && <p className="planner-suggestion-message" role="status">{suggestionMessage}</p>}
+    </section>}
     {view === 'dag' ? <section className="panel planner-day-view">
       <div className="planner-day-view-head">
         <div><span className="panel-kicker">DAGOVERZICHT</span><h3>{formatDate(selectedDate)}</h3><p>{selectedItems.length ? selectedItems.length + ' geplande onderdelen' : 'Je hebt nog geen plannen voor deze dag.'}</p>{isTodaySelected && <div className="planner-live-clock"><CalendarDays size={13}/><span>{currentDateLabel}</span><span className="planner-live-clock-divider">·</span><span className="planner-live-clock-time"><Clock size={13}/> {currentTime}</span></div>}</div>
@@ -98,7 +153,7 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
               <span className="planner-time-dot"/>
               {isTodaySelected && currentHour === hour && <div className="planner-now-indicator" style={{ top: `calc(${(currentMinute / 60) * 100}% )` }}><span className="planner-now-label">{currentTime}</span><span className="planner-now-rule"/></div>}
               {hourItems.length ? hourItems.map(item => <article className={'planner-timeline-event'+(item.done?' is-done':'')} key={item.id}>
-                <div className="planner-timeline-event-time">{item.time || String(hour).padStart(2,'0')+':00'} <span>· {item.minutes} min</span></div>
+                <div className="planner-timeline-event-time">{item.time || String(hour).padStart(2,'0')+':00'} <span>· {item.minutes} min</span>{['Toets','Opdracht'].includes(item.kind) && !item.done && <span className="planner-countdown">{countdownLabel(item.date)}</span>}</div>
                 <div className="planner-timeline-event-main"><span className={'planner-kind kind-'+item.kind.toLowerCase()}>{item.kind}</span><strong>{item.title}</strong><small>{item.subject}</small></div>
                 <div className="planner-timeline-actions"><button className="planner-check" type="button" onClick={() => toggle(item.id)} aria-label={item.done?'Markeer als niet afgerond':'Markeer als afgerond'}>{item.done && <Check size={15}/>}</button><button className="planner-delete" type="button" onClick={() => remove(item.id)} aria-label="Verwijder agendapunt"><Trash2 size={16}/></button></div>
               </article>) : <span className="planner-free-time">Vrij</span>}

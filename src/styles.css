@@ -1214,3 +1214,29 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .mobile-bottom-nav{padding-left:4px;padding-right:4px}
   .mobile-bottom-nav button{font-size:8px}
 }
+
+
+/* Planning: aftelling en kleine, optionele voorbereidingssuggesties */
+.planner-countdown{display:inline-flex;align-items:center;min-height:22px;padding:2px 7px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font-size:9px;font-weight:700;white-space:nowrap}
+.planner-suggestions{display:grid;gap:12px;margin-bottom:16px}
+.planner-suggestions-heading h3{margin:4px 0;font-size:14px}
+.planner-suggestions-heading p{margin:0;color:var(--muted);font-size:10px;line-height:1.55}
+.planner-suggestion-list{display:grid;gap:0}
+.planner-suggestion-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.planner-suggestion-row>div{display:grid;gap:4px;min-width:0}
+.planner-suggestion-row strong{font-size:11px;overflow-wrap:anywhere}
+.planner-suggestion-row small{color:var(--muted);font-size:9px;line-height:1.45}
+.planner-suggestion-row .soft-btn{min-height:40px;white-space:nowrap}
+.planner-suggestion-message{margin:0;color:var(--muted);font-size:10px}
+.week-goal-setting{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:-4px 0 12px}
+.week-goal-setting label{font-size:10px;font-weight:700;color:var(--muted)}
+.week-goal-select{min-height:36px;max-width:160px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:10px}
+.xp-explanation{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:16px}
+.xp-explanation h3{margin:4px 0 0}
+.xp-explanation p{max-width:570px;margin:0;color:var(--muted);font-size:10px;line-height:1.65}
+@media(max-width:560px){
+  .planner-suggestion-row{align-items:flex-start;flex-direction:column}
+  .planner-suggestion-row .soft-btn{width:100%;justify-content:center}
+  .planner-countdown{margin-top:4px}
+  .xp-explanation{flex-direction:column;gap:8px}
+}
