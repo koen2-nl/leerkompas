@@ -1,5 +1,11 @@
 # Changelog Leervo
 
+## v0.67 beta — 27 november 2026
+- Geef iedere pagina een eigen titel in het browsertabblad.
+- Toon een duidelijke 404-pagina wanneer een link niet bestaat.
+- Voeg een deelafbeelding en de juiste afbeeldingsgegevens toe voor gedeelde Leervo-links.
+- Behoud het bestaande favicon en de Vercel-regel waarmee directe pagina-links werken.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.

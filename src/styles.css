@@ -1214,3 +1214,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .mobile-bottom-nav{padding-left:4px;padding-right:4px}
   .mobile-bottom-nav button{font-size:8px}
 }
+
+/* Heldere, rustige 404-weergave */
+.not-found-page{max-width:620px;display:grid;justify-items:start;gap:12px;padding:clamp(20px,4vw,32px)}
+.not-found-page h2{margin:0;font-size:clamp(19px,2.4vw,25px)}
+.not-found-page p{max-width:480px;margin:0;color:var(--muted);font-size:11px;line-height:1.7}
+.not-found-page .primary-btn{margin-top:5px}
