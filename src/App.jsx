@@ -387,7 +387,8 @@ function App() {
   const go = (id) => {
     if (id !== 'break') lastLearningPage.current = id
     const nextPath = pagePaths[id] || '/'
-    if (window.location.pathname !== nextPath) window.history.pushState({}, '', nextPath)
+    const reviewQuery = new URLSearchParams(window.location.search).get('review') === '1' ? '?review=1' : ''
+    if (window.location.pathname !== nextPath) window.history.pushState({}, '', nextPath + reviewQuery)
     setPage(id); setMobileOpen(false); setFlipped(false)
   }
   const submitGlobalSearch = event => {
