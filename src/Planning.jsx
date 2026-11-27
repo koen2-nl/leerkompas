@@ -51,8 +51,9 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
     if (!form.title.trim() || !form.subject.trim() || !form.date) return
     const testTitle = form.title.trim()
     const baseTime = new Date().toISOString()
-    const newItem = { ...form, id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), title: testTitle, subject: form.subject.trim(), minutes: Math.max(5,Math.min(600,Number(form.minutes)||30)), done:false, createdAt:baseTime }
-    const suggestedSessions = form.kind === 'Toets' && form.suggestSessions
+    const { suggestSessions, ...formValues } = form
+    const newItem = { ...formValues, id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), title: testTitle, subject: form.subject.trim(), minutes: Math.max(5,Math.min(600,Number(form.minutes)||30)), done:false, createdAt:baseTime }
+    const suggestedSessions = form.kind === 'Toets' && suggestSessions
       ? [7, 4, 1].map(offset => {
           const day = dateFrom(form.date)
           day.setDate(day.getDate() - offset)
@@ -71,18 +72,25 @@ export default function Planning({ planning = [], setPlanning, subjects = [] }) 
             createdAt: baseTime
           }))
       : []
-    setPlanning(items => {
-      const uniqueSuggestions = suggestedSessions.filter(suggestion => !items.some(item =>
+    const uniqueSuggestions = suggestedSessions.filter(suggestion => !planning.some(item =>
+      item.date === suggestion.date && item.subject === suggestion.subject &&
+      item.kind === 'Leermoment' && item.title === suggestion.title
+    ))
+    setPlanning(items => [
+      ...items,
+      newItem,
+      ...uniqueSuggestions.filter(suggestion => !items.some(item =>
         item.date === suggestion.date && item.subject === suggestion.subject &&
         item.kind === 'Leermoment' && item.title === suggestion.title
       ))
-      return [...items, newItem, ...uniqueSuggestions]
-    })
-    setFeedback(suggestedSessions.length
-      ? suggestedSessions.length + ' leermomenten toegevoegd vóór je toets.'
-      : form.kind === 'Toets' && form.suggestSessions
-        ? 'Er zijn geen dagen meer beschikbaar om leermomenten vóór deze toets voor te stellen.'
-        : 'Je agendapunt is toegevoegd.')
+    ])
+    setFeedback(uniqueSuggestions.length
+      ? uniqueSuggestions.length + ' leermomenten toegevoegd vóór je toets.'
+      : suggestedSessions.length
+        ? 'Er staan al leermomenten gepland op die dagen.'
+        : form.kind === 'Toets' && suggestSessions
+          ? 'Er zijn geen dagen meer beschikbaar om leermomenten vóór deze toets voor te stellen.'
+          : 'Je agendapunt is toegevoegd.')
     setSelectedDate(form.date)
     setVisibleDate(dateFrom(form.date))
     setForm(emptyForm(form.date))
