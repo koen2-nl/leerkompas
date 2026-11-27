@@ -1,5 +1,11 @@
 # Changelog Leervo
 
+## v0.59 beta — 27 november 2026
+- Laad Mammoth en Tesseract pas wanneer je een Word-bestand of foto kiest.
+- Toon voortgang tijdens tekstherkenning op foto’s.
+- Geef duidelijke foutmeldingen voor lege, ongeldige of te grote bestanden (maximaal 10 MB).
+- Leg uit dat het bestand zelf in je browser wordt verwerkt en niet naar Leervo wordt geüpload.
+
 ## v0.57 beta — 27 november 2026
 - Voeg een lokaal Leitner-systeem met drie vakken toe voor flashcards.
 - Kaarten die lastig zijn komen later in dezelfde oefenronde nog eens terug.
