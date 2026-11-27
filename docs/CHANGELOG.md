@@ -1,5 +1,10 @@
 # Changelog Leervo
 
+## v0.64 beta — 27 november 2026
+- Hernoem de changelogtab naar **Wat is nieuw** en leg kort uit wat je daar vindt.
+- Leg uit wat de rollen Lesmaker en Beheerder in Leervo doen.
+- Houd profiel, weergave en accountaanvragen herkenbaar bij elkaar.
+
 ## v0.54 beta — 27 november 2026
 - Voeg op het Overzicht de kaart **Jouw volgende stap** toe met een actie op basis van je vakken, flashcards en planning.
 - Maak **Begin met leren** de duidelijke hoofdactie en voeg een eerste actie toe voor een lege leerplek.
