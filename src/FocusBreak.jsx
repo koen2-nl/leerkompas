@@ -7,6 +7,21 @@ const DAILY_WORDS = [
   'trein', 'nacht', 'leven', 'kamer', 'toren', 'feest', 'kunst', 'ritme',
   'zomer', 'lente', 'groen', 'bloem', 'sport', 'licht', 'samen',
 ]
+const VALID_WORDS = new Set([
+  ...DAILY_WORDS,
+  'aarde','avond','baard','basis','beeld','beest','begin','beter','beurt','breed','brein','bruin','buren',
+  'dames','dicht','diner','draad','eerst','eigen','einde','fabel','fiets','flink','geven','gezin','gloed',
+  'glans','grens','groot','haast','harde','haren','hoger','hotel','ieder','inzet','jacht','juist','kaars',
+  'kaart','kader','kassa','keren','keuze','klant','klein','koken','korte','kruid','kruis','lagen','lange',
+  'leest','lepel','leren','lopen','lucht','macht','maand','markt','media','meest','meter','model','moest',
+  'motor','naald','naast','namen','negen','niets','nieuw','nooit','noord','noten','omdat','onder','onzin',
+  'opzet','paard','paden','pakte','palen','panda','pasta','peper','peren','plank','plein','ploeg','poort',
+  'poten','prima','proef','radio','recht','reden','regel','reeks','reken','robot','roest','route','ruzie',
+  'schaal','schep','schip','slaan','smaak','snaar','snoep','speld','spier','spoor','staan','steek','steil',
+  'sterk','stoep','storm','stuur','tafel','taken','talen','teams','tempo','thema','tocht','toets','tonen',
+  'trots','varen','vaten','volop','vraag','vrede','vrees','vuren','wagen','wacht','weken','weten','wezen',
+  'wilde','winst','wonen','woord','zagen','zaken','zalen','zegen','zeven','zonde','zowel'
+])
 
 const SUDOKU_PUZZLE = [
   '530070000', '600195000', '098000060',
@@ -29,7 +44,7 @@ const MEMORY_PAIRS = [
 ]
 
 function localDateKey(date = new Date()) {
-  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-')
+  return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(date)
 }
 
 function dailyWordFor(dateKey) {
@@ -45,6 +60,21 @@ function loadDailyProgress(storageKey) {
     if (saved?.date === today && Array.isArray(saved.guesses)) return saved
   } catch { /* Een beschadigde lokale opslag begint met een schone dag. */ }
   return { date: today, guesses: [], finished: false, won: false }
+}
+
+function readSudokuProgress(storageKey) {
+  const emptyValues = SUDOKU_PUZZLE.map(row => row.split('').map(value => value === '0' ? '' : value))
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(storageKey) || 'null')
+    const validValues = Array.isArray(saved?.values) && saved.values.length === 9 && saved.values.every(row => Array.isArray(row) && row.length === 9)
+    return {
+      values: validValues ? saved.values : emptyValues,
+      notes: saved?.notes && typeof saved.notes === 'object' ? saved.notes : {},
+      finished: Boolean(saved?.finished)
+    }
+  } catch {
+    return { values: emptyValues, notes: {}, finished: false }
+  }
 }
 
 function evaluateGuess(guess, target) {
@@ -75,25 +105,61 @@ function createMemoryDeck() {
 
 export default function FocusBreak({ onContinueLearning, userId }) {
   const storageKey = 'leerkompas:daily-word:' + (userId || 'guest')
+  const sudokuStorageKey = 'leerkompas:sudoku-progress:' + (userId || 'guest')
   const [selectedGame, setSelectedGame] = useState(null)
+  const [timerEndAt, setTimerEndAt] = useState(null)
+  const [timerRemaining, setTimerRemaining] = useState(0)
+  const [timerMessage, setTimerMessage] = useState('')
   const [dailyState, setDailyState] = useState(() => loadDailyProgress(storageKey))
   const [wordInput, setWordInput] = useState('')
   const [wordMessage, setWordMessage] = useState('')
   const [showCompletion, setShowCompletion] = useState(false)
   const [completion, setCompletion] = useState({ title: '', message: '' })
-  const [sudokuValues, setSudokuValues] = useState(() => SUDOKU_PUZZLE.map(row => row.split('').map(value => value === '0' ? '' : value)))
+  const [initialSudoku] = useState(() => readSudokuProgress(sudokuStorageKey))
+  const [sudokuValues, setSudokuValues] = useState(() => initialSudoku.values)
+  const [sudokuNotes, setSudokuNotes] = useState(() => initialSudoku.notes)
+  const [selectedSudokuCell, setSelectedSudokuCell] = useState([0, 2])
+  const [sudokuNotesMode, setSudokuNotesMode] = useState(false)
+  const [showSudokuErrors, setShowSudokuErrors] = useState(true)
   const [sudokuMessage, setSudokuMessage] = useState('')
-  const [sudokuFinished, setSudokuFinished] = useState(false)
+  const [sudokuFinished, setSudokuFinished] = useState(initialSudoku.finished)
 
   useEffect(() => {
     try { window.localStorage.setItem(storageKey, JSON.stringify(dailyState)) } catch { /* De puzzel blijft speelbaar zonder opslag. */ }
   }, [dailyState, storageKey])
+  useEffect(() => {
+    try { window.localStorage.setItem(sudokuStorageKey, JSON.stringify({ values: sudokuValues, notes: sudokuNotes, finished: sudokuFinished })) } catch { /* De sudoku blijft speelbaar zonder opslag. */ }
+  }, [sudokuValues, sudokuNotes, sudokuFinished, sudokuStorageKey])
+  useEffect(() => {
+    if (!timerEndAt) { setTimerRemaining(0); return }
+    const updateTimer = () => {
+      const remaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000))
+      setTimerRemaining(remaining)
+      if (remaining === 0) {
+        setTimerEndAt(null)
+        setTimerMessage('Je pauze is klaar. Neem rustig de tijd om weer verder te gaan.')
+      }
+    }
+    updateTimer()
+    const interval = window.setInterval(updateTimer, 1000)
+    return () => window.clearInterval(interval)
+  }, [timerEndAt])
+
+  const startPauseTimer = minutes => {
+    setTimerMessage('')
+    setTimerEndAt(Date.now() + minutes * 60 * 1000)
+  }
+  const stopPauseTimer = () => {
+    setTimerEndAt(null)
+    setTimerRemaining(0)
+    setTimerMessage('De pauzetimer is gestopt.')
+  }
+  const timerLabel = String(Math.floor(timerRemaining / 60)).padStart(2, '0') + ':' + String(timerRemaining % 60).padStart(2, '0')
 
   const targetWord = dailyWordFor(dailyState.date)
   const guessStatuses = dailyState.guesses.map(guess => evaluateGuess(guess, targetWord))
   const openGame = game => {
     setShowCompletion(false)
-    if (game === 'sudoku' && sudokuFinished) resetSudoku()
     setSelectedGame(game)
     setWordMessage('')
     setWordInput('')
@@ -104,6 +170,9 @@ export default function FocusBreak({ onContinueLearning, userId }) {
   }
   const resetSudoku = () => {
     setSudokuValues(SUDOKU_PUZZLE.map(row => row.split('').map(value => value === '0' ? '' : value)))
+    setSudokuNotes({})
+    setSelectedSudokuCell([0, 2])
+    setSudokuNotesMode(false)
     setSudokuMessage('')
     setSudokuFinished(false)
   }
@@ -111,7 +180,48 @@ export default function FocusBreak({ onContinueLearning, userId }) {
     const next = sudokuValues.map(row => [...row])
     next[rowIndex][columnIndex] = value.replace(/[^1-9]/g, '').slice(-1)
     setSudokuValues(next)
+    if (value) setSudokuNotes(notes => { const updated = { ...notes }; delete updated[rowIndex + '-' + columnIndex]; return updated })
+    setSelectedSudokuCell([rowIndex, columnIndex])
     setSudokuMessage('')
+  }
+  const handleSudokuDigit = digit => {
+    const [rowIndex, columnIndex] = selectedSudokuCell
+    if (SUDOKU_PUZZLE[rowIndex][columnIndex] !== '0' || sudokuFinished) return
+    const key = rowIndex + '-' + columnIndex
+    if (sudokuNotesMode && digit) {
+      setSudokuNotes(notes => {
+        const current = notes[key] || ''
+        const next = current.includes(digit) ? current.replace(digit, '') : [...current, digit].sort().join('')
+        return { ...notes, [key]: next }
+      })
+      return
+    }
+    if (digit === '') {
+      updateSudokuCell(rowIndex, columnIndex, '')
+      return
+    }
+    updateSudokuCell(rowIndex, columnIndex, digit)
+  }
+  const revealSudokuHint = () => {
+    if (sudokuFinished) return
+    const [selectedRow, selectedColumn] = selectedSudokuCell
+    const candidates = [[selectedRow, selectedColumn]]
+    for (let row = 0; row < 9; row++) for (let column = 0; column < 9; column++) {
+      if (row !== selectedRow || column !== selectedColumn) candidates.push([row, column])
+    }
+    const target = candidates.find(([row, column]) => SUDOKU_PUZZLE[row][column] === '0' && sudokuValues[row][column] !== SUDOKU_SOLUTION[row][column])
+    if (!target) { setSudokuMessage('Er staat geen leeg of fout vakje meer open voor een hint.'); return }
+    const [rowIndex, columnIndex] = target
+    const next = sudokuValues.map(row => [...row])
+    next[rowIndex][columnIndex] = SUDOKU_SOLUTION[rowIndex][columnIndex]
+    setSudokuValues(next)
+    setSelectedSudokuCell([rowIndex, columnIndex])
+    setSudokuMessage('Hint ingevuld bij rij ' + (rowIndex + 1) + ', kolom ' + (columnIndex + 1) + '.')
+    const solved = next.every((row, r) => row.every((value, c) => value === SUDOKU_SOLUTION[r][c]))
+    if (solved) {
+      setSudokuFinished(true)
+      finish('Sudoku opgelost!', 'Je hebt de hele puzzel goed ingevuld.')
+    }
   }
   const checkSudoku = () => {
     const allFilled = sudokuValues.every(row => row.every(value => value !== ''))
@@ -134,6 +244,10 @@ export default function FocusBreak({ onContinueLearning, userId }) {
     const guess = wordInput.toLowerCase().replace(/[^a-z]/g, '')
     if (guess.length !== 5) {
       setWordMessage('Vul precies vijf letters in.')
+      return
+    }
+    if (!VALID_WORDS.has(guess)) {
+      setWordMessage('Dit woord staat niet in de Nederlandse woordenlijst. Probeer een ander vijfletterwoord.')
       return
     }
     const nextGuesses = [...dailyState.guesses, guess]
