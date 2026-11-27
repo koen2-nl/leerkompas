@@ -78,6 +78,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
   const [searchTerm, setSearchTerm] = useState('')
   const [subjectFilter, setSubjectFilter] = useState('alles')
   const [topicFilter, setTopicFilter] = useState('alles')
+  const [classFilter, setClassFilter] = useState('alles')
   const [levelFilter, setLevelFilter] = useState(() => profile?.level ? 'mijn-niveau' : 'alles')
   const [statusFilter, setStatusFilter] = useState('alles')
   const [difficultyFilter, setDifficultyFilter] = useState('alles')
@@ -238,6 +239,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
 
   const subjectOptions = [...new Set(lessons.map(item => item.subject).filter(Boolean))]
   const topicOptions = [...new Set(lessons.map(item => item.topic).filter(Boolean))]
+  const classOptions = [...new Set(lessons.map(item => item.target_class).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nl-NL'))
   const levelOptions = [...new Set(lessons.map(item => item.level).filter(Boolean))]
   const difficultyOptions = [...new Set(lessons.map(item => item.difficulty).filter(Boolean))]
   const visibleLessons = lessons.filter(item => {
@@ -248,7 +250,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
     const matchesLevel = levelFilter === 'alles' || (levelFilter === 'mijn-niveau' ? profileLevelMatch(item, profile) : item.level === levelFilter)
     const matchesStatus = statusFilter === 'alles' || (statusFilter === 'afgerond' ? completedLessons.includes(item.id) : !completedLessons.includes(item.id))
     const matchesDifficulty = difficultyFilter === 'alles' || item.difficulty === difficultyFilter
-    const matchesClass = !item.target_class || normalizeText(item.target_class) === normalizeText(profile?.className)
+    const matchesClass = classFilter === 'alles' || !item.target_class || normalizeText(item.target_class) === normalizeText(classFilter)
     const matchesSchool = !item.target_school || normalizeText(item.target_school) === normalizeText(profile?.school)
     return matchesSearch && matchesSubject && matchesTopic && matchesLevel && matchesStatus && matchesDifficulty && matchesClass && matchesSchool
   }).sort((a, b) => Number(goalMatch(b, profile)) - Number(goalMatch(a, profile)) || Number(profileLevelMatch(b, profile)) - Number(profileLevelMatch(a, profile)))
@@ -272,6 +274,7 @@ export default function GeographyLessons({ completedLessons = [], onComplete, on
           <label>Vak<select value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)}><option value="alles">Alle vakken</option>{subjectOptions.map(value => <option key={value}>{value}</option>)}</select></label>
           <label>Onderwerp<select value={topicFilter} onChange={e => setTopicFilter(e.target.value)}><option value="alles">Alle onderwerpen</option>{topicOptions.map(value => <option key={value}>{value}</option>)}</select></label>
           <label>Niveau<select value={levelFilter} onChange={e => setLevelFilter(e.target.value)}><option value="mijn-niveau">Mijn niveau ({profile?.level || 'niet ingesteld'})</option><option value="alles">Alle niveaus</option>{levelOptions.map(value => <option key={value}>{value}</option>)}</select></label>
+          <label>Leerjaar / klas<select value={classFilter} onChange={e => setClassFilter(e.target.value)}><option value="alles">Alle leerjaren en klassen</option>{classOptions.map(value => <option key={value}>{value}</option>)}</select></label>
           <label>Moeilijkheid<select value={difficultyFilter} onChange={e => setDifficultyFilter(e.target.value)}><option value="alles">Alle moeilijkheden</option>{difficultyOptions.map(value => <option key={value}>{value}</option>)}</select></label>
           <label>Voortgang<select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="alles">Alle lessen</option><option value="niet-afgerond">Nog te doen</option><option value="afgerond">Afgerond</option></select></label>
         </div>
